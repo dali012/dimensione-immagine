@@ -1,0 +1,86 @@
+import React, { useState } from 'react';
+import { SEO } from '../components/SEO/SEO';
+import { PortfolioItem } from '../types';
+
+const PORTFOLIO_ITEMS: PortfolioItem[] = [
+  { id: 1, title: "Ristorante Bellavista", category: "Branding", imageUrl: "/images/portfolio-branding.png" },
+  { id: 2, title: "Boutique L'Eleganza", category: "Allestimento", imageUrl: "/images/portfolio-shop.png" },
+  { id: 3, title: "Studio Legale Rossi", category: "Insegna", imageUrl: "/images/portfolio-sign.png" },
+  { id: 4, title: "Evento Summer Vibes", category: "Stampa", imageUrl: "/images/portfolio-print.png" },
+  { id: 5, title: "Caffetteria Centrale", category: "Vetrofania", imageUrl: "/images/portfolio-cafe.png" },
+  { id: 6, title: "Azienda Vinicola", category: "Packaging", imageUrl: "/images/portfolio-wine.png" },
+  { id: 7, title: "Hotel Messina", category: "Segnaletica", imageUrl: "/images/portfolio-hotel.png" },
+  { id: 8, title: "Centro Fitness", category: "Decorazione", imageUrl: "/images/portfolio-gym.png" },
+];
+
+const CATEGORIES = ["Tutti", "Branding", "Stampa", "Allestimento", "Packaging"];
+
+export const Portfolio: React.FC = () => {
+  const [filter, setFilter] = useState("Tutti");
+
+  const filteredItems = filter === "Tutti" 
+    ? PORTFOLIO_ITEMS 
+    : PORTFOLIO_ITEMS.filter(item => item.category === filter || (filter === "Allestimento" && ["Insegna", "Vetrofania", "Segnaletica", "Decorazione"].includes(item.category)));
+
+  return (
+    <div className="pt-24 min-h-screen bg-brand-black">
+      <SEO
+        title="Portfolio Lavori di Stampa e Allestimenti"
+        description="Scopri i lavori di stampa, grafica pubblicitaria e allestimenti realizzati da Dimensione Immagine a Messina."
+        image="/og-portfolio.jpg"
+      />
+      <div className="container mx-auto px-6 py-12 text-center">
+        <span className="text-brand-gold text-xs font-bold uppercase tracking-widest mb-4 block">Portfolio</span>
+        <h1 className="font-serif text-5xl md:text-7xl mb-6">I nostri lavori</h1>
+        <p className="text-white/60 max-w-xl mx-auto font-light">
+          Ogni progetto racconta una storia fatta di design, materiali e attenzione ai dettagli.
+        </p>
+      </div>
+
+      {/* Filter */}
+      <div className="container mx-auto px-6 mb-12">
+        <div className="flex flex-wrap justify-center gap-4 md:gap-8">
+          {CATEGORIES.map(cat => (
+            <button
+              key={cat}
+              onClick={() => setFilter(cat)}
+              className={`text-sm uppercase tracking-widest pb-2 border-b-2 transition-all duration-300 ${
+                filter === cat 
+                  ? 'text-brand-gold border-brand-gold' 
+                  : 'text-white/50 border-transparent hover:text-white'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Grid */}
+      <div className="container mx-auto px-6 pb-24">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {filteredItems.map((item) => (
+            <div key={item.id} className="group relative aspect-square overflow-hidden cursor-pointer bg-brand-darkgray">
+              <img 
+                src={item.imageUrl} 
+                alt={item.title} 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:filter-none opacity-80 group-hover:opacity-100" // kept existing class for now, assumed behavior matches
+                width="600"
+                height="600"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-brand-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-6 text-center">
+                <span className="text-brand-gold text-xs uppercase tracking-widest mb-2 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-75">
+                  {item.category}
+                </span>
+                <h3 className="text-white font-serif text-2xl transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                  {item.title}
+                </h3>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
