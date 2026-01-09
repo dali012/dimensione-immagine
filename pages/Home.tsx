@@ -47,7 +47,7 @@ export const Home: React.FC = () => {
         {/* Background */}
         <div className="absolute inset-0 z-0">
           <img
-            src="/images/hero-bg.png"
+            src="/images/hero-bg.jpg"
             alt="Laboratorio di stampa Dimensione Immagine"
             className="w-full h-full object-cover opacity-40"
             width="1920"
