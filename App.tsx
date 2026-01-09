@@ -41,6 +41,9 @@ const TermsAndConditions = React.lazy(() =>
     default: module.TermsAndConditions,
   }))
 );
+const NotFound = React.lazy(() =>
+  import("./pages/NotFound").then((module) => ({ default: module.NotFound }))
+);
 
 const LoadingFallback = () => (
   <div className="min-h-screen flex items-center justify-center bg-brand-black">
@@ -124,6 +127,14 @@ const AnimatedRoutes = () => {
               element={
                 <PageTransition>
                   <TermsAndConditions />
+                </PageTransition>
+              }
+            />
+            <Route
+              path="*"
+              element={
+                <PageTransition>
+                  <NotFound />
                 </PageTransition>
               }
             />
