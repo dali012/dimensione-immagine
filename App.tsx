@@ -1,24 +1,60 @@
-import React, { useEffect, Suspense } from 'react';
-import { HashRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { AnimatePresence } from 'framer-motion';
-import { HelmetProvider } from 'react-helmet-async';
-import { Navbar } from './components/Layout/Navbar';
-import { Footer } from './components/Layout/Footer';
-import { BackToTop } from './components/UI/BackToTop';
-import { PageTransition } from './components/Layout/PageTransition';
-import { SEO } from './components/SEO/SEO';
+import React, { useEffect, Suspense } from "react";
+import {
+  HashRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
+import { HelmetProvider } from "react-helmet-async";
+import { Navbar } from "./components/Layout/Navbar";
+import { Footer } from "./components/Layout/Footer";
+import { BackToTop } from "./components/UI/BackToTop";
+import { PageTransition } from "./components/Layout/PageTransition";
+import { SEO } from "./components/SEO/SEO";
 
 // Lazy load pages
-const Home = React.lazy(() => import('./pages/Home').then(module => ({ default: module.Home })));
-const About = React.lazy(() => import('./pages/About').then(module => ({ default: module.About })));
-const Services = React.lazy(() => import('./pages/Services').then(module => ({ default: module.Services })));
-const Portfolio = React.lazy(() => import('./pages/Portfolio').then(module => ({ default: module.Portfolio })));
-const Locations = React.lazy(() => import('./pages/Locations').then(module => ({ default: module.Locations })));
-const Contact = React.lazy(() => import('./pages/Contact').then(module => ({ default: module.Contact })));
+const Home = React.lazy(() =>
+  import("./pages/Home").then((module) => ({ default: module.Home }))
+);
+const About = React.lazy(() =>
+  import("./pages/About").then((module) => ({ default: module.About }))
+);
+const Services = React.lazy(() =>
+  import("./pages/Services").then((module) => ({ default: module.Services }))
+);
+const Portfolio = React.lazy(() =>
+  import("./pages/Portfolio").then((module) => ({ default: module.Portfolio }))
+);
+const Locations = React.lazy(() =>
+  import("./pages/Locations").then((module) => ({ default: module.Locations }))
+);
+const Contact = React.lazy(() =>
+  import("./pages/Contact").then((module) => ({ default: module.Contact }))
+);
+const PrivacyPolicy = React.lazy(() =>
+  import("./pages/PrivacyPolicy").then((module) => ({
+    default: module.PrivacyPolicy,
+  }))
+);
+const CookiePolicy = React.lazy(() =>
+  import("./pages/CookiePolicy").then((module) => ({
+    default: module.CookiePolicy,
+  }))
+);
+const TermsAndConditions = React.lazy(() =>
+  import("./pages/TermsAndConditions").then((module) => ({
+    default: module.TermsAndConditions,
+  }))
+);
 
 const LoadingFallback = () => (
-  <div className="min-h-screen flex items-center justify-center bg-brand-black text-brand-gold">
-    <div className="animate-pulse text-xl font-serif">Caricamento...</div>
+  <div className="min-h-screen flex items-center justify-center bg-brand-black">
+    <img
+      src="/images/loading-elephant.png"
+      alt="Caricamento..."
+      className="w-32 animate-pulse"
+    />
   </div>
 );
 
@@ -89,6 +125,30 @@ const AnimatedRoutes = () => {
                 </PageTransition>
               }
             />
+            <Route
+              path="/privacy-policy"
+              element={
+                <PageTransition>
+                  <PrivacyPolicy />
+                </PageTransition>
+              }
+            />
+            <Route
+              path="/cookie-policy"
+              element={
+                <PageTransition>
+                  <CookiePolicy />
+                </PageTransition>
+              }
+            />
+            <Route
+              path="/termini-condizioni"
+              element={
+                <PageTransition>
+                  <TermsAndConditions />
+                </PageTransition>
+              }
+            />
           </Routes>
         </Suspense>
       </div>
@@ -112,12 +172,12 @@ const App: React.FC = () => {
       addressLocality: "Capo d’Orlando",
       addressRegion: "ME",
       postalCode: "98071",
-      addressCountry: "IT"
+      addressCountry: "IT",
     },
     areaServed: "Messina e provincia",
     sameAs: [
       "https://www.facebook.com/dimensioneimmaginepubblicita/",
-      "https://www.instagram.com/dimensioneimmaginemessina/"
+      "https://www.instagram.com/dimensioneimmaginemessina/",
     ],
     department: [
       {
@@ -128,8 +188,8 @@ const App: React.FC = () => {
           streetAddress: "Via Maddalena, 38",
           addressLocality: "Messina",
           addressRegion: "ME",
-          addressCountry: "IT"
-        }
+          addressCountry: "IT",
+        },
       },
       {
         "@type": "Store",
@@ -139,8 +199,8 @@ const App: React.FC = () => {
           streetAddress: "Via Circuito, 177",
           addressLocality: "Messina",
           addressRegion: "ME",
-          addressCountry: "IT"
-        }
+          addressCountry: "IT",
+        },
       },
       {
         "@type": "Store",
@@ -150,10 +210,10 @@ const App: React.FC = () => {
           streetAddress: "SS 114 Km 6",
           addressLocality: "Messina",
           addressRegion: "ME",
-          addressCountry: "IT"
-        }
-      }
-    ]
+          addressCountry: "IT",
+        },
+      },
+    ],
   };
 
   return (
