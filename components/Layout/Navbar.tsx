@@ -6,8 +6,6 @@ import { NavItem } from "../../types";
 const NAV_ITEMS: NavItem[] = [
   { label: "Home", path: "/" },
   { label: "Chi Siamo", path: "/chi-siamo" },
-  { label: "I Nostri Valori", path: "/servizi" },
-  { label: "Portfolio", path: "/portfolio" },
   { label: "Negozi & Sedi", path: "/sedi" },
   { label: "Contatti", path: "/contatti" },
 ];

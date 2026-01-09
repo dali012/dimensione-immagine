@@ -14,7 +14,7 @@ export const Footer: React.FC = () => {
   return (
     <footer className="bg-brand-darkgray text-white border-t border-white/5">
       <div className="container mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-8">
           {/* 1. Brand Section */}
           <div className="space-y-6">
             <div className="flex flex-col items-start">
@@ -65,22 +65,6 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <Link
-                  to="/servizi"
-                  className="hover:text-brand-gold transition-colors inline-block"
-                >
-                  I Nostri Valori
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/portfolio"
-                  className="hover:text-brand-gold transition-colors inline-block"
-                >
-                  Portfolio
-                </Link>
-              </li>
-              <li>
-                <Link
                   to="/sedi"
                   className="hover:text-brand-gold transition-colors inline-block"
                 >
@@ -98,42 +82,7 @@ export const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* 3. Collections */}
-          <div>
-            <h4 className="font-serif text-lg mb-6 text-white">Collezioni</h4>
-            <div className="flex flex-col space-y-4 text-sm text-white/60">
-              <Link
-                to="/portfolio"
-                state={{ category: "Uomo" }}
-                className="hover:text-brand-gold transition-colors inline-block"
-              >
-                Uomo
-              </Link>
-              <Link
-                to="/portfolio"
-                state={{ category: "Donna" }}
-                className="hover:text-brand-gold transition-colors inline-block"
-              >
-                Donna
-              </Link>
-              <Link
-                to="/portfolio"
-                state={{ category: "Plus Size" }}
-                className="hover:text-brand-gold transition-colors inline-block"
-              >
-                Plus Size
-              </Link>
-              <Link
-                to="/portfolio"
-                state={{ category: "Accessori" }}
-                className="hover:text-brand-gold transition-colors inline-block"
-              >
-                Accessori
-              </Link>
-            </div>
-          </div>
-
-          {/* 4. Contact & Legal Combined */}
+          {/* 3. Contact & Legal Combined */}
           <div>
             <h4 className="font-serif text-lg mb-6 text-white">
               Contatti & Info

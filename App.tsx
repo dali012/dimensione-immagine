@@ -20,12 +20,6 @@ const Home = React.lazy(() =>
 const About = React.lazy(() =>
   import("./pages/About").then((module) => ({ default: module.About }))
 );
-const Services = React.lazy(() =>
-  import("./pages/Services").then((module) => ({ default: module.Services }))
-);
-const Portfolio = React.lazy(() =>
-  import("./pages/Portfolio").then((module) => ({ default: module.Portfolio }))
-);
 const Locations = React.lazy(() =>
   import("./pages/Locations").then((module) => ({ default: module.Locations }))
 );
@@ -90,22 +84,6 @@ const AnimatedRoutes = () => {
               element={
                 <PageTransition>
                   <About />
-                </PageTransition>
-              }
-            />
-            <Route
-              path="/servizi"
-              element={
-                <PageTransition>
-                  <Services />
-                </PageTransition>
-              }
-            />
-            <Route
-              path="/portfolio"
-              element={
-                <PageTransition>
-                  <Portfolio />
                 </PageTransition>
               }
             />
