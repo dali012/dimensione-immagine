@@ -44,6 +44,12 @@ const TermsAndConditions = React.lazy(() =>
 const Catalog = React.lazy(() =>
   import("./pages/Catalog").then((module) => ({ default: module.Catalog }))
 );
+const Blog = React.lazy(() =>
+  import("./pages/Blog").then((module) => ({ default: module.Blog }))
+);
+const BlogPost = React.lazy(() =>
+  import("./pages/BlogPost").then((module) => ({ default: module.BlogPost }))
+);
 const NotFound = React.lazy(() =>
   import("./pages/NotFound").then((module) => ({ default: module.NotFound }))
 );
@@ -106,6 +112,22 @@ const AnimatedRoutes = () => {
               element={
                 <PageTransition>
                   <Catalog />
+                </PageTransition>
+              }
+            />
+            <Route
+              path="/blog"
+              element={
+                <PageTransition>
+                  <Blog />
+                </PageTransition>
+              }
+            />
+            <Route
+              path="/blog/:slug"
+              element={
+                <PageTransition>
+                  <BlogPost />
                 </PageTransition>
               }
             />
@@ -229,7 +251,7 @@ const App: React.FC = () => {
         <ScrollToTop />
         <div className="flex flex-col min-h-screen bg-brand-bg text-brand-text-primary selection:bg-brand-accent selection:text-white">
           <Navbar />
-          <main className="flex-grow">
+          <main className="grow">
             <AnimatedRoutes />
           </main>
           <Footer />
