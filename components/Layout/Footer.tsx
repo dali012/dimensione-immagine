@@ -1,64 +1,46 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import {
-  Facebook,
-  Instagram,
-  Mail,
-  Phone,
-  MapPin,
-  IdCard,
-  ReceiptText,
-} from "lucide-react";
+import { Facebook, Instagram, FileText, IdCard } from "lucide-react";
+
+// Custom TikTok Icon compatible with Lucide react styling
+const TikTokIcon = ({
+  size = 18,
+  className,
+}: {
+  size?: number;
+  className?: string;
+}) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+  </svg>
+);
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="bg-brand-darkgray text-white border-t border-white/5">
-      <div className="container mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-8">
-          {/* 1. Brand Section */}
-          <div className="space-y-6">
-            <div className="flex flex-col items-start">
-              <span className="font-serif text-2xl font-bold tracking-tighter text-white">
-                DIMENSIONE
-              </span>
-              <span className="text-[10px] tracking-[0.3em] uppercase text-brand-gold">
-                Immagine
-              </span>
-            </div>
-            <p className="text-white/60 text-sm leading-relaxed max-w-sm">
-              Moda accessibile, inclusiva e in grado di valorizzare ogni
-              fisicità, ogni storia e ogni momento della vita.
-            </p>
-            <div className="flex space-x-4 pt-2">
-              <a
-                href="https://facebook.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:bg-brand-gold hover:text-brand-black transition-all duration-300"
-                aria-label="Facebook"
-              >
-                <Facebook size={18} />
-              </a>
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:bg-brand-gold hover:text-brand-black transition-all duration-300"
-                aria-label="Instagram"
-              >
-                <Instagram size={18} />
-              </a>
-            </div>
-          </div>
-
-          {/* 2. Navigation */}
-          <div>
-            <h4 className="font-serif text-lg mb-6 text-white">Esplora</h4>
-            <ul className="space-y-4 text-sm text-white/60">
+    <footer className="bg-brand-bg text-brand-text-primary border-t border-brand-border">
+      <div className="container mx-auto px-6 py-8 sm:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+          {/* Column 1: COMPANY */}
+          <div className="flex flex-col space-y-6">
+            <h4 className="font-serif font-bold text-xs tracking-widest uppercase text-brand-text-primary">
+              Azienda
+            </h4>
+            <ul className="flex flex-col space-y-3 text-sm text-brand-text-secondary font-light">
               <li>
                 <Link
                   to="/chi-siamo"
-                  className="hover:text-brand-gold transition-colors inline-block"
+                  className="hover:text-brand-accent transition-colors"
                 >
                   Chi Siamo
                 </Link>
@@ -66,15 +48,15 @@ export const Footer: React.FC = () => {
               <li>
                 <Link
                   to="/sedi"
-                  className="hover:text-brand-gold transition-colors inline-block"
+                  className="hover:text-brand-accent transition-colors"
                 >
-                  Negozi & Sedi
+                  Negozi & Showroom
                 </Link>
               </li>
               <li>
                 <Link
                   to="/contatti"
-                  className="hover:text-brand-gold transition-colors inline-block"
+                  className="hover:text-brand-accent transition-colors"
                 >
                   Contatti
                 </Link>
@@ -82,88 +64,155 @@ export const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* 3. Contact & Legal Combined */}
-          <div>
-            <h4 className="font-serif text-lg mb-6 text-white">
-              Contatti & Info
+          {/* Column 2: CATALOG */}
+          <div className="flex flex-col space-y-6">
+            <h4 className="font-serif font-bold text-xs tracking-widest uppercase text-brand-text-primary">
+              Catalogo
             </h4>
-            <div className="flex flex-col space-y-4 text-sm text-white/60">
-              <div className="flex items-start group">
-                <MapPin
-                  size={18}
-                  className="text-brand-gold mr-3 shrink-0 mt-0.5 group-hover:text-white transition-colors"
-                />
-                <span>
-                  Via Maddalena 38/D
-                  <br />
-                  98122 Messina (ME)
-                </span>
-              </div>
-              <div className="flex items-center group">
-                <Phone
-                  size={18}
-                  className="text-brand-gold mr-3 shrink-0 group-hover:text-white transition-colors"
-                />
-                <span>+39 090 240 0474</span>
-              </div>
-              <div className="flex items-center group">
-                <Mail
-                  size={18}
-                  className="text-brand-gold mr-3 shrink-0 group-hover:text-white transition-colors"
-                />
-                <a
-                  href="mailto:info@dimensioneimmagineabbigliamento.it"
-                  className="hover:text-brand-gold transition-colors truncate"
+            <ul className="flex flex-col space-y-3 text-sm text-brand-text-secondary font-light">
+              <li>
+                <Link
+                  to="/trovi-da-noi?filter=Tutto"
+                  className="hover:text-brand-accent transition-colors"
                 >
-                  info@dimensioneimmagineabbigliamento.it
+                  Tutto
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/trovi-da-noi?filter=Accessori"
+                  className="hover:text-brand-accent transition-colors"
+                >
+                  Accessori
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/trovi-da-noi?filter=Donna"
+                  className="hover:text-brand-accent transition-colors"
+                >
+                  Donna
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/trovi-da-noi?filter=Uomo"
+                  className="hover:text-brand-accent transition-colors"
+                >
+                  Uomo
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 3: TERMS & POLICY */}
+          <div className="flex flex-col space-y-6">
+            <h4 className="font-serif font-bold text-xs tracking-widest uppercase text-brand-text-primary">
+              Termini & Policy
+            </h4>
+            <ul className="flex flex-col space-y-3 text-sm text-brand-text-secondary font-light">
+              <li>
+                <Link
+                  to="/termini-condizioni"
+                  className="hover:text-brand-accent transition-colors"
+                >
+                  Termini di Servizio
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/privacy-policy"
+                  className="hover:text-brand-accent transition-colors"
+                >
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/cookie-policy"
+                  className="hover:text-brand-accent transition-colors"
+                >
+                  Cookie Policy
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 4: SUBSCRIBE */}
+          <div className="flex flex-col space-y-6 lg:pl-4">
+            <div className="flex justify-between items-start">
+              <h4 className="font-serif font-bold text-xs tracking-widest uppercase text-brand-text-primary leading-relaxed">
+                Rimani Ispirato.
+                <br />
+                Rimani Elegante.
+              </h4>
+              <div className="flex space-x-3 text-brand-text-secondary">
+                <a
+                  href="https://facebook.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-brand-accent transition-colors"
+                >
+                  <Facebook size={18} />
+                </a>
+                <a
+                  href="https://instagram.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-brand-accent transition-colors"
+                >
+                  <Instagram size={18} />
+                </a>
+                <a
+                  href="https://tiktok.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-brand-accent transition-colors"
+                >
+                  <TikTokIcon size={18} />
                 </a>
               </div>
-
-              <div className="h-px bg-white/10 my-4 w-1/2"></div>
-
-              <div className="flex items-center group">
-                <ReceiptText
-                  size={16}
-                  className="text-brand-gold/70 mr-3 shrink-0"
-                />
-                <span className="text-xs">P.IVA 03812960833</span>
-              </div>
-              <div className="flex items-center group">
-                <IdCard
-                  size={16}
-                  className="text-brand-gold/70 mr-3 shrink-0"
-                />
-                <span className="text-xs">SDI: WY7PJ6K</span>
-              </div>
             </div>
+
+            <p className="text-sm text-brand-text-secondary font-light leading-relaxed">
+              Iscriviti alla nostra lista per aggiornamenti esclusivi, nuove
+              collezioni e consigli di stile.
+            </p>
+
+            <form
+              className="w-full flex items-end pt-2"
+              onSubmit={(e) => e.preventDefault()}
+            >
+              <input
+                type="email"
+                placeholder="Indirizzo e-mail"
+                className="grow bg-transparent border-b border-brand-text-secondary py-2 text-sm text-brand-text-primary placeholder-brand-text-secondary/60 outline-none focus:border-brand-accent transition-colors mr-4"
+              />
+              <button
+                type="submit"
+                className="bg-brand-accent text-white text-xs font-semibold uppercase px-6 py-3 hover:bg-brand-accent/80 transition-colors"
+              >
+                Iscriviti
+              </button>
+            </form>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="border-t border-white/5 mt-16 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-white/30">
-          <p className="text-center md:text-left mb-4 md:mb-0">
+        {/* Simple Copyright/Legal Line optional, kept minimal as per refined design request */}
+        <div className="mt-16 pt-8 border-t border-brand-border flex flex-col items-center space-y-4 text-xs text-brand-text-secondary font-light">
+          <p>
             &copy; {new Date().getFullYear()} Dimensione Immagine Abbigliamento
-            SRL. Tutti i diritti riservati.
+            SRL.
           </p>
-          <div className="flex flex-wrap justify-center gap-6">
-            <Link
-              to="/privacy-policy"
-              className="hover:text-brand-gold cursor-pointer transition-colors"
-            >
-              Privacy Policy
-            </Link>
-            <Link
-              to="/cookie-policy"
-              className="hover:text-brand-gold cursor-pointer transition-colors"
-            >
-              Cookie Policy
-            </Link>
-            <Link
-              to="/termini-condizioni"
-              className="hover:text-brand-gold cursor-pointer transition-colors"
-            >
-              Termini & Condizioni
-            </Link>
+          <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-6">
+            <div className="flex items-center space-x-2">
+              <FileText size={14} className="text-brand-accent h-4 w-4" />
+              <span>P.IVA 03812960833</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <IdCard size={14} className="text-brand-accent h-4 w-4" />
+              <span>COD. Univoco WY7PJ6K</span>
+            </div>
           </div>
         </div>
       </div>

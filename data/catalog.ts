@@ -1,0 +1,92 @@
+export const catalogImages = [
+  {
+    id: 1,
+    category: "Donna",
+    src: "images/women1.jpg",
+    alt: "Collezione Donna Elegante",
+  },
+  {
+    id: 2,
+    category: "Accessori",
+    src: "https://images.unsplash.com/photo-1559563458-527698bf5295?q=80&w=800&auto=format&fit=crop",
+    alt: "Borsa in pelle lavorata",
+  },
+  {
+    id: 3,
+    category: "Uomo",
+    src: "images/men1.jpg",
+    alt: "Abito Uomo Sartoriale",
+  },
+  {
+    id: 4,
+    category: "Donna",
+    src: "images/women2.jpg",
+    alt: "Abito da sera Donna",
+  },
+  {
+    id: 5,
+    category: "Accessori",
+    src: "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?q=80&w=800&auto=format&fit=crop",
+    alt: "Gioielli minimal",
+  },
+  {
+    id: 6,
+    category: "Uomo",
+    src: "images/men2.jpg",
+    alt: "Casual Uomo",
+  },
+  {
+    id: 7,
+    category: "Donna",
+    src: "images/women3.jpg",
+    alt: "Giacca Donna Inverno",
+  },
+  {
+    id: 9,
+    category: "Uomo",
+    src: "images/men3.jpg",
+    alt: "Ritratto Uomo Elegante",
+  },
+  {
+    id: 10,
+    category: "Donna",
+    src: "images/women4.jpg",
+    alt: "Modella in abito nero",
+  },
+  {
+    id: 11,
+    category: "Accessori",
+    src: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=800&auto=format&fit=crop",
+    alt: "Borsa a mano",
+  },
+  {
+    id: 12,
+    category: "Uomo",
+    src: "images/men4.jpg",
+    alt: "Look Urbano Uomo",
+  },
+  {
+    id: 15,
+    category: "Uomo",
+    src: "images/men5.jpg",
+    alt: "Look Urbano Uomo",
+  },
+  {
+    id: 16,
+    category: "Uomo",
+    src: "images/men6.jpg",
+    alt: "Look Urbano Uomo",
+  },
+  {
+    id: 13,
+    category: "Donna",
+    src: "images/women5.jpg",
+    alt: "Look Urbano Donna",
+  },
+  {
+    id: 14,
+    category: "Donna",
+    src: "images/women6.jpg",
+    alt: "Look Urbano Donna",
+  },
+];

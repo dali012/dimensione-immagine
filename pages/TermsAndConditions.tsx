@@ -1,122 +1,146 @@
 import React from "react";
 import { SEO } from "../components/SEO/SEO";
+import { Reveal } from "../components/UI/Reveal";
 
 export const TermsAndConditions: React.FC = () => {
   return (
-    <div className="pt-24 min-h-screen bg-brand-black text-white">
+    <div className="pt-24 min-h-screen bg-brand-bg text-brand-text-primary">
       <SEO
         title="Termini e Condizioni | Dimensione Immagine"
         description="Termini e condizioni generali di utilizzo del sito Dimensione Immagine Abbigliamento."
         url="https://www.dimensioneimmagine.net/termini-condizioni"
       />
       <div className="container mx-auto px-6 py-12 max-w-4xl">
-        <h1 className="font-serif text-4xl mb-8 text-brand-gold">
-          Termini e Condizioni
-        </h1>
+        <Reveal width="100%">
+          <h1 className="font-serif text-4xl mb-8 text-brand-accent">
+            Termini e Condizioni
+          </h1>
 
-        <div className="space-y-8 text-white/80 font-light leading-relaxed">
-          <section>
-            <h2 className="text-xl font-serif text-white mb-4">
-              1. Introduzione
-            </h2>
-            <p>
-              Le presenti Condizioni Generali regolano l'utilizzo di questo sito
-              web e le transazioni che possono avvenire attraverso di esso.
-              Utilizzando questo sito o effettuando un ordine attraverso di
-              esso, accetti di essere vincolato da queste Condizioni.
-            </p>
-          </section>
+          <div className="space-y-8 text-brand-text-secondary font-light leading-relaxed">
+            <section>
+              <h2 className="text-xl font-serif text-brand-text-primary mb-4">
+                1. Introduzione
+              </h2>
+              <p>
+                Le presenti Condizioni Generali regolano l'accesso e l'utilizzo
+                del sito web di{" "}
+                <strong>Dimensione Immagine Abbigliamento SRL</strong>.
+                Utilizzando questo sito, l'utente accetta di essere vincolato da
+                questi termini. Se non sei d'accordo con una qualsiasi parte dei
+                termini, ti invitiamo a non utilizzare il sito.
+              </p>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-serif text-white mb-4">
-              2. I nostri Dati
-            </h2>
-            <p>
-              La vendita dei prodotti attraverso il presente sito è gestita da{" "}
-              <strong>Dimensione Immagine Abbigliamento SRL</strong>, con sede
-              legale in Via Maddalena 38/D, 98122 Messina (ME), P.IVA
-              03812960833.
-            </p>
-          </section>
+            <section>
+              <h2 className="text-xl font-serif text-brand-text-primary mb-4">
+                2. Informazioni sulla Società
+              </h2>
+              <p>
+                Il sito è di proprietà di{" "}
+                <strong>Dimensione Immagine Abbigliamento SRL</strong>.
+                <br />
+                Sede legale: Contrada S. Lucia, 46, Capo d’Orlando (ME)
+                <br />
+                P.IVA: 03812960833
+                <br />
+                Email: info@dimensioneimmagine.net
+              </p>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-serif text-white mb-4">
-              3. Prodotti e Disponibilità
-            </h2>
-            <p>
-              Tutti gli ordini dei prodotti sono soggetti alla disponibilità
-              degli stessi. In tal senso, in caso di problemi di fornitura o se
-              non fossero presenti articoli in stock, ci riserviamo il diritto
-              di fornirti informazioni relative a prodotti sostitutivi di
-              qualità e valore pari o superiore, che Tu potrai decidere di
-              ordinare. Qualora Tu non desiderassi effettuare un ordine di tali
-              prodotti sostitutivi, ti rimborseremo tutti gli importi
-              eventualmente già da Te corrisposti.
-            </p>
-          </section>
+            <section>
+              <h2 className="text-xl font-serif text-brand-text-primary mb-4">
+                3. Utilizzo del Sito e dei Servizi
+              </h2>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>
+                  <strong>Newsletter:</strong> L'utente può iscriversi
+                  volontariamente alla nostra newsletter per ricevere
+                  aggiornamenti. L'utente garantisce che l'indirizzo email
+                  fornito è corretto e di sua proprietà.
+                </li>
+                <li>
+                  <strong>Modulo di Contatto:</strong> L'utente si impegna a
+                  fornire dati veritieri e corretti (Nome, Email, Telefono)
+                  quando invia richieste tramite il form di contatto.
+                </li>
+                <li>
+                  <strong>Contenuti:</strong> Il sito ha scopo illustrativo
+                  delle collezioni moda. Le immagini dei prodotti sono il più
+                  possibile fedeli alla realtà, ma potrebbero differire per
+                  effetto delle impostazioni del monitor.
+                </li>
+              </ul>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-serif text-white mb-4">
-              4. Prezzi e Pagamento
-            </h2>
-            <p className="mb-4">
-              I prezzi dei prodotti saranno quelli indicati di volta in volta
-              sul nostro sito, salvo laddove sussista un errore palese. I prezzi
-              indicati sul sito web sono comprensivi di IVA.
-            </p>
-            <p>
-              I prezzi possono subire variazioni in qualsiasi momento; tuttavia
-              (salvo laddove stabilito precedentemente) le possibili modifiche
-              non riguarderanno gli ordini per i quali abbiamo già inviato una
-              Conferma dell'Ordine.
-            </p>
-          </section>
+            <section>
+              <h2 className="text-xl font-serif text-brand-text-primary mb-4">
+                4. Proprietà Intellettuale
+              </h2>
+              <p>
+                Tutti i contenuti presenti sul sito (testi, immagini, loghi,
+                grafica, layout) sono di proprietà esclusiva di Dimensione
+                Immagine Abbigliamento SRL o dei suoi licenziatari e sono
+                protetti dalle leggi italiane e internazionali sul diritto
+                d'autore. È vietata la riproduzione, anche parziale, senza il
+                consenso scritto.
+              </p>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-serif text-white mb-4">
-              5. Politica di Reso
-            </h2>
-            <p className="mb-4">
-              Conformemente alle disposizioni legali in vigore, hai diritto di
-              recedere dal contratto di acquisto (Diritto di Recesso) entro un
-              termine di 14 giorni dalla data di ricezione dei prodotti.
-            </p>
-            <p>
-              I prodotti dovranno essere restituiti nelle stesse condizioni in
-              cui sono stati ricevuti.
-            </p>
-          </section>
+            <section>
+              <h2 className="text-xl font-serif text-brand-text-primary mb-4">
+                5. Limitazione di Responsabilità
+              </h2>
+              <p>
+                Dimensione Immagine Abbigliamento SRL non sarà responsabile per
+                eventuali danni diretti o indiretti derivanti dall'uso o
+                dall'impossibilità di usare il sito. Il sito può contenere link
+                a siti esterni di terze parti su cui non abbiamo alcun controllo
+                e per i quali non assumiamo responsabilità.
+              </p>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-serif text-white mb-4">
-              6. Proprietà Intellettuale
-            </h2>
-            <p>
-              Riconosci e accetti che tutti i diritti di autore, marchi
-              registrati e qualsivoglia diritto di proprietà intellettuale sui
-              materiali o i contenuti presentati come parte integrante del sito
-              web sono di nostra proprietà o di coloro che ci hanno concesso
-              licenza per il loro uso.
-            </p>
-          </section>
+            <section>
+              <h2 className="text-xl font-serif text-brand-text-primary mb-4">
+                6. Privacy e Cookie
+              </h2>
+              <p>
+                La gestione dei dati personali dell'utente è regolata dalla
+                nostra{" "}
+                <a
+                  href="/privacy-policy"
+                  className="underline hover:text-brand-accent"
+                >
+                  Privacy Policy
+                </a>{" "}
+                e{" "}
+                <a
+                  href="/cookie-policy"
+                  className="underline hover:text-brand-accent"
+                >
+                  Cookie Policy
+                </a>
+                , che costituiscono parte integrante di queste condizioni.
+              </p>
+            </section>
 
-          <section>
-            <h2 className="text-xl font-serif text-white mb-4">
-              7. Legge Applicabile e Giurisdizione
-            </h2>
-            <p>
-              L'uso del nostro sito web e i contratti di acquisto dei prodotti
-              tramite tale sito web sono regolati dal diritto italiano. Per
-              qualsiasi controversia derivante o relativa all'uso del sito web o
-              a tali contratti, sarà competente il Giudice del luogo di
-              residenza o di domicilio del consumatore.
-            </p>
-          </section>
+            <section>
+              <h2 className="text-xl font-serif text-brand-text-primary mb-4">
+                7. Legge Applicabile e Foro Competente
+              </h2>
+              <p>
+                Le presenti Condizioni sono regolate dalla legge italiana. Per
+                qualsiasi controversia relativa all'interpretazione o esecuzione
+                delle presenti condizioni, sarà competente in via esclusiva il
+                Foro di Messina, fatte salve le norme inderogabili a tutela del
+                consumatore.
+              </p>
+            </section>
 
-          <div className="pt-8 text-sm text-white/40">
-            Ultimo aggiornamento: {new Date().toLocaleDateString("it-IT")}
+            <div className="pt-8 text-sm text-brand-text-secondary/60">
+              Ultimo aggiornamento: {new Date().toLocaleDateString("it-IT")}
+            </div>
           </div>
-        </div>
+        </Reveal>
       </div>
     </div>
   );

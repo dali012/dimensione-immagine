@@ -41,12 +41,15 @@ const TermsAndConditions = React.lazy(() =>
     default: module.TermsAndConditions,
   }))
 );
+const Catalog = React.lazy(() =>
+  import("./pages/Catalog").then((module) => ({ default: module.Catalog }))
+);
 const NotFound = React.lazy(() =>
   import("./pages/NotFound").then((module) => ({ default: module.NotFound }))
 );
 
 const LoadingFallback = () => (
-  <div className="min-h-screen flex items-center justify-center bg-brand-black">
+  <div className="min-h-screen flex items-center justify-center bg-brand-bg">
     <img
       src="/images/loading-elephant.png"
       alt="Caricamento..."
@@ -95,6 +98,14 @@ const AnimatedRoutes = () => {
               element={
                 <PageTransition>
                   <Locations />
+                </PageTransition>
+              }
+            />
+            <Route
+              path="/trovi-da-noi"
+              element={
+                <PageTransition>
+                  <Catalog />
                 </PageTransition>
               }
             />
@@ -216,7 +227,7 @@ const App: React.FC = () => {
           structuredData={localBusinessSchema}
         />
         <ScrollToTop />
-        <div className="flex flex-col min-h-screen bg-brand-black text-white selection:bg-brand-gold selection:text-white">
+        <div className="flex flex-col min-h-screen bg-brand-bg text-brand-text-primary selection:bg-brand-accent selection:text-white">
           <Navbar />
           <main className="flex-grow">
             <AnimatedRoutes />
