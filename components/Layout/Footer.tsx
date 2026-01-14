@@ -195,6 +195,10 @@ export const Footer: React.FC = () => {
                 Iscriviti
               </button>
             </form>
+            <p className="text-xs text-brand-text-secondary font-light leading-relaxed">
+              Inserendo la tua email acconsenti a ricevere comunicazioni e
+              materiale marketing da Dimensione Immagine.
+            </p>
           </div>
         </div>
 

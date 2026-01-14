@@ -8,6 +8,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Home", path: "/" },
   { label: "Chi Siamo", path: "/chi-siamo" },
   { label: "Trovi da Noi", path: "/trovi-da-noi" },
+  { label: "Blog", path: "/blog" },
   { label: "Negozi & Sedi", path: "/sedi" },
   { label: "Contatti", path: "/contatti" },
 ];

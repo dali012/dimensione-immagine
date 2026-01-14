@@ -16,6 +16,7 @@ export const Contact: React.FC = () => {
 
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [marketingConsent, setMarketingConsent] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -50,6 +51,7 @@ export const Contact: React.FC = () => {
     setFormData({ name: "", email: "", phone: "", message: "" });
     setRecaptchaToken(null);
     setTermsAccepted(false);
+    setMarketingConsent(false);
   };
 
   return (
@@ -92,11 +94,14 @@ export const Contact: React.FC = () => {
                     <h4 className="text-brand-text-primary text-sm uppercase tracking-widest font-bold mb-2">
                       Sede Principale
                     </h4>
-                    <p className="text-brand-text-secondary leading-relaxed">
-                      Contrada S. Lucia, 46
-                      <br />
-                      Capo d’Orlando (ME)
-                    </p>
+                    <a
+                      href="https://www.google.com/maps/dir/?api=1&destination=Via+Maddalena+38/D+98122+Messina+Italia"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-brand-text-secondary leading-relaxed hover:text-brand-accent transition-colors"
+                    >
+                      Via Maddalena 38/D, <br /> 98122 Messina (ME), Italia
+                    </a>
                   </div>
                 </div>
 
@@ -108,9 +113,12 @@ export const Contact: React.FC = () => {
                     <h4 className="text-brand-text-primary text-sm uppercase tracking-widest font-bold mb-2">
                       Telefono
                     </h4>
-                    <p className="text-brand-text-secondary leading-relaxed">
-                      +39 392 718 9875
-                    </p>
+                    <a
+                      href="tel:+390902400474"
+                      className="text-brand-text-secondary leading-relaxed hover:text-brand-accent transition-colors"
+                    >
+                      +39 090 240 0474
+                    </a>
                   </div>
                 </div>
 
@@ -122,9 +130,12 @@ export const Contact: React.FC = () => {
                     <h4 className="text-brand-text-primary text-sm uppercase tracking-widest font-bold mb-2">
                       Email
                     </h4>
-                    <p className="text-brand-text-secondary leading-relaxed break-all">
-                      info@dimensioneimmagine.net
-                    </p>
+                    <a
+                      href="mailto:contact@dimensioneimmagineabbigliamento.it"
+                      className="text-brand-text-secondary leading-relaxed break-all hover:text-brand-accent transition-colors"
+                    >
+                      contact@dimensioneimmagineabbigliamento.it
+                    </a>
                   </div>
                 </div>
               </div>
@@ -255,6 +266,24 @@ export const Contact: React.FC = () => {
                       Termini e Condizioni
                     </Link>
                     .
+                  </label>
+                </div>
+
+                {/* Optional Marketing Consent */}
+                <div className="flex items-center">
+                  <input
+                    id="marketing"
+                    type="checkbox"
+                    checked={marketingConsent}
+                    onChange={(e) => setMarketingConsent(e.target.checked)}
+                    className="mt-1 h-4 w-4 text-brand-accent focus:ring-brand-accent border-gray-300 rounded"
+                  />
+                  <label
+                    htmlFor="marketing"
+                    className="ml-2 block text-xs text-brand-text-secondary"
+                  >
+                    Desidero ricevere aggiornamenti e comunicazioni marketing
+                    via email. (Opzionale)
                   </label>
                 </div>
 

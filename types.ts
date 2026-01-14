@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 export interface NavItem {
   label: string;
@@ -23,5 +23,17 @@ export interface LocationItem {
   name: string;
   address: string;
   phone?: string;
-  type: 'headquarters' | 'store';
+  type: "headquarters" | "store";
+}
+
+export interface BlogPost {
+  id: number;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string[];
+  imageUrl: string;
+  date: string;
+  author: string;
+  category: string;
 }
