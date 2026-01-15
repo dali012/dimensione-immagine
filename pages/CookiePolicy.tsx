@@ -109,7 +109,7 @@ export const CookiePolicy: React.FC = () => {
                 <br />
                 Via Maddalena 38/D, 98122 Messina (ME)
                 <br />
-                Email: info@dimensioneimmagineabbigliamento.it
+                Email: contact@dimensioneimmagineabbigliamento.it
               </p>
             </section>
           </div>

@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, FileText, IdCard } from "lucide-react";
+import { toast } from "sonner";
 
 // Custom TikTok Icon compatible with Lucide react styling
 const TikTokIcon = ({
@@ -27,6 +28,8 @@ const TikTokIcon = ({
 );
 
 export const Footer: React.FC = () => {
+  const [email, setEmail] = React.useState("");
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   return (
     <footer className="bg-brand-bg text-brand-text-primary border-t border-brand-border">
       <div className="container mx-auto px-6 py-8 sm:py-16">
@@ -156,7 +159,7 @@ export const Footer: React.FC = () => {
                   <Facebook size={18} />
                 </a>
                 <a
-                  href="https://instagram.com"
+                  href="https://www.instagram.com/dimensione.immagine/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-brand-accent transition-colors"
@@ -173,7 +176,6 @@ export const Footer: React.FC = () => {
                 </a>
               </div>
             </div>
-
             <p className="text-sm text-brand-text-secondary font-light leading-relaxed">
               Iscriviti alla nostra lista per aggiornamenti esclusivi, nuove
               collezioni e consigli di stile.
@@ -181,18 +183,81 @@ export const Footer: React.FC = () => {
 
             <form
               className="w-full flex items-end pt-2"
-              onSubmit={(e) => e.preventDefault()}
+              onSubmit={async (e) => {
+                e.preventDefault();
+
+                if (isSubmitting) return;
+                if (!email) return;
+
+                setIsSubmitting(true);
+
+                try {
+                  const res = await fetch(
+                    "https://newsletter.dimensioneimmagineabbigliamento.it/subscribe",
+                    {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({ email }),
+                    }
+                  );
+
+                  const data = await res.json();
+
+                  if (!res.ok || !data.success) {
+                    throw new Error(data?.error || "Subscription failed");
+                  }
+
+                  toast.success("Iscrizione avvenuta con successo!");
+                  setEmail("");
+                } catch (err) {
+                  console.error(err);
+                  toast.error("Si è verificato un errore. Riprova più tardi.");
+                } finally {
+                  setIsSubmitting(false);
+                }
+              }}
             >
               <input
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="Indirizzo e-mail"
                 className="grow bg-transparent border-b border-brand-text-secondary py-2 text-sm text-brand-text-primary placeholder-brand-text-secondary/60 outline-none focus:border-brand-accent transition-colors mr-4"
               />
               <button
                 type="submit"
-                className="bg-brand-accent text-white text-xs font-semibold uppercase px-6 py-3 hover:bg-brand-accent/80 transition-colors"
+                disabled={isSubmitting}
+                className="bg-brand-accent text-white text-xs font-semibold uppercase px-6 py-3 hover:bg-brand-accent/80 transition-colors disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
               >
-                Iscriviti
+                {isSubmitting ? (
+                  <span className="flex items-center space-x-2">
+                    <svg
+                      className="h-4 w-4 animate-spin"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                      ></path>
+                    </svg>
+                    <span>Invio...</span>
+                  </span>
+                ) : (
+                  "Iscriviti"
+                )}
               </button>
             </form>
             <p className="text-xs text-brand-text-secondary font-light leading-relaxed">

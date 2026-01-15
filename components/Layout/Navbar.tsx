@@ -56,13 +56,9 @@ export const Navbar: React.FC = () => {
             <img
               src="/images/logo.png"
               alt="Dimensione Immagine"
-              className="h-10 w-auto object-contain transition-opacity duration-300"
+              className="h-12 w-auto object-contain transition-opacity duration-300"
               width="180"
-              height="40"
-              /* If logo is white, we might need to invert it for light theme, 
-                 assuming standard logo is useable or needs filter. 
-                 Adding a filter just in case it was a white logo for dark theme. 
-                 Remove 'invert' if logo is already dark. */
+              height="48"
               style={{ filter: "invert(1) grayscale(1) brightness(0.2)" }}
             />
           </Link>

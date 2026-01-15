@@ -214,7 +214,7 @@ export const About: React.FC = () => {
                       index % 2 === 0 ? "lg:order-2" : "lg:order-1"
                     }`}
                   >
-                    <div className="relative aspect-[16/9] lg:aspect-[3/2] overflow-hidden bg-brand-surface rounded-sm shadow-sm group">
+                    <div className="relative aspect-video lg:aspect-3/2 overflow-hidden bg-brand-surface rounded-sm shadow-sm group">
                       <img
                         src={value.image}
                         alt={value.title}

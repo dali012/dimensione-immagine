@@ -21,7 +21,7 @@ export const Button: React.FC<ButtonProps> = ({
   ariaLabel,
 }) => {
   const baseStyles =
-    "inline-flex items-center justify-center px-8 py-3 text-sm font-medium tracking-wide rounded-md transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-brand-accent focus:ring-offset-2 focus:ring-offset-white";
+    "inline-flex items-center justify-center px-8 py-3 text-sm font-medium tracking-wide rounded-md transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-brand-accent focus:ring-offset-2 focus:ring-offset-white cursor-pointer";
 
   const variants = {
     primary:

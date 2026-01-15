@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { HelmetProvider } from "react-helmet-async";
+import { Toaster } from "sonner";
 import { Navbar } from "./components/Layout/Navbar";
 import { Footer } from "./components/Layout/Footer";
 import { BackToTop } from "./components/UI/BackToTop";
@@ -185,15 +186,15 @@ const App: React.FC = () => {
     "@id": "https://www.dimensioneimmagine.net/#localbusiness",
     name: "Dimensione Immagine",
     url: "https://www.dimensioneimmagine.net",
-    telephone: "+39 392 718 9875",
+    telephone: "+39 090 240 0474",
     priceRange: "€€",
     image: "https://www.dimensioneimmagine.net/og-image.jpg",
     address: {
       "@type": "PostalAddress",
-      streetAddress: "Contrada S. Lucia, 46",
-      addressLocality: "Capo d’Orlando",
+      streetAddress: "Via Maddalena 38/D",
+      addressLocality: "Messina",
       addressRegion: "ME",
-      postalCode: "98071",
+      postalCode: "98122",
       addressCountry: "IT",
     },
     areaServed: "Messina e provincia",
@@ -207,7 +208,7 @@ const App: React.FC = () => {
         name: "Kruder by Dimensione Immagine",
         address: {
           "@type": "PostalAddress",
-          streetAddress: "Via Maddalena, 38",
+          streetAddress: "Via Maddalena 38/D",
           addressLocality: "Messina",
           addressRegion: "ME",
           addressCountry: "IT",
@@ -249,6 +250,7 @@ const App: React.FC = () => {
           structuredData={localBusinessSchema}
         />
         <ScrollToTop />
+        <Toaster closeButton position="bottom-left" />
         <div className="flex flex-col min-h-screen bg-brand-bg text-brand-text-primary selection:bg-brand-accent selection:text-white">
           <Navbar />
           <main className="grow">
