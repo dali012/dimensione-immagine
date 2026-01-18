@@ -1,4 +1,5 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
 import { Button } from "../components/UI/Button";
 import { SEO } from "../components/SEO/SEO";
 import { Reveal } from "../components/UI/Reveal";
@@ -55,11 +56,13 @@ const VALUES: ValueItem[] = [
 ];
 
 export const About: React.FC = () => {
+  const location = useLocation();
   return (
     <div className="pt-24 min-h-screen bg-brand-bg text-brand-text-primary">
       <SEO
         title="Chi Siamo | Dimensione Immagine"
         description="Dal 1984 a Messina, interpreti della moda come gesto di accoglienza. Scopri la nostra storia."
+        url={`https://www.dimensioneimmagine.net${location.pathname}`}
         image="/og-chi-siamo.jpg"
       />
 

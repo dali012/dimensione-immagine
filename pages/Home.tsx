@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { Button } from "../components/UI/Button";
 import { SEO } from "../components/SEO/SEO";
 import { Reveal } from "../components/UI/Reveal";
@@ -11,6 +12,7 @@ const HERO_MEDIA = [
 ];
 
 export const Home: React.FC = () => {
+  const location = useLocation();
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -27,6 +29,7 @@ export const Home: React.FC = () => {
       <SEO
         title="Dimensione Immagine | Moda Inclusiva e Accessibile"
         description="Scopri la nostra moda accessibile e inclusiva. Collezioni Uomo, Donna e Taglie Forti che valorizzano ogni fisicità e personalità."
+        url={`https://www.dimensioneimmagine.net${location.pathname}`}
         image="/og-image.jpg"
       />
 
