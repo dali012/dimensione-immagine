@@ -7,6 +7,24 @@ import { catalogImages } from "../data/catalog";
 
 const FILTERS = ["Tutto", "Accessori", "Donna", "Uomo"];
 
+const FILTER_DESCRIPTIONS: Record<"Donna" | "Uomo" | "Accessori", string[]> = {
+  Donna: [
+    "Mode eleganti, casual e cerimonia",
+    "Maglieria, cappotti, denim",
+    "Linea Donna Calibrata (taglie forti)",
+  ],
+  Uomo: [
+    "Stile casual, urban e classico",
+    "Camiceria, pantaloni, denim",
+    "Linea Uomo Calibrata (taglie forti)",
+    "Capispalla tecnici, parka, piumini",
+  ],
+  Accessori: [
+    "Borse, cinture, portafogli",
+    "Sciarpe, cappelli e accessori moda",
+  ],
+};
+
 export const Catalog: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -61,7 +79,7 @@ export const Catalog: React.FC = () => {
                 <button
                   key={filter}
                   onClick={() => handleFilterClick(filter)}
-                  className={`px-6 py-2 text-sm uppercase tracking-widest transition-all duration-300 border border-brand-accent ${
+                  className={`px-6 py-2 text-sm uppercase tracking-widest transition-all duration-300 border border-brand-accent cursor-pointer ${
                     activeFilter === filter
                       ? "bg-brand-accent text-white"
                       : "bg-transparent text-brand-text-primary hover:bg-brand-accent/10"
@@ -71,6 +89,24 @@ export const Catalog: React.FC = () => {
                 </button>
               ))}
             </div>
+
+            {activeFilter !== "Tutto" &&
+              FILTER_DESCRIPTIONS[
+                activeFilter as "Donna" | "Uomo" | "Accessori"
+              ] && (
+                <div className="mt-6 text-brand-text-secondary text-sm md:text-base leading-relaxed">
+                  <p className="uppercase tracking-widest text-xs text-brand-accent mb-3">
+                    {activeFilter}
+                  </p>
+                  <ul className="space-y-2">
+                    {FILTER_DESCRIPTIONS[
+                      activeFilter as "Donna" | "Uomo" | "Accessori"
+                    ].map((line) => (
+                      <li key={line}>{line}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
           </div>
         </Reveal>
 

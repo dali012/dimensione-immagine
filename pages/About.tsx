@@ -17,25 +17,25 @@ const VALUES: ValueItem[] = [
     image: "/images/about-team.png",
   },
   {
-    title: "Accessibilità",
+    title: "Accessibilità & Prezzi Giusti",
     description:
       "Crediamo che la bellezza debba essere condivisa. La nostra moda resta accessibile senza rinunciare alla qualità.",
     image: "/images/hero-bg.jpg",
   },
   {
-    title: "Stile & Tendenza",
+    title: "Stile & Tendenza ",
     description:
       "Collezioni dinamiche, ricercate e sempre aggiornate, create per accompagnare ogni stagione e stato d’animo.",
     image: "/images/hero-bg2.jpg",
   },
   {
-    title: "Inclusività",
+    title: "Inclusività & Valorizzazione delle Fisicità",
     description:
       "Celebriamo la diversità. Le nostre linee sono pensate per vestire, valorizzare e rispettare ogni corpo.",
     image: "/images/about-team.png",
   },
   {
-    title: "Qualità Curata",
+    title: "Qualità & Selezione Curata",
     description:
       "Ogni capo è scelto con attenzione ai materiali, alle finiture e al comfort, affinché duri e si indossi con piacere.",
     image: "/images/hero-bg.jpg",
@@ -43,11 +43,11 @@ const VALUES: ValueItem[] = [
   {
     title: "Tradizione & Evoluzione",
     description:
-      "Preserviamo oltre quarant’anni di esperienza con uno sguardo rivolto al futuro.",
+      "Preserviamo oltre quarant’anni di esperienza con uno sguardo rivolto al futuro, innovando senza mai tradire le nostre radici.",
     image: "/images/hero-bg2.jpg",
   },
   {
-    title: "Fiducia",
+    title: "Fiducia & Relazione con il Cliente",
     description:
       "La fiducia si conquista con trasparenza, costanza e presenza. Per noi, ogni cliente è una relazione da coltivare.",
     image: "/images/about-team.png",
@@ -74,17 +74,42 @@ export const About: React.FC = () => {
               Chi Siamo
             </h1>
             <div className="md:pl-24 lg:pl-32 border-l border-brand-accent/30 pl-6">
-              <p className="text-xl md:text-3xl text-brand-text-primary font-serif italic mb-8">
-                "Dimensione Immagine è elegante, moderno, iconico, raffinato,
-                inclusivo, autentico."
-              </p>
-              <p className="text-brand-text-secondary text-base md:text-lg leading-relaxed font-light max-w-2xl">
-                Dal 1984 Dimensione Immagine, fondata da{" "}
-                <strong>Fortunato Oteri</strong>, interpreta la moda come un
-                gesto di accoglienza e identità. Nata a <strong>Messina</strong>{" "}
-                come un’elegante realtà, la nostra storia affonda le radici
-                nella cura del dettaglio.
-              </p>
+              <div className="space-y-6 text-brand-text-secondary text-base md:text-lg leading-relaxed font-light max-w-2xl">
+                <p>
+                  Un racconto di stile, autenticità e visione curato da Débora
+                  Scabora, Diretricce di Marketing e Visual Merchandising.
+                </p>
+                <p>
+                  Dal 1984 Dimensione Immagine Fondata da Fortunato Oteri,
+                  interpreta la moda come un gesto di accoglienza e identità.
+                  Nata in Sicilia come un’elegante realtà, la nostra storia
+                  affonda le radici nella cura del dettaglio, nel rispetto delle
+                  persone e nella volontà di creare un’esperienza che unisce
+                  stile e umanità.
+                </p>
+                <p>
+                  Nel corso dei decenni, quel primo negozio è diventato un
+                  riferimento per il mondo Donna e Uomo, grazie a collezioni
+                  contemporanee, versatili e attentamente selezionate. La nostra
+                  crescita è stata guidata da una visione chiara: ampliare la
+                  nostra presenza senza mai smarrire l’essenza che ci ha resi
+                  riconoscibili la capacità di far sentire ogni cliente unico,
+                  compreso e valorizzato.
+                </p>
+                <p>
+                  Oggi Dimensione Immagine è una rete di store diretti e
+                  affiliati che combina tradizione, modernità e una cultura
+                  dell’accoglienza radicata e sincera. Un brand che evolve
+                  restando fedele alla propria anima.
+                </p>
+                <p>
+                  "Como guardiã da comunicação institucional, assumo o
+                  compromisso de traduzir essa essência em cada palavra e
+                  imagem, preservando a autenticidade que nos acompanha desde
+                  sempre."
+                </p>
+                <p>– Débora Scabora</p>
+              </div>
             </div>
           </div>
         </Reveal>
@@ -110,34 +135,28 @@ export const About: React.FC = () => {
             <div className="lg:col-span-1"></div>
             <div className="lg:col-span-4 space-y-8">
               <Reveal delay={0.2}>
-                <h2 className="text-3xl font-serif mb-6">
-                  Evoluzione Continua
-                </h2>
+                <h2 className="text-3xl font-serif mb-6">La Nostra Mission</h2>
                 <div className="space-y-6 text-brand-text-secondary text-sm leading-relaxed text-justify">
+                  <p>Moda che parla alle persone, non alle taglie.</p>
                   <p>
-                    Nel corso dei decenni, quel primo negozio è diventato un
-                    punto di riferimento per il mondo Donna e Uomo. La nostra
-                    crescita è stata guidata da una visione chiara: ampliare la
-                    nostra presenza senza mai smarrire l’essenza che ci ha resi
-                    riconoscibili — la capacità di far sentire ogni cliente
-                    unico.
+                    La nostra mission è offrire una moda accessibile, inclusiva
+                    e in grado di valorizzare ogni fisicità, ogni storia, ogni
+                    momento della vita.
                   </p>
                   <p>
-                    Oggi Dimensione Immagine è una rete di store diretti e
-                    affiliati che combina tradizione e modernità.
+                    Da oltre quarant’anni selezioniamo capi che uniscono
+                    qualità, estetica e convenienza, trasformando l’atto di
+                    vestirsi in un linguaggio personale, libero e sofisticato.
                   </p>
-                </div>
-                <div className="pt-8 border-t border-brand-border">
-                  <h3 className="text-brand-accent text-lg font-serif mb-2">
-                    La nostra promessa
-                  </h3>
-                  <p className="text-brand-text-primary italic mb-6">
-                    "Valorizzare ogni fisicità, ogni storia e ogni momento della
-                    vita."
+                  <p>
+                    Crediamo in una moda che vive nella quotidianità:
+                    contemporanea, confortevole, profondamente autentica.
                   </p>
-                  <Button to="/contatti" variant="outline">
-                    Entra in contatto
-                  </Button>
+                  <p>
+                    Per questo sviluppiamo collezioni Uomo, Donna e Taglie Forti
+                    che non vestono soltanto il corpo, ma interpretano la
+                    personalità di chi le sceglie.
+                  </p>
                 </div>
               </Reveal>
             </div>
@@ -183,10 +202,11 @@ export const About: React.FC = () => {
       <section className="py-24 lg:py-32">
         <div className="container mx-auto px-6">
           <Reveal className="mb-24 text-center">
-            <h2 className="font-serif text-4xl lg:text-5xl mb-6">
+            <h2 className="font-serif text-4xl lg:text-5xl mb-2">
               I Nostri Valori
             </h2>
-            <div className="h-px w-24 bg-brand-accent mx-auto"></div>
+            <div className="h-px bg-brand-accent mx-auto"></div>
+            <p>I principi che definiscono la nostra identità.</p>
           </Reveal>
 
           <div className="space-y-24 lg:space-y-32">
