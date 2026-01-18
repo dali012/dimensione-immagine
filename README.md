@@ -1,20 +1,49 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Dimensione Immagine — Website
 
-# Run and deploy your AI Studio app
+Sito web per Dimensione Immagine realizzato con React + Vite e un design editoriale basato su Tailwind. Include pagine istituzionali, catalogo, blog, contatti e sedi.
 
-This contains everything you need to run your app locally.
+## Stack
 
-View your app in AI Studio: https://ai.studio/apps/drive/1FiRG3FQHfdz5lYKF0hctgwTkrcROzuA3
+- React + TypeScript
+- Vite
+- Tailwind CSS
+- Framer Motion
+- React Router
+- react-helmet-async
 
-## Run Locally
+## Avvio locale
 
-**Prerequisites:**  Node.js
+**Prerequisiti:** Node.js (LTS)
 
-
-1. Install dependencies:
+1. Installa le dipendenze:
    `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
+2. Avvia il progetto:
    `npm run dev`
+
+## Script disponibili
+
+- `npm run dev` — Avvio in sviluppo
+- `npm run build` — Build di produzione
+- `npm run preview` — Anteprima build
+
+## Struttura progetto
+
+- pages/ — pagine principali
+- components/ — componenti UI e layout
+- data/ — contenuti e dati mock
+- public/ — asset statici
+
+## Note importanti
+
+- Router: usa BrowserRouter. Se il sito è servito su hosting statico, assicurati di configurare il fallback a `index.html`.
+- Form contatti: il form invia dati a `/api/contact`. Configura un endpoint serverless o un backend per la gestione delle richieste.
+
+## Deploy
+
+Esegui la build e pubblica la cartella `dist/` sul tuo hosting:
+
+`npm run build`
+
+## Licenza
+
+Proprietà privata. Tutti i diritti riservati.
