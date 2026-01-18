@@ -1,41 +1,86 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { SEO } from "../components/SEO/SEO";
 import { Reveal } from "../components/UI/Reveal";
 import { blogPosts } from "../data/blog";
 import { Calendar, User, Tag } from "lucide-react";
+import { SectionHeader } from "../components/UI/SectionHeader";
 
 export const Blog: React.FC = () => {
+  const location = useLocation();
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("Tutte");
+
+  const categories = useMemo(
+    () => ["Tutte", ...Array.from(new Set(blogPosts.map((p) => p.category)))],
+    []
+  );
+
+  const filteredPosts = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return blogPosts.filter((post) => {
+      const matchesCategory =
+        category === "Tutte" || post.category === category;
+      const matchesQuery =
+        !query ||
+        post.title.toLowerCase().includes(query) ||
+        post.excerpt.toLowerCase().includes(query) ||
+        post.content.some((p) => p.toLowerCase().includes(query));
+      return matchesCategory && matchesQuery;
+    });
+  }, [search, category]);
+
   return (
     <div className="pt-24 min-h-screen bg-brand-bg text-brand-text-primary">
       <SEO
         title="Blog e News | Dimensione Immagine"
         description="Leggi le ultime novità dal mondo della moda, consigli di stile e tendenze direttamente dal blog di Dimensione Immagine."
+        url={`https://www.dimensioneimmagine.net${location.pathname}`}
         image="/og-blog.jpg" // You might want to ensure this image exists or use a generic one
       />
 
       <div className="container mx-auto px-6 py-12">
         <Reveal width="100%">
-          <div className="text-center mb-16">
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-4xl md:text-5xl font-serif font-bold text-brand-primary mb-6"
-            >
-              Il Nostro Blog
-            </motion.h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Esplora le ultime tendenze, i consigli di stile e le novità del
-              mondo fashion selezionate per te.
-            </p>
+          <div className="mb-12">
+            <SectionHeader
+              label="Novità"
+              title="Il Nostro Blog"
+              subtitle="Esplora le ultime tendenze, i consigli di stile e le novità del mondo fashion selezionate per te."
+              as="h1"
+            />
           </div>
         </Reveal>
 
+        <div className="max-w-3xl mx-auto mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Cerca articoli, tendenze, accessori..."
+              className="w-full bg-transparent border-b border-brand-border py-3 text-brand-text-primary focus:outline-none focus:border-brand-accent transition-colors placeholder-brand-text-secondary/60"
+              aria-label="Cerca nel blog"
+            />
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full bg-transparent border-b border-brand-border py-3 text-brand-text-primary focus:outline-none focus:border-brand-accent transition-colors cursor-pointer"
+              aria-label="Filtra per categoria"
+            >
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {blogPosts.map((post) => (
+          {filteredPosts.map((post) => (
             <Reveal key={post.id} width="100%">
-              <article className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 h-full flex flex-col">
+              <article className="bg-white rounded-lg overflow-hidden border border-brand-border shadow-sm hover:shadow-md transition-shadow duration-300 h-full flex flex-col">
                 <Link
                   to={`/blog/${post.slug}`}
                   className="block h-64 overflow-hidden"
@@ -47,7 +92,7 @@ export const Blog: React.FC = () => {
                   />
                 </Link>
                 <div className="p-6 flex-1 flex flex-col">
-                  <div className="flex items-center text-xs text-gray-500 mb-4 space-x-4">
+                  <div className="flex items-center text-xs text-brand-text-secondary mb-4 space-x-4">
                     <span className="flex items-center">
                       <Calendar size={14} className="mr-1" />
                       {post.date}
@@ -56,7 +101,7 @@ export const Blog: React.FC = () => {
                       <User size={14} className="mr-1" />
                       {post.author}
                     </span>
-                    <span className="flex items-center text-brand-primary font-semibold">
+                    <span className="flex items-center text-brand-accent font-semibold">
                       <Tag size={14} className="mr-1" />
                       {post.category}
                     </span>
@@ -64,12 +109,12 @@ export const Blog: React.FC = () => {
 
                   <Link
                     to={`/blog/${post.slug}`}
-                    className="text-2xl font-serif font-bold text-gray-800 mb-3 hover:text-brand-primary transition-colors"
+                    className="text-2xl font-serif font-bold text-brand-text-primary mb-3 hover:text-brand-accent transition-colors"
                   >
                     {post.title}
                   </Link>
 
-                  <p className="text-gray-600 mb-4 line-clamp-3 grow">
+                  <p className="text-brand-text-secondary mb-4 line-clamp-3 grow">
                     {post.excerpt}
                   </p>
                 </div>
@@ -77,6 +122,14 @@ export const Blog: React.FC = () => {
             </Reveal>
           ))}
         </div>
+
+        {filteredPosts.length === 0 && (
+          <div className="text-center py-16">
+            <p className="text-brand-text-secondary italic">
+              Nessun articolo trovato con i filtri selezionati.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

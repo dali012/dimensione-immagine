@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { MapPin, Filter, Store } from "lucide-react";
 import { SEO } from "../components/SEO/SEO";
 import { Button } from "../components/UI/Button";
 import { Reveal } from "../components/UI/Reveal";
+import { SectionHeader } from "../components/UI/SectionHeader";
+import { useLocation } from "react-router-dom";
+import { div } from "framer-motion/client";
 
 interface LocationData {
   name: string;
@@ -90,6 +93,7 @@ const REGIONS = ["Tutte", "Abruzzo", "Calabria", "Campania", "Sicilia"];
 const OWNERSHIP_TYPES = ["Tutti", "Proprietario", "Franchising"];
 
 export const Locations: React.FC = () => {
+  const location = useLocation();
   const [selectedRegion, setSelectedRegion] = useState("Tutte");
   const [selectedOwnership, setSelectedOwnership] = useState("Tutti");
 
@@ -108,27 +112,176 @@ export const Locations: React.FC = () => {
     return regionMatch && ownershipMatch;
   });
 
+  const groupedLocations = useMemo(() => {
+    return filteredLocations.reduce<Record<string, LocationData[]>>(
+      (acc, loc) => {
+        if (!acc[loc.region]) acc[loc.region] = [];
+        acc[loc.region].push(loc);
+        return acc;
+      },
+      {}
+    );
+  }, [filteredLocations]);
+
+  const regionEntries = useMemo(
+    () => Object.entries(groupedLocations),
+    [groupedLocations]
+  );
+
+  const isOpenNow = () => {
+    const now = new Date();
+    const minutes = now.getHours() * 60 + now.getMinutes();
+    const morningOpen = 9 * 60 + 30;
+    const morningClose = 13 * 60;
+    const afternoonOpen = 16 * 60 + 30;
+    const afternoonClose = 20 * 60 + 30;
+    return (
+      (minutes >= morningOpen && minutes <= morningClose) ||
+      (minutes >= afternoonOpen && minutes <= afternoonClose)
+    );
+  };
+
+  const locationsContent =
+    regionEntries.length > 0 ? (
+      regionEntries.map(([region, locations]) => (
+        <div key={region} className="mb-16">
+          <h3 className="text-xl font-serif text-brand-text-primary mb-8">
+            {region}
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
+            {locations.map((loc, index) => (
+              <Reveal
+                key={`${loc.name}-${index}`}
+                width="100%"
+                delay={index * 0.1}
+                fullHeight
+              >
+                <div className="group flex flex-col h-full bg-white rounded-sm pb-6 transition-shadow duration-300 hover:shadow-sm border border-brand-border">
+                  <div className="aspect-video relative overflow-hidden mb-6 bg-brand-surface">
+                    <img
+                      src={`${loc.image}&grayscale`}
+                      alt={`Sede ${loc.name}`}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                    <div className="absolute top-4 left-4 bg-white/90 px-3 py-1 text-[10px] text-brand-text-primary uppercase tracking-widest backdrop-blur-sm">
+                      {loc.region}
+                    </div>
+                  </div>
+
+                  <div className="px-6 grow flex flex-col">
+                    <div className="flex justify-between items-start mb-3">
+                      <h3 className="text-xl font-serif text-brand-text-primary pr-2 leading-tight">
+                        {loc.name}
+                      </h3>
+                    </div>
+
+                    <span
+                      className={`text-[10px] uppercase tracking-widest mb-2 inline-block ${
+                        loc.isFranchise
+                          ? "text-brand-text-secondary"
+                          : "text-brand-accent"
+                      }`}
+                    >
+                      {loc.isFranchise ? "Franchising" : "Store Proprietario"}
+                    </span>
+
+                    <span
+                      className={`text-[10px] uppercase tracking-widest mb-4 inline-block ${
+                        isOpenNow()
+                          ? "text-brand-accent"
+                          : "text-brand-text-secondary"
+                      }`}
+                    >
+                      {isOpenNow() ? "Aperto ora" : "Chiuso ora"}
+                    </span>
+
+                    <div className="space-y-3 text-brand-text-secondary text-sm font-light mb-6">
+                      <div className="flex items-start">
+                        <MapPin
+                          size={16}
+                          className="text-brand-accent mr-3 shrink-0 mt-0.5"
+                        />
+                        <span className="leading-relaxed">{loc.address}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Store
+                          size={16}
+                          className="text-brand-accent mr-3 shrink-0"
+                        />
+                        <span>Lun-Dom: 09:30-13:00 / 16:30-20:30</span>
+                      </div>
+                    </div>
+
+                    <div className="pt-6 border-t border-brand-border mt-auto">
+                      <a
+                        href={`https://maps.google.com/?q=${encodeURIComponent(
+                          loc.address
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center text-xs font-bold text-brand-text-primary hover:text-brand-accent uppercase tracking-widest transition-colors"
+                      >
+                        Indicazioni
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      ))
+    ) : (
+      <div className="col-span-full text-center py-20">
+        <p className="text-brand-text-secondary mb-6 font-light text-lg">
+          Nessun punto vendita trovato con i filtri selezionati.
+        </p>
+        <Button
+          variant="outline"
+          onClick={() => {
+            setSelectedRegion("Tutte");
+            setSelectedOwnership("Tutti");
+          }}
+        >
+          Resetta Filtri
+        </Button>
+      </div>
+    );
+
   return (
     <div className="pt-24 min-h-screen bg-brand-bg text-brand-text-primary">
       <SEO
         title="Le nostre Sedi | Dimensione Immagine"
         description="Vieni a trovarci nei nostri showroom e punti vendita in tutta Italia."
+        url={`https://www.dimensioneimmagine.net${location.pathname}`}
         image="/og-sedi.jpg"
       />
 
       {/* Editorial Header */}
       <section className="container mx-auto px-6 py-12 md:py-20 text-center">
         <Reveal width="100%">
-          <span className="text-brand-text-secondary text-xs font-bold uppercase tracking-widest mb-4 block">
-            Dove trovarci
-          </span>
-          <h1 className="font-serif text-5xl md:text-7xl mb-8">
-            Negozi & Showroom
-          </h1>
-          <p className="text-brand-text-secondary text-lg font-light max-w-xl mx-auto">
-            Vieni a trovarci nei nostri punti vendita per scoprire le nuove
-            collezioni.
-          </p>
+          <SectionHeader
+            label="Dove trovarci"
+            title="Negozi & Showroom"
+            subtitle="Vieni a trovarci nei nostri punti vendita per scoprire le nuove collezioni."
+            as="h1"
+          />
+        </Reveal>
+      </section>
+
+      {/* Map Embed */}
+      <section className="container mx-auto px-6 mb-16">
+        <Reveal width="100%">
+          <div className="bg-white border border-brand-border shadow-sm overflow-hidden rounded-sm">
+            <iframe
+              title="Mappa Dimensione Immagine"
+              src="https://www.google.com/maps?q=Via%20Maddalena%2038%2FD%2C%20Messina&output=embed"
+              className="w-full h-72"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            ></iframe>
+          </div>
         </Reveal>
       </section>
 
@@ -174,92 +327,7 @@ export const Locations: React.FC = () => {
         </Reveal>
       </div>
 
-      <div className="container mx-auto px-6 pb-24">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
-          {filteredLocations.map((loc, index) => (
-            <Reveal key={index} width="100%" delay={index * 0.1} fullHeight>
-              <div className="group flex flex-col h-full bg-white rounded-sm pb-6 transition-shadow duration-300 hover:shadow-sm border border-transparent hover:border-brand-border">
-                <div className="aspect-video relative overflow-hidden mb-6 bg-brand-surface">
-                  <img
-                    src={`${loc.image}&grayscale`}
-                    alt={`Sede ${loc.name}`}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    loading="lazy"
-                  />
-                  <div className="absolute top-4 left-4 bg-white/90 px-3 py-1 text-[10px] text-brand-text-primary uppercase tracking-widest backdrop-blur-sm">
-                    {loc.region}
-                  </div>
-                </div>
-
-                <div className="px-6 flex-grow flex flex-col">
-                  <div className="flex justify-between items-start mb-3">
-                    <h3 className="text-xl font-serif text-brand-text-primary pr-2 leading-tight">
-                      {loc.name}
-                    </h3>
-                  </div>
-
-                  <span
-                    className={`text-[10px] uppercase tracking-widest mb-4 inline-block ${
-                      loc.isFranchise
-                        ? "text-brand-text-secondary"
-                        : "text-brand-accent"
-                    }`}
-                  >
-                    {loc.isFranchise ? "Franchising" : "Store Proprietario"}
-                  </span>
-
-                  <div className="space-y-3 text-brand-text-secondary text-sm font-light mb-6">
-                    <div className="flex items-start">
-                      <MapPin
-                        size={16}
-                        className="text-brand-accent mr-3 shrink-0 mt-0.5"
-                      />
-                      <span className="leading-relaxed">{loc.address}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Store
-                        size={16}
-                        className="text-brand-accent mr-3 shrink-0"
-                      />
-                      <span>Lun-Dom: 09:30-13:00 / 16:30-20:30</span>
-                    </div>
-                  </div>
-
-                  <div className="pt-6 border-t border-brand-border mt-auto">
-                    <a
-                      href={`https://maps.google.com/?q=${encodeURIComponent(
-                        loc.address
-                      )}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center text-xs font-bold text-brand-text-primary hover:text-brand-accent uppercase tracking-widest transition-colors"
-                    >
-                      Indicazioni
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-          ))}
-
-          {filteredLocations.length === 0 && (
-            <div className="col-span-full text-center py-20">
-              <p className="text-brand-text-secondary mb-6 font-light text-lg">
-                Nessun punto vendita trovato con i filtri selezionati.
-              </p>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setSelectedRegion("Tutte");
-                  setSelectedOwnership("Tutti");
-                }}
-              >
-                Resetta Filtri
-              </Button>
-            </div>
-          )}
-        </div>
-      </div>
+      <div className="container mx-auto px-6 pb-24">{locationsContent}</div>
     </div>
   );
 };

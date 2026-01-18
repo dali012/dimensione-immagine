@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { SEO } from "../components/SEO/SEO";
 import { Reveal } from "../components/UI/Reveal";
 import { catalogImages } from "../data/catalog";
+import { SectionHeader } from "../components/UI/SectionHeader";
+import { Heart } from "lucide-react";
 
 const FILTERS = ["Tutto", "Accessori", "Donna", "Uomo"];
 
@@ -29,6 +31,8 @@ export const Catalog: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState("Tutto");
+  const [search, setSearch] = useState("");
+  const [favorites, setFavorites] = useState<number[]>([]);
 
   // Sync state with URL params on mount and update
   useEffect(() => {
@@ -41,6 +45,27 @@ export const Catalog: React.FC = () => {
     }
   }, [location.search]);
 
+  useEffect(() => {
+    const stored = localStorage.getItem("catalog-favorites");
+    if (stored) {
+      try {
+        setFavorites(JSON.parse(stored));
+      } catch {
+        setFavorites([]);
+      }
+    }
+  }, []);
+
+  const toggleFavorite = (id: number) => {
+    setFavorites((prev) => {
+      const updated = prev.includes(id)
+        ? prev.filter((fav) => fav !== id)
+        : [...prev, id];
+      localStorage.setItem("catalog-favorites", JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   const handleFilterClick = (filter: string) => {
     setActiveFilter(filter);
     if (filter === "Tutto") {
@@ -50,31 +75,37 @@ export const Catalog: React.FC = () => {
     }
   };
 
-  const filteredImages =
-    activeFilter === "Tutto"
-      ? catalogImages
-      : catalogImages.filter((img) => img.category === activeFilter);
+  const filteredImages = useMemo(() => {
+    const byCategory =
+      activeFilter === "Tutto"
+        ? catalogImages
+        : catalogImages.filter((img) => img.category === activeFilter);
+    const query = search.trim().toLowerCase();
+    if (!query) return byCategory;
+    return byCategory.filter((img) => img.alt.toLowerCase().includes(query));
+  }, [activeFilter, search]);
 
   return (
     <div className="pt-24 min-h-screen bg-brand-bg text-brand-text-primary">
       <SEO
         title="Trovi da Noi | Dimensione Immagine"
         description="Esplora le nostre collezioni Uomo, Donna e Accessori. Il meglio della moda a Messina."
+        url={`https://www.dimensioneimmagine.net${location.pathname}${location.search}`}
         image="/og-catalog.jpg"
       />
 
       <div className="container mx-auto px-6 py-12">
         <Reveal width="100%">
-          <div className="text-center mb-16">
-            <span className="text-brand-accent text-xs font-bold uppercase tracking-widest mb-4 block">
-              La Nostra Selezione
-            </span>
-            <h1 className="font-serif text-5xl md:text-7xl mb-8 text-brand-text-primary">
-              Trovi da Noi
-            </h1>
+          <div className="text-center mb-12">
+            <SectionHeader
+              label="La Nostra Selezione"
+              title="Trovi da Noi"
+              subtitle="Esplora le collezioni Uomo, Donna e Accessori. Filtra per categoria e salva i preferiti."
+              as="h1"
+            />
 
             {/* Filter Buttons */}
-            <div className="flex flex-wrap justify-center gap-4">
+            <div className="flex flex-wrap justify-center gap-4 mt-8">
               {FILTERS.map((filter) => (
                 <button
                   key={filter}
@@ -88,6 +119,17 @@ export const Catalog: React.FC = () => {
                   {filter}
                 </button>
               ))}
+            </div>
+
+            <div className="max-w-2xl mx-auto mt-6">
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Cerca nella collezione..."
+                className="w-full bg-transparent border-b border-brand-border py-3 text-brand-text-primary focus:outline-none focus:border-brand-accent transition-colors placeholder-brand-text-secondary/60"
+                aria-label="Cerca nella collezione"
+              />
             </div>
 
             {activeFilter !== "Tutto" &&
@@ -124,8 +166,26 @@ export const Catalog: React.FC = () => {
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.4 }}
                 key={image.id}
-                className="break-inside-avoid relative group overflow-hidden"
+                className="break-inside-avoid relative group overflow-hidden bg-white border border-brand-border shadow-sm"
               >
+                <button
+                  onClick={() => toggleFavorite(image.id)}
+                  className="absolute top-4 right-4 z-10 bg-white/80 backdrop-blur-sm p-2 rounded-full border border-brand-border hover:border-brand-accent transition-colors"
+                  aria-label={
+                    favorites.includes(image.id)
+                      ? "Rimuovi dai preferiti"
+                      : "Aggiungi ai preferiti"
+                  }
+                >
+                  <Heart
+                    size={16}
+                    className={
+                      favorites.includes(image.id)
+                        ? "text-brand-accent fill-brand-accent"
+                        : "text-brand-text-secondary"
+                    }
+                  />
+                </button>
                 <img
                   src={image.src}
                   alt={image.alt}

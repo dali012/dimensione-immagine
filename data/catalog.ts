@@ -2,7 +2,7 @@ export const catalogImages = [
   {
     id: 1,
     category: "Donna",
-    src: "images/women1.jpg",
+    src: "/images/women1.jpg",
     alt: "Collezione Donna Elegante",
   },
   {
@@ -14,13 +14,13 @@ export const catalogImages = [
   {
     id: 3,
     category: "Uomo",
-    src: "images/men1.jpg",
+    src: "/images/men1.jpg",
     alt: "Abito Uomo Sartoriale",
   },
   {
     id: 4,
     category: "Donna",
-    src: "images/women2.jpg",
+    src: "/images/women2.jpg",
     alt: "Abito da sera Donna",
   },
   {
@@ -32,25 +32,25 @@ export const catalogImages = [
   {
     id: 6,
     category: "Uomo",
-    src: "images/men2.jpg",
+    src: "/images/men2.jpg",
     alt: "Casual Uomo",
   },
   {
     id: 7,
     category: "Donna",
-    src: "images/women3.jpg",
+    src: "/images/women3.jpg",
     alt: "Giacca Donna Inverno",
   },
   {
     id: 9,
     category: "Uomo",
-    src: "images/men3.jpg",
+    src: "/images/men3.jpg",
     alt: "Ritratto Uomo Elegante",
   },
   {
     id: 10,
     category: "Donna",
-    src: "images/women4.jpg",
+    src: "/images/women4.jpg",
     alt: "Modella in abito nero",
   },
   {
@@ -62,31 +62,31 @@ export const catalogImages = [
   {
     id: 12,
     category: "Uomo",
-    src: "images/men4.jpg",
+    src: "/images/men4.jpg",
     alt: "Look Urbano Uomo",
   },
   {
     id: 15,
     category: "Uomo",
-    src: "images/men5.jpg",
+    src: "/images/men5.jpg",
     alt: "Look Urbano Uomo",
   },
   {
     id: 16,
     category: "Uomo",
-    src: "images/men6.jpg",
+    src: "/images/men6.jpg",
     alt: "Look Urbano Uomo",
   },
   {
     id: 13,
     category: "Donna",
-    src: "images/women5.jpg",
+    src: "/images/women5.jpg",
     alt: "Look Urbano Donna",
   },
   {
     id: 14,
     category: "Donna",
-    src: "images/women6.jpg",
+    src: "/images/women6.jpg",
     alt: "Look Urbano Donna",
   },
 ];
