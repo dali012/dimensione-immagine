@@ -5,7 +5,6 @@ import { Button } from "../components/UI/Button";
 import { Reveal } from "../components/UI/Reveal";
 import { SectionHeader } from "../components/UI/SectionHeader";
 import { useLocation } from "react-router-dom";
-import { div } from "framer-motion/client";
 
 interface LocationData {
   name: string;
@@ -49,8 +48,8 @@ const LOCATIONS: LocationData[] = [
     name: "Vulcano Buono",
     region: "Campania",
     address: "Via Boscofangone, 80035 Nola NA",
-    isFranchise: false,
-    image: "https://picsum.photos/800/400?random=5",
+    isFranchise: true,
+    image: "/images/vulcano-buono.jpg",
   },
   {
     name: "Le Porte Del Savuto",
@@ -64,28 +63,35 @@ const LOCATIONS: LocationData[] = [
     region: "Abruzzo",
     address: "Corso Umberto Primo, 610 (PE)",
     isFranchise: false,
-    image: "https://picsum.photos/800/400?random=7",
+    image: "/images/montesilvano.jpeg",
   },
   {
     name: "Boutique Donna",
     region: "Sicilia",
     address: "Via Maddalena, 74, 98122 angolo Via dei Mille (ME)",
     isFranchise: false,
-    image: "https://picsum.photos/800/400?random=8",
+    image: "/images/boutique-donna.jpeg",
   },
   {
     name: "Torre Faro",
     region: "Sicilia",
     address: "Via Circuito, 177, 98164 Ex Lumachina (ME)",
     isFranchise: false,
-    image: "https://picsum.photos/800/400?random=9",
+    image: "/images/torre-faro.jpeg",
   },
   {
     name: "Boutique Uomo",
     region: "Sicilia",
     address: "Via Giordano Bruno, 38/D, angolo Via Maddalena (ME)",
     isFranchise: false,
-    image: "https://picsum.photos/800/400?random=10",
+    image: "/images/boutique-uomo.jpeg",
+  },
+  {
+    name: "Centro Commerciale Tremestieri",
+    region: "Sicilia",
+    address: "2.Piano accanto al cinema, Tremestieri (ME)",
+    isFranchise: false,
+    image: "/images/tremestieri.jpeg",
   },
 ];
 
@@ -97,7 +103,17 @@ export const Locations: React.FC = () => {
   const [selectedRegion, setSelectedRegion] = useState("Tutte");
   const [selectedOwnership, setSelectedOwnership] = useState("Tutti");
 
-  const filteredLocations = LOCATIONS.filter((loc) => {
+  // Sort by Proprietario (isFranchise false first), then alphabetically by name
+  const sortedLocations = useMemo(() => {
+    return [...LOCATIONS].sort((a, b) => {
+      if (a.isFranchise === b.isFranchise) {
+        return a.name.localeCompare(b.name);
+      }
+      return a.isFranchise ? 1 : -1; // Proprietario (false) first
+    });
+  }, []);
+
+  const filteredLocations = sortedLocations.filter((loc) => {
     const regionMatch =
       selectedRegion === "Tutte" ||
       loc.region.toLowerCase() === selectedRegion.toLowerCase();
@@ -159,7 +175,7 @@ export const Locations: React.FC = () => {
                 <div className="group flex flex-col h-full bg-white rounded-sm pb-6 transition-shadow duration-300 hover:shadow-sm border border-brand-border">
                   <div className="aspect-video relative overflow-hidden mb-6 bg-brand-surface">
                     <img
-                      src={`${loc.image}&grayscale`}
+                      src={`${loc.image}`}
                       alt={`Sede ${loc.name}`}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       loading="lazy"
@@ -183,7 +199,14 @@ export const Locations: React.FC = () => {
                           : "text-brand-accent"
                       }`}
                     >
-                      {loc.isFranchise ? "Franchising" : "Store Proprietario"}
+                      {loc.isFranchise ? (
+                        "Franchising"
+                      ) : (
+                        <div>
+                          Store Proprietario <br />
+                          {isOpenNow() ? " Aperto ora" : " Chiuso ora"}
+                        </div>
+                      )}
                     </span>
 
                     <span
@@ -192,24 +215,45 @@ export const Locations: React.FC = () => {
                           ? "text-brand-accent"
                           : "text-brand-text-secondary"
                       }`}
-                    >
-                      {isOpenNow() ? "Aperto ora" : "Chiuso ora"}
-                    </span>
+                    ></span>
 
                     <div className="space-y-3 text-brand-text-secondary text-sm font-light mb-6">
-                      <div className="flex items-start">
-                        <MapPin
-                          size={16}
-                          className="text-brand-accent mr-3 shrink-0 mt-0.5"
-                        />
-                        <span className="leading-relaxed">{loc.address}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Store
-                          size={16}
-                          className="text-brand-accent mr-3 shrink-0"
-                        />
-                        <span>Lun-Dom: 09:30-13:00 / 16:30-20:30</span>
+                      <div className="flex items-start flex-col gap-3">
+                        <div className="flex items-start">
+                          <MapPin
+                            size={16}
+                            className="text-brand-accent mr-3 shrink-0 mt-0.5"
+                          />
+                          <span className="leading-relaxed">{loc.address}</span>
+                        </div>
+                        <div>
+                          {!loc.isFranchise && (
+                            <div className="flex items-center">
+                              <Store
+                                size={16}
+                                className="text-brand-accent mr-3 shrink-0"
+                              />
+                              <span>
+                                {(() => {
+                                  switch (loc.name) {
+                                    case "Torre Faro":
+                                      return "Orari: Lun-Sab 9:00-20:00, Dom 9:00-13:00 / 16:00-20:00";
+                                    case "Boutique Uomo":
+                                      return "Orari: Lun-Sab 9:00-20:00, Dom 9:00-13:00 / 16:00-20:00";
+                                    case "Boutique Donna":
+                                      return "Orari: Lun-Dom 9:30-13:00 / 16:00-20:00";
+                                    case "Centro Commerciale Tremestieri":
+                                      return "Orari: Lun-Sab 9:00-20:30, Dom e festivi: 9:30-20:30";
+                                    case "Montesilvano Store":
+                                      return "Orari: Lun-Sab 9:00-20:00, Dom 9:00-13:00 / 16:00-20:00";
+                                    default:
+                                      return "Orari: Lun-Sab 9:30-13:00 / 16:30-20:30";
+                                  }
+                                })()}
+                              </span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
 

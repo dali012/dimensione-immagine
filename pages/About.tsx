@@ -21,7 +21,7 @@ const VALUES: ValueItem[] = [
     title: "Accessibilità & Prezzi Giusti",
     description:
       "Crediamo che la bellezza debba essere condivisa. La nostra moda resta accessibile senza rinunciare alla qualità.",
-    image: "/images/hero-bg.jpg",
+    image: "/images/accessibilita-prezzi-giusti.jpeg",
   },
   {
     title: "Stile & Tendenza ",
@@ -33,13 +33,13 @@ const VALUES: ValueItem[] = [
     title: "Inclusività & Valorizzazione delle Fisicità",
     description:
       "Celebriamo la diversità. Le nostre linee sono pensate per vestire, valorizzare e rispettare ogni corpo.",
-    image: "/images/about-team.png",
+    image: "/images/inclusivita-valorizzazione-delle-fisicita.jpeg",
   },
   {
     title: "Qualità & Selezione Curata",
     description:
       "Ogni capo è scelto con attenzione ai materiali, alle finiture e al comfort, affinché duri e si indossi con piacere.",
-    image: "/images/hero-bg.jpg",
+    image: "/images/qualita-selezione-curata.jpeg",
   },
   {
     title: "Tradizione & Evoluzione",
@@ -51,7 +51,7 @@ const VALUES: ValueItem[] = [
     title: "Fiducia & Relazione con il Cliente",
     description:
       "La fiducia si conquista con trasparenza, costanza e presenza. Per noi, ogni cliente è una relazione da coltivare.",
-    image: "/images/about-team.png",
+    image: "/images/fiducia-relazione-con-il-cliente.jpeg",
   },
 ];
 
@@ -79,16 +79,20 @@ export const About: React.FC = () => {
             <div className="md:pl-24 lg:pl-32 border-l border-brand-accent/30 pl-6">
               <div className="space-y-6 text-brand-text-secondary text-base md:text-lg leading-relaxed font-light max-w-2xl">
                 <p>
-                  Un racconto di stile, autenticità e visione curato da Débora
-                  Scabora, Diretricce di Marketing e Visual Merchandising.
+                  Un racconto di stile, autenticità e visione curato da{" "}
+                  <span className="font-bold">
+                    Débora Scabora, Diretricce di Marketing e Visual
+                    Merchandising.
+                  </span>
                 </p>
                 <p>
-                  Dal 1984 Dimensione Immagine Fondata da Fortunato Oteri,
-                  interpreta la moda come un gesto di accoglienza e identità.
-                  Nata in Sicilia come un’elegante realtà, la nostra storia
-                  affonda le radici nella cura del dettaglio, nel rispetto delle
-                  persone e nella volontà di creare un’esperienza che unisce
-                  stile e umanità.
+                  Dal 1984 Dimensione Immagine Fondata da{" "}
+                  <span className="font-bold">Fortunato Oteri</span>, interpreta
+                  la moda come un gesto di accoglienza e identità. Nata in
+                  Sicilia come un’elegante realtà, la nostra storia affonda le
+                  radici nella cura del dettaglio, nel rispetto delle persone e
+                  nella volontà di creare un’esperienza che unisce stile e
+                  umanità.
                 </p>
                 <p>
                   Nel corso dei decenni, quel primo negozio è diventato un
@@ -110,7 +114,7 @@ export const About: React.FC = () => {
                   tradurre questa essenza in ogni parola e immagine, preservando
                   l'autenticità che ci accompagna da sempre."
                 </p>
-                <p>– Débora Scabora</p>
+                <p className="font-bold">– Débora Scabora</p>
               </div>
             </div>
           </div>
@@ -125,7 +129,7 @@ export const About: React.FC = () => {
             <div className="lg:col-span-7 h-[60vh] relative overflow-hidden bg-brand-surface rounded-sm">
               <Reveal width="100%" className="h-full">
                 <img
-                  src="/images/about-team.png"
+                  src="/images/la-nostra-mission.jpeg"
                   alt="Il team di Dimensione Immagine"
                   className="w-full h-full object-cover"
                   loading="eager"
@@ -155,7 +159,10 @@ export const About: React.FC = () => {
                     contemporanea, confortevole, profondamente autentica.
                   </p>
                   <p>
-                    Per questo sviluppiamo collezioni Uomo, Donna e Taglie Forti
+                    Per questo sviluppiamo collezioni{" "}
+                    <span className="font-bold">
+                      Uomo, Donna e Taglie Forti
+                    </span>{" "}
                     che non vestono soltanto il corpo, ma interpretano la
                     personalità di chi le sceglie.
                   </p>
@@ -203,7 +210,7 @@ export const About: React.FC = () => {
       {/* Values List - Alternating Layout like Photo */}
       <section className="py-24 lg:py-32">
         <div className="container mx-auto px-6">
-          <Reveal className="mb-24 text-center">
+          <Reveal className="mb-24 mx-auto">
             <h2 className="font-serif text-4xl lg:text-5xl mb-2">
               I Nostri Valori
             </h2>
