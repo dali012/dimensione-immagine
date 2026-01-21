@@ -95,7 +95,11 @@ export const Navbar: React.FC = () => {
             className="lg:hidden text-brand-text-primary hover:text-brand-accent transition-colors z-50 focus:outline-none p-2 -mr-2"
             aria-label={isOpen ? "Chiudi menu" : "Apri menu"}
           >
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
+            {isOpen ? (
+              <X size={24} className="cursor-pointer" />
+            ) : (
+              <Menu size={24} className="cursor-pointer" />
+            )}
           </button>
         </div>
       </nav>
@@ -115,9 +119,11 @@ export const Navbar: React.FC = () => {
                 key={item.path}
                 to={item.path}
                 onClick={() => setIsOpen(false)}
-                className={`font-serif text-2xl sm:text-3xl md:text-4xl text-brand-text-secondary hover:text-brand-accent transition-colors duration-300 ${
-  location.pathname === item.path ? "text-brand-accent italic" : "text-white"
-}`}
+                className={`font-serif text-2xl sm:text-3xl md:text-4xl hover:text-brand-accent transition-colors duration-300 ${
+                  location.pathname === item.path
+                    ? "text-brand-accent italic"
+                    : "text-brand-text-secondary"
+                }`}
               >
                 {item.label}
               </Link>
