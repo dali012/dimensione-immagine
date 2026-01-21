@@ -115,7 +115,7 @@ export const Navbar: React.FC = () => {
                 key={item.path}
                 to={item.path}
                 onClick={() => setIsOpen(false)}
-                className={`font-serif text-2xl sm:text-3xl md:text-4xl text-brand-text-primary hover:text-brand-accent transition-colors duration-300 ${
+                className={`font-serif text-2xl sm:text-3xl md:text-4xl text-brand-text-secondary hover:text-brand-accent transition-colors duration-300 ${
   location.pathname === item.path ? "text-brand-accent italic" : "text-white"
 }`}
               >
