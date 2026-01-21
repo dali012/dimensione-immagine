@@ -45,7 +45,7 @@ const VALUES: ValueItem[] = [
     title: "Tradizione & Evoluzione",
     description:
       "Preserviamo oltre quarant’anni di esperienza con uno sguardo rivolto al futuro, innovando senza mai tradire le nostre radici.",
-    image: "/images/hero-bg2.jpg",
+    image: "/images/tradizione-evoluzione.png",
   },
   {
     title: "Fiducia & Relazione con il Cliente",
@@ -236,7 +236,7 @@ export const About: React.FC = () => {
                       index % 2 === 0 ? "lg:order-2" : "lg:order-1"
                     }`}
                   >
-                    <div className="relative aspect-video lg:aspect-3/2 overflow-hidden bg-brand-surface rounded-sm shadow-sm group">
+                    <div className="relative aspect-video lg:aspect-3/2 overflow-hidden rounded-sm group">
                       <img
                         src={value.image}
                         alt={value.title}
