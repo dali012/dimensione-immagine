@@ -119,13 +119,13 @@ export const Locations: React.FC = () => {
         acc[loc.region].push(loc);
         return acc;
       },
-      {}
+      {},
     );
   }, [filteredLocations]);
 
   const regionEntries = useMemo(
     () => Object.entries(groupedLocations),
-    [groupedLocations]
+    [groupedLocations],
   );
 
   const isOpenNow = () => {
@@ -216,7 +216,7 @@ export const Locations: React.FC = () => {
                     <div className="pt-6 border-t border-brand-border mt-auto">
                       <a
                         href={`https://maps.google.com/?q=${encodeURIComponent(
-                          loc.address
+                          loc.address,
                         )}`}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -253,7 +253,7 @@ export const Locations: React.FC = () => {
     <div className="pt-24 min-h-screen bg-brand-bg text-brand-text-primary">
       <SEO
         title="Le nostre Sedi | Dimensione Immagine"
-        description="Vieni a trovarci nei nostri showroom e punti vendita in tutta Italia."
+        description="Vieni a trovarci nei nostri franchising e punti vendita in tutta Italia."
         url={`https://www.dimensioneimmagine.net${location.pathname}`}
         image="/og-sedi.jpg"
       />
@@ -263,7 +263,7 @@ export const Locations: React.FC = () => {
         <Reveal width="100%">
           <SectionHeader
             label="Dove trovarci"
-            title="Negozi & Showroom"
+            title="Negozi & Franchising"
             subtitle="Vieni a trovarci nei nostri punti vendita per scoprire le nuove collezioni."
             as="h1"
           />

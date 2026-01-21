@@ -106,10 +106,9 @@ export const About: React.FC = () => {
                   restando fedele alla propria anima.
                 </p>
                 <p>
-                  "Como guardiã da comunicação institucional, assumo o
-                  compromisso de traduzir essa essência em cada palavra e
-                  imagem, preservando a autenticidade que nos acompanha desde
-                  sempre."
+                  "Come custode della comunicazione istituzionale, mi impegno a
+                  tradurre questa essenza in ogni parola e immagine, preservando
+                  l'autenticità che ci accompagna da sempre."
                 </p>
                 <p>– Débora Scabora</p>
               </div>

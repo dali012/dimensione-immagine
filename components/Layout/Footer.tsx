@@ -53,7 +53,7 @@ export const Footer: React.FC = () => {
                   to="/sedi"
                   className="hover:text-brand-accent transition-colors"
                 >
-                  Negozi & Showroom
+                  Negozi & Franchising
                 </Link>
               </li>
               <li>
@@ -200,7 +200,7 @@ export const Footer: React.FC = () => {
                         "Content-Type": "application/json",
                       },
                       body: JSON.stringify({ email }),
-                    }
+                    },
                   );
 
                   const data = await res.json();
