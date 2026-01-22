@@ -16,43 +16,43 @@ import { SEO } from "./components/SEO/SEO";
 
 // Lazy load pages
 const Home = React.lazy(() =>
-  import("./pages/Home").then((module) => ({ default: module.Home }))
+  import("./pages/Home").then((module) => ({ default: module.Home })),
 );
 const About = React.lazy(() =>
-  import("./pages/About").then((module) => ({ default: module.About }))
+  import("./pages/About").then((module) => ({ default: module.About })),
 );
 const Locations = React.lazy(() =>
-  import("./pages/Locations").then((module) => ({ default: module.Locations }))
+  import("./pages/Locations").then((module) => ({ default: module.Locations })),
 );
 const Contact = React.lazy(() =>
-  import("./pages/Contact").then((module) => ({ default: module.Contact }))
+  import("./pages/Contact").then((module) => ({ default: module.Contact })),
 );
 const PrivacyPolicy = React.lazy(() =>
   import("./pages/PrivacyPolicy").then((module) => ({
     default: module.PrivacyPolicy,
-  }))
+  })),
 );
 const CookiePolicy = React.lazy(() =>
   import("./pages/CookiePolicy").then((module) => ({
     default: module.CookiePolicy,
-  }))
+  })),
 );
 const TermsAndConditions = React.lazy(() =>
   import("./pages/TermsAndConditions").then((module) => ({
     default: module.TermsAndConditions,
-  }))
+  })),
 );
 const Catalog = React.lazy(() =>
-  import("./pages/Catalog").then((module) => ({ default: module.Catalog }))
+  import("./pages/Catalog").then((module) => ({ default: module.Catalog })),
 );
 const Blog = React.lazy(() =>
-  import("./pages/Blog").then((module) => ({ default: module.Blog }))
+  import("./pages/Blog").then((module) => ({ default: module.Blog })),
 );
 const BlogPost = React.lazy(() =>
-  import("./pages/BlogPost").then((module) => ({ default: module.BlogPost }))
+  import("./pages/BlogPost").then((module) => ({ default: module.BlogPost })),
 );
 const NotFound = React.lazy(() =>
-  import("./pages/NotFound").then((module) => ({ default: module.NotFound }))
+  import("./pages/NotFound").then((module) => ({ default: module.NotFound })),
 );
 
 const LoadingFallback = () => (
@@ -183,12 +183,12 @@ const App: React.FC = () => {
   const localBusinessSchema = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
-    "@id": "https://www.dimensioneimmagine.net/#localbusiness",
+    "@id": "https://www.dimensioneimmagineabbigliamento.it/#localbusiness",
     name: "Dimensione Immagine",
-    url: "https://www.dimensioneimmagine.net",
+    url: "https://www.dimensioneimmagineabbigliamento.it",
     telephone: "+39 090 240 0474",
     priceRange: "€€",
-    image: "https://www.dimensioneimmagine.net/og-image.jpg",
+    image: "https://www.dimensioneimmagineabbigliamento.it/og-image.jpg",
     address: {
       "@type": "PostalAddress",
       streetAddress: "Via Maddalena 38/D",

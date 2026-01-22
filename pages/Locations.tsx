@@ -16,47 +16,18 @@ interface LocationData {
 
 const LOCATIONS: LocationData[] = [
   {
-    name: "Lolita Benevento",
-    region: "Campania",
-    address: "Via dei Longobardi, 82100 Benevento BN",
-    isFranchise: true,
-    image: "https://picsum.photos/800/400?random=1",
-  },
-  {
-    name: "MS Royal Montesarchio",
-    region: "Campania",
-    address:
-      "Centro Commerciale Liz Gallery, Via Benevento, 82016 Montesarchio BN",
-    isFranchise: true,
-    image: "https://picsum.photos/800/400?random=2",
-  },
-  {
-    name: "Centriko C.so Garibaldi",
-    region: "Campania",
-    address: "Corso Garibaldi, 172/174, 82100 Benevento BN",
-    isFranchise: true,
-    image: "https://picsum.photos/800/400?random=3",
-  },
-  {
-    name: "Centriko Il Noce",
-    region: "Campania",
-    address: "Galleria Comm. Il Noce, Via dei Dauni, 82100 Benevento BN",
-    isFranchise: true,
-    image: "https://picsum.photos/800/400?random=4",
-  },
-  {
-    name: "Vulcano Buono",
+    name: "Vulcano Buono (Victor Benjamin)",
     region: "Campania",
     address: "Via Boscofangone, 80035 Nola NA",
     isFranchise: true,
-    image: "/images/vulcano-buono.jpg",
+    image: "/images/victor-benjamin.jpeg",
   },
   {
     name: "Le Porte Del Savuto",
     region: "Calabria",
     address: "Via Antonio Guarasci, 87056 Vallegianno (CS)",
     isFranchise: true,
-    image: "https://picsum.photos/800/400?random=6",
+    image: "/images/calabria.jpeg",
   },
   {
     name: "Montesilvano Store",
@@ -202,9 +173,13 @@ export const Locations: React.FC = () => {
                       {loc.isFranchise ? (
                         "Franchising"
                       ) : (
-                        <div>
+                        <div className="text-brand-text-secondary">
                           Store Proprietario <br />
-                          {isOpenNow() ? " Aperto ora" : " Chiuso ora"}
+                          {isOpenNow() ? (
+                            <span className="text-green-500">Aperto ora</span>
+                          ) : (
+                            <span className="text-red-500">Chiuso ora</span>
+                          )}
                         </div>
                       )}
                     </span>
