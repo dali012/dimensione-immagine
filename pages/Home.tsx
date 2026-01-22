@@ -35,7 +35,7 @@ export const Home: React.FC = () => {
       <SEO
         title="Dimensione Immagine | Moda Inclusiva e Accessibile"
         description="Scopri la nostra moda accessibile e inclusiva. Collezioni Uomo, Donna e Taglie Forti che valorizzano ogni fisicità e personalità."
-        url={`https://www.dimensioneimmagine.net${location.pathname}`}
+        url={`https://www.dimensioneimmagineabbigliamento.it${location.pathname}`}
         image="/og-image.jpg"
       />
 

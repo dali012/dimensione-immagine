@@ -1,5 +1,5 @@
-import React from 'react';
-import { Helmet } from 'react-helmet-async';
+import React from "react";
+import { Helmet } from "react-helmet-async";
 
 interface SEOProps {
   title: string;
@@ -14,13 +14,13 @@ interface SEOProps {
 export const SEO: React.FC<SEOProps> = ({
   title,
   description,
-  url = 'https://www.dimensioneimmagine.net',
-  image = '/og-image.jpg',
-  type = 'website',
+  url = "https://www.dimensioneimmagineabbigliamento.it",
+  image = "/og-image.jpg",
+  type = "website",
   structuredData,
-  siteName = 'Dimensione Immagine',
+  siteName = "Dimensione Immagine",
 }) => {
-  const fullTitle = title.includes('|') ? title : `${title} | ${siteName}`;
+  const fullTitle = title.includes("|") ? title : `${title} | ${siteName}`;
 
   return (
     <Helmet>

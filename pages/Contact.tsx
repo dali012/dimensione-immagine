@@ -31,7 +31,7 @@ export const Contact: React.FC = () => {
   const [marketingConsent, setMarketingConsent] = useState(false);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setFormData({
       ...formData,
@@ -85,7 +85,7 @@ export const Contact: React.FC = () => {
 
     if (!termsAccepted) {
       alert(
-        "Per inviare la richiesta devi accettare la Privacy Policy e i Termini di Servizio."
+        "Per inviare la richiesta devi accettare la Privacy Policy e i Termini di Servizio.",
       );
       return;
     }
@@ -107,7 +107,7 @@ export const Contact: React.FC = () => {
 
       localStorage.setItem("contact-last-submit", String(Date.now()));
       alert(
-        "Grazie! La tua richiesta è stata inviata. Ti risponderemo presto."
+        "Grazie! La tua richiesta è stata inviata. Ti risponderemo presto.",
       );
       setFormData({ name: "", email: "", phone: "", message: "" });
       setRecaptchaToken(null);
@@ -125,7 +125,7 @@ export const Contact: React.FC = () => {
       <SEO
         title="Contatti Dimensione Immagine | Moda a Messina"
         description="Contatta Dimensione Immagine per informazioni sulle collezioni Uomo, Donna e Taglie Forti a Messina."
-        url={`https://www.dimensioneimmagine.net${location.pathname}`}
+        url={`https://www.dimensioneimmagineabbigliamento.it${location.pathname}`}
         image="/og-contatti.jpg"
       />
       <div className="container mx-auto px-6 py-12 text-center">

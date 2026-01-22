@@ -23,7 +23,7 @@ export const BlogPost: React.FC = () => {
   }
 
   const sameCategory = blogPosts.filter(
-    (p) => p.id !== post.id && p.category === post.category
+    (p) => p.id !== post.id && p.category === post.category,
   );
   const related = (
     sameCategory.length
@@ -31,7 +31,7 @@ export const BlogPost: React.FC = () => {
       : blogPosts.filter((p) => p.id !== post.id)
   ).slice(0, 3);
 
-  const shareUrl = `https://www.dimensioneimmagine.net${location.pathname}`;
+  const shareUrl = `https://www.dimensioneimmagineabbigliamento.it${location.pathname}`;
   const shareText = `${post.title} | Dimensione Immagine`;
 
   const handleCopy = async () => {
@@ -117,7 +117,7 @@ export const BlogPost: React.FC = () => {
                   </button>
                   <a
                     href={`https://wa.me/?text=${encodeURIComponent(
-                      `${shareText} ${shareUrl}`
+                      `${shareText} ${shareUrl}`,
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -127,7 +127,7 @@ export const BlogPost: React.FC = () => {
                   </a>
                   <a
                     href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-                      shareUrl
+                      shareUrl,
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"
