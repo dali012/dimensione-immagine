@@ -30,7 +30,15 @@ export const PrivacyPolicy: React.FC = () => {
                 <br />
                 P.IVA: 03812960833
                 <br />
-                Email: info@dimensioneimmagine.net
+                Email:{" "}
+                <strong>
+                  <a
+                    href="mailto:contact@dimensioneimmagineabbigliamento.it"
+                    className="hover:text-brand-accent"
+                  >
+                    contact@dimensioneimmagineabbigliamento.it
+                  </a>
+                </strong>
               </p>
             </section>
 
@@ -141,7 +149,16 @@ export const PrivacyPolicy: React.FC = () => {
               <p className="mt-4">
                 Per esercitare i tuoi diritti, puoi contattare il Titolare
                 all'indirizzo email:{" "}
-                <strong>info@dimensioneimmagine.net</strong>.
+                <strong>
+                  {" "}
+                  <a
+                    href="mailto:contact@dimensioneimmagineabbigliamento.it"
+                    className="hover:text-brand-accent"
+                  >
+                    contact@dimensioneimmagineabbigliamento.it
+                  </a>
+                </strong>
+                .
               </p>
             </section>
 

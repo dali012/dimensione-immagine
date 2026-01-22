@@ -43,7 +43,15 @@ export const TermsAndConditions: React.FC = () => {
                 <br />
                 P.IVA: 03812960833
                 <br />
-                Email: info@dimensioneimmagine.net
+                Email:{" "}
+                <strong>
+                  <a
+                    href="mailto:contact@dimensioneimmagineabbigliamento.it"
+                    className="hover:text-brand-accent"
+                  >
+                    contact@dimensioneimmagineabbigliamento.it
+                  </a>
+                </strong>
               </p>
             </section>
 
