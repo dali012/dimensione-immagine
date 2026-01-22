@@ -164,16 +164,18 @@ export const Locations: React.FC = () => {
                     </div>
 
                     <span
-                      className={`text-[10px] uppercase tracking-widest mb-2 inline-block ${
+                      className={`text-[10px] tracking-widest pb-2 inline-block ${
                         loc.isFranchise
                           ? "text-brand-text-secondary"
                           : "text-brand-accent"
                       }`}
                     >
                       {loc.isFranchise ? (
-                        "Franchising"
+                        <span className="text-brand-text-secondary uppercase font-bold">
+                          Franchising
+                        </span>
                       ) : (
-                        <div className="text-brand-text-secondary">
+                        <div className="text-brand-text-secondary uppercase font-bold">
                           Store Proprietario <br />
                           {isOpenNow() ? (
                             <span className="text-green-500">Aperto ora</span>
@@ -183,14 +185,6 @@ export const Locations: React.FC = () => {
                         </div>
                       )}
                     </span>
-
-                    <span
-                      className={`text-[10px] uppercase tracking-widest mb-4 inline-block ${
-                        isOpenNow()
-                          ? "text-brand-accent"
-                          : "text-brand-text-secondary"
-                      }`}
-                    ></span>
 
                     <div className="space-y-3 text-brand-text-secondary text-sm font-light mb-6">
                       <div className="flex items-start flex-col gap-3">
