@@ -23,9 +23,24 @@ const LOCATIONS: LocationData[] = [
     image: "/images/victor-benjamin.jpeg",
   },
   {
-    name: "Le Porte Del Savuto",
+    name: "Dimensione immagine",
+    region: "Sicilia",
+    address: "Via Nicola Fabrizi 89, 98123 Messina (ME)",
+    isFranchise: false,
+    image: "/images/dimensione-immagine.jpeg",
+  },
+  {
+    name: "Vittoria Company",
+    region: "Puglia",
+    address: "Via braccio martello 41/49, 73100 Lecce (LE)",
+    isFranchise: true,
+    image: "/images/vittoria-company.jpeg",
+  },
+  {
+    name: "Le Porte Del Savuto (Aquino abbigliamento)",
     region: "Calabria",
-    address: "Via Antonio Guarasci, 87056 Vallegianno (CS)",
+    address:
+      "Via A. Guarasci C/da Vallegiannó SNC, 87056 Santo Stefano di Rogliano CS",
     isFranchise: true,
     image: "/images/calabria.jpeg",
   },
@@ -215,6 +230,8 @@ export const Locations: React.FC = () => {
                                       return "Orari: Lun-Sab 9:00-20:30, Dom e festivi: 9:30-20:30";
                                     case "Montesilvano Store":
                                       return "Orari: Lun-Sab 9:00-20:00, Dom 9:00-13:00 / 16:00-20:00";
+                                    case "Dimensione immagine":
+                                      return "Orari: Lun-Sab 9:00-13:00 / 16:00-20:00";
                                     default:
                                       return "Orari: Lun-Sab 9:30-13:00 / 16:30-20:30";
                                   }

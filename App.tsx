@@ -1,6 +1,7 @@
 import React, { useEffect, Suspense } from "react";
+import CookieConsent from "react-cookie-consent";
 import {
-  HashRouter as Router,
+  BrowserRouter as Router,
   Routes,
   Route,
   useLocation,
@@ -259,6 +260,61 @@ const App: React.FC = () => {
           <Footer />
           <BackToTop />
         </div>
+        <CookieConsent
+          location="bottom"
+          cookieName="dimensione-immagine-cookie-consent"
+          expires={150}
+          containerClasses="
+            bg-brand-white
+            border-t border-brand-border
+            px-6 py-4
+            flex flex-col md:flex-row
+            items-start md:items-center
+            justify-between
+            gap-4
+            text-sm
+          "
+          contentClasses="
+            text-white
+            leading-relaxed
+            max-w-3xl
+          "
+          buttonText="Accetta"
+          buttonClasses="
+            bg-brand-accent!
+            text-brand-white!
+            font-semibold!
+            text-xs!
+            uppercase!
+            tracking-wide!
+            px-5! py-2!
+            rounded-md!
+            hover:brightness-95!
+            transition!
+            focus:outline-none!
+            focus:ring-2!
+            focus:ring-brand-accent/40!
+          "
+        >
+          <span>
+            Questo sito utilizza i cookie per migliorare l’esperienza di
+            navigazione. Continuando, accetti la nostra{" "}
+            <a
+              href="/cookie-policy"
+              className="
+                text-white
+                underline
+                underline-offset-2
+                font-medium
+                hover:text-brand-accent
+                transition
+              "
+            >
+              Cookie Policy
+            </a>
+            .
+          </span>
+        </CookieConsent>
       </Router>
     </HelmetProvider>
   );
