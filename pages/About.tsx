@@ -15,43 +15,43 @@ const VALUES: ValueItem[] = [
     title: "Famiglia & Accoglienza",
     description:
       "Il nostro DNA è familiare: accogliere con calore, ascoltare con attenzione, rispettare con autenticità.",
-    image: "/images/about-team.png",
+    image: "/images/elementor-placeholder-image.png",
   },
   {
     title: "Accessibilità & Prezzi Giusti",
     description:
       "Crediamo che la bellezza debba essere condivisa. La nostra moda resta accessibile senza rinunciare alla qualità.",
-    image: "/images/accessibilita-prezzi-giusti.jpeg",
+    image: "/images/elementor-placeholder-image.png",
   },
   {
     title: "Stile & Tendenza ",
     description:
       "Collezioni dinamiche, ricercate e sempre aggiornate, create per accompagnare ogni stagione e stato d’animo.",
-    image: "/images/hero-bg2.jpg",
+    image: "/images/elementor-placeholder-image.png",
   },
   {
     title: "Inclusività & Valorizzazione delle Fisicità",
     description:
       "Celebriamo la diversità. Le nostre linee sono pensate per vestire, valorizzare e rispettare ogni corpo.",
-    image: "/images/inclusivita-valorizzazione-delle-fisicita.jpeg",
+    image: "/images/elementor-placeholder-image.png",
   },
   {
     title: "Qualità & Selezione Curata",
     description:
       "Ogni capo è scelto con attenzione ai materiali, alle finiture e al comfort, affinché duri e si indossi con piacere.",
-    image: "/images/qualita-selezione-curata.jpeg",
+    image: "/images/elementor-placeholder-image.png",
   },
   {
     title: "Tradizione & Evoluzione",
     description:
       "Preserviamo oltre quarant’anni di esperienza con uno sguardo rivolto al futuro, innovando senza mai tradire le nostre radici.",
-    image: "/images/tradizione-evoluzione.png",
+    image: "/images/elementor-placeholder-image.png",
   },
   {
     title: "Fiducia & Relazione con il Cliente",
     description:
       "La fiducia si conquista con trasparenza, costanza e presenza. Per noi, ogni cliente è una relazione da coltivare.",
-    image: "/images/fiducia-relazione-con-il-cliente.jpeg",
+    image: "/images/elementor-placeholder-image.png",
   },
 ];
 
@@ -115,6 +115,36 @@ export const About: React.FC = () => {
                   l'autenticità che ci accompagna da sempre."
                 </p>
                 <p className="font-bold">– Débora Scabora</p>
+                <Reveal delay={0.2}>
+                  <h2 className="text-4xl font-serif my-6">
+                    La Nostra Mission
+                  </h2>
+                  <div>
+                    <p>
+                      Moda che parla alle persone, non alle taglie. La nostra
+                      mission è offrire una moda accessibile, inclusiva e in
+                      grado di valorizzare ogni fisicità, ogni storia, ogni
+                      momento della vita.
+                      <br />
+                      <br />
+                      Da oltre quarant’anni selezioniamo capi che uniscono
+                      qualità, estetica e convenienza, trasformando l’atto di
+                      vestirsi in un linguaggio personale, libero e sofisticato.
+                      <br />
+                      <br />
+                      Crediamo in una moda che vive nella quotidianità:
+                      contemporanea, confortevole, profondamente autentica.
+                      <br />
+                      <br />
+                      Per questo sviluppiamo collezioni{" "}
+                      <span className="font-bold">
+                        Uomo, Donna e Taglie Forti
+                      </span>{" "}
+                      che non vestono soltanto il corpo, ma interpretano la
+                      personalità di chi le sceglie.
+                    </p>
+                  </div>
+                </Reveal>
               </div>
             </div>
           </div>
@@ -126,7 +156,7 @@ export const About: React.FC = () => {
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Image Span */}
-            <div className="lg:col-span-7 h-[60vh] relative overflow-hidden bg-brand-surface rounded-sm">
+            {/* <div className="lg:col-span-7 h-[60vh] relative overflow-hidden bg-brand-surface rounded-sm">
               <Reveal width="100%" className="h-full">
                 <img
                   src="/images/la-nostra-mission.jpeg"
@@ -135,11 +165,11 @@ export const About: React.FC = () => {
                   loading="eager"
                 />
               </Reveal>
-            </div>
+            </div> */}
 
             {/* Text Content */}
             <div className="lg:col-span-1"></div>
-            <div className="lg:col-span-4 space-y-8">
+            {/* <div className="lg:col-span-4 space-y-8">
               <Reveal delay={0.2}>
                 <h2 className="text-3xl font-serif mb-6">La Nostra Mission</h2>
                 <div className="space-y-6 text-brand-text-secondary text-sm leading-relaxed text-justify">
@@ -168,7 +198,7 @@ export const About: React.FC = () => {
                   </p>
                 </div>
               </Reveal>
-            </div>
+            </div> */}
           </div>
         </div>
       </section>
@@ -188,7 +218,7 @@ export const About: React.FC = () => {
               </div>
               <div>
                 <span className="block text-5xl font-serif text-brand-accent mb-4">
-                  15
+                  9
                 </span>
                 <span className="text-xs uppercase tracking-widest text-brand-text-secondary">
                   Punti Vendita
