@@ -151,7 +151,7 @@ export const Footer: React.FC = () => {
               </h4>
               <div className="flex space-x-3 text-brand-text-secondary">
                 <a
-                  href="https://facebook.com"
+                  href="https://www.facebook.com/profile.php?id=61584264163679"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-brand-accent transition-colors"
@@ -167,7 +167,7 @@ export const Footer: React.FC = () => {
                   <Instagram size={18} />
                 </a>
                 <a
-                  href="https://tiktok.com"
+                  href="https://www.tiktok.com/@dimensioneimmagine"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-brand-accent transition-colors"
