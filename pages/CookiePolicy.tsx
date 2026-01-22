@@ -35,7 +35,7 @@ export const CookiePolicy: React.FC = () => {
             </section>
 
             <section>
-              <h2 className="text-xl font-serif text-white mb-4">
+              <h2 className="text-xl font-serif text-brand-text-primary mb-4">
                 2. Tipologie di Cookie utilizzati
               </h2>
               <p className="mb-4">
@@ -43,8 +43,8 @@ export const CookiePolicy: React.FC = () => {
               </p>
 
               <div className="mb-6">
-                <h3 className="text-lg font-bold text-brand-text-primary mb-2">
-                  Cookie Tecnici
+                <h3 className="text-md text-brand-text-primary mb-2">
+                  - Cookie Tecnici
                 </h3>
                 <p>
                   Sono quelli utilizzati al solo fine di effettuare la
@@ -57,8 +57,8 @@ export const CookiePolicy: React.FC = () => {
               </div>
 
               <div className="mb-6">
-                <h3 className="text-lg font-bold text-white mb-2">
-                  Cookie di Analisi (Analytics)
+                <h3 className="text-md  text-brand-text-primary mb-2">
+                  - Cookie di Analisi (Analytics)
                 </h3>
                 <p>
                   Sono assimilati ai cookie tecnici laddove utilizzati
@@ -69,8 +69,8 @@ export const CookiePolicy: React.FC = () => {
               </div>
 
               <div className="mb-6">
-                <h3 className="text-lg font-bold text-white mb-2">
-                  Cookie di Profilazione e Marketing
+                <h3 className="text-md  text-brand-text-primary mb-2">
+                  - Cookie di Profilazione e Marketing
                 </h3>
                 <p>
                   Sono volti a creare profili relativi all'utente e vengono
@@ -82,7 +82,7 @@ export const CookiePolicy: React.FC = () => {
             </section>
 
             <section>
-              <h2 className="text-xl font-serif text-white mb-4">
+              <h2 className="text-xl font-serif text-brand-text-primary mb-4">
                 3. Gestione dei Cookie
               </h2>
               <p className="mb-4">
@@ -101,19 +101,28 @@ export const CookiePolicy: React.FC = () => {
             </section>
 
             <section>
-              <h2 className="text-xl font-serif text-white mb-4">
+              <h2 className="text-xl font-serif text-brand-text-primary mb-4">
                 4. Titolare del Trattamento
               </h2>
               <p>
                 <strong>Dimensione Immagine Abbigliamento SRL</strong>
                 <br />
-                Via Maddalena 38/D, 98122 Messina (ME)
+                <a
+                  href={`https://maps.google.com/?q=${encodeURIComponent(
+                    " Via Maddalena 38/D, 98122 Messina (ME)",
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center text-xs font-bold hover:text-brand-accent uppercase tracking-widest transition-colors"
+                >
+                  Via Maddalena 38/D, 98122 Messina (ME)
+                </a>
                 <br />
                 Email:{" "}
                 <strong>
                   <a
                     href="mailto:contact@dimensioneimmagineabbigliamento.it"
-                    className="hover:text-brand-accent"
+                    className="hover:text-brand-accent font-bold"
                   >
                     contact@dimensioneimmagineabbigliamento.it
                   </a>

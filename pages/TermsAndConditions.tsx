@@ -39,9 +39,21 @@ export const TermsAndConditions: React.FC = () => {
                 Il sito è di proprietà di{" "}
                 <strong>Dimensione Immagine Abbigliamento SRL</strong>.
                 <br />
-                Sede legale: Contrada S. Lucia, 46, Capo d’Orlando (ME)
+                <a
+                  href={`https://maps.google.com/?q=${encodeURIComponent(
+                    " Via Maddalena 38/D, 98122 Messina (ME)",
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center text-xs font-bold hover:text-brand-accent uppercase tracking-widest transition-colors"
+                >
+                  Via Maddalena 38/D, 98122 Messina (ME)
+                </a>
                 <br />
-                P.IVA: 03812960833
+                P.IVA:{" "}
+                <span className="hover:text-brand-accent font-bold">
+                  03812960833
+                </span>
                 <br />
                 Email:{" "}
                 <strong>

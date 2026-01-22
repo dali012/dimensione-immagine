@@ -24,17 +24,27 @@ export const PrivacyPolicy: React.FC = () => {
               <p className="mb-4">
                 <strong>Dimensione Immagine Abbigliamento SRL</strong>
                 <br />
-                Contrada S. Lucia, 46
+                <a
+                  href={`https://maps.google.com/?q=${encodeURIComponent(
+                    " Via Maddalena 38/D, 98122 Messina (ME)",
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center text-xs font-bold hover:text-brand-accent uppercase tracking-widest transition-colors"
+                >
+                  Via Maddalena 38/D, 98122 Messina (ME)
+                </a>
                 <br />
-                Capo d’Orlando (ME)
-                <br />
-                P.IVA: 03812960833
+                P.IVA:{" "}
+                <span className="hover:text-brand-accent font-bold">
+                  03812960833
+                </span>
                 <br />
                 Email:{" "}
                 <strong>
                   <a
                     href="mailto:contact@dimensioneimmagineabbigliamento.it"
-                    className="hover:text-brand-accent"
+                    className="hover:text-brand-accent font-bold"
                   >
                     contact@dimensioneimmagineabbigliamento.it
                   </a>
