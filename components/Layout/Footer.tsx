@@ -33,112 +33,73 @@ export const Footer: React.FC = () => {
   return (
     <footer className="bg-brand-bg text-brand-text-primary border-t border-brand-border">
       <div className="container mx-auto px-6 py-8 sm:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
-          {/* Column 1: COMPANY */}
-          <div className="flex flex-col space-y-6">
-            <h4 className="font-serif font-bold text-xs tracking-widest uppercase text-brand-text-primary">
-              Azienda
-            </h4>
-            <ul className="flex flex-col space-y-3 text-sm text-brand-text-secondary font-light">
-              <li>
-                <Link
-                  to="/chi-siamo"
-                  className="hover:text-brand-accent transition-colors"
-                >
-                  Chi Siamo
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/sedi"
-                  className="hover:text-brand-accent transition-colors"
-                >
-                  Negozi & Franchising
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/contatti"
-                  className="hover:text-brand-accent transition-colors"
-                >
-                  Contatti
-                </Link>
-              </li>
-            </ul>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-12 lg:gap-4">
+          <div className="flex justify-around lg:justify-start space-x-12 lg:space-x-24">
+            {/* Column 1: COMPANY */}
+            <div className="flex flex-col space-y-6">
+              <h4 className="font-serif font-bold text-xs tracking-widest uppercase text-brand-text-primary">
+                Azienda
+              </h4>
+              <ul className="flex flex-col space-y-3 text-sm text-brand-text-secondary font-light">
+                <li>
+                  <Link
+                    to="/chi-siamo"
+                    className="hover:text-brand-accent transition-colors"
+                  >
+                    Chi Siamo
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/sedi"
+                    className="hover:text-brand-accent transition-colors"
+                  >
+                    Negozi & Franchising
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/contatti"
+                    className="hover:text-brand-accent transition-colors"
+                  >
+                    Contatti
+                  </Link>
+                </li>
+              </ul>
+            </div>
 
-          {/* Column 2: CATALOG */}
-          <div className="flex flex-col space-y-6">
-            <h4 className="font-serif font-bold text-xs tracking-widest uppercase text-brand-text-primary">
-              Catalogo
-            </h4>
-            <ul className="flex flex-col space-y-3 text-sm text-brand-text-secondary font-light">
-              <li>
-                <Link
-                  to="/trovi-da-noi?filter=Tutto"
-                  className="hover:text-brand-accent transition-colors"
-                >
-                  Tutto
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/trovi-da-noi?filter=Accessori"
-                  className="hover:text-brand-accent transition-colors"
-                >
-                  Accessori
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/trovi-da-noi?filter=Donna"
-                  className="hover:text-brand-accent transition-colors"
-                >
-                  Donna
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/trovi-da-noi?filter=Uomo"
-                  className="hover:text-brand-accent transition-colors"
-                >
-                  Uomo
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 3: TERMS & POLICY */}
-          <div className="flex flex-col space-y-6">
-            <h4 className="font-serif font-bold text-xs tracking-widest uppercase text-brand-text-primary">
-              Termini & Policy
-            </h4>
-            <ul className="flex flex-col space-y-3 text-sm text-brand-text-secondary font-light">
-              <li>
-                <Link
-                  to="/termini-condizioni"
-                  className="hover:text-brand-accent transition-colors"
-                >
-                  Termini di Servizio
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/privacy-policy"
-                  className="hover:text-brand-accent transition-colors"
-                >
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/cookie-policy"
-                  className="hover:text-brand-accent transition-colors"
-                >
-                  Cookie Policy
-                </Link>
-              </li>
-            </ul>
+            {/* Column 3: TERMS & POLICY */}
+            <div className="flex flex-col space-y-6">
+              <h4 className="font-serif font-bold text-xs tracking-widest uppercase text-brand-text-primary">
+                Termini & Policy
+              </h4>
+              <ul className="flex flex-col space-y-3 text-sm text-brand-text-secondary font-light">
+                <li>
+                  <Link
+                    to="/termini-condizioni"
+                    className="hover:text-brand-accent transition-colors"
+                  >
+                    Termini di Servizio
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/privacy-policy"
+                    className="hover:text-brand-accent transition-colors"
+                  >
+                    Privacy Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/cookie-policy"
+                    className="hover:text-brand-accent transition-colors"
+                  >
+                    Cookie Policy
+                  </Link>
+                </li>
+              </ul>
+            </div>
           </div>
 
           {/* Column 4: SUBSCRIBE */}

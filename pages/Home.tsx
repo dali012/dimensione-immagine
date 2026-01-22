@@ -131,11 +131,11 @@ export const Home: React.FC = () => {
                 100%
               </span>
               <h3 className="text-2xl font-serif text-brand-text-primary mb-4">
-                Inclusività
+                Moda
               </h3>
               <p className="text-brand-text-secondary leading-relaxed max-w-xs">
-                Collezioni Uomo, Donna e Plus Size per valorizzare ogni
-                fisicità.
+                Indossare qualità, vivere autenticità. Tradizione che evolve,
+                stile che rimane.
               </p>
             </Reveal>
 
