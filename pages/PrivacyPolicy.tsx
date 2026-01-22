@@ -8,7 +8,7 @@ export const PrivacyPolicy: React.FC = () => {
       <SEO
         title="Privacy Policy | Dimensione Immagine"
         description="Informativa sulla privacy di Dimensione Immagine Abbigliamento."
-        url="https://www.dimensioneimmagine.net/privacy-policy"
+        url="https://www.dimensioneimmagineabbigliamento.it/privacy-policy"
       />
       <div className="container mx-auto px-6 py-12 max-w-4xl">
         <Reveal width="100%">

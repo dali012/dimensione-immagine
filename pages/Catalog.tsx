@@ -11,19 +11,31 @@ const FILTERS = ["Tutto", "Accessori", "Donna", "Uomo"];
 
 const FILTER_DESCRIPTIONS: Record<"Donna" | "Uomo" | "Accessori", string[]> = {
   Donna: [
-    "Mode eleganti, casual e cerimonia",
-    "Maglieria, cappotti, denim",
+    "Mode eleganti",
+    "Casual e cerimonia",
+    "Maglieria",
+    "Denim",
+    "Cappotti",
     "Linea Donna Calibrata (taglie forti)",
   ],
   Uomo: [
-    "Stile casual, urban e classico",
-    "Camiceria, pantaloni, denim",
+    "Stile casual",
+    "Urban e classico",
+    "Camiceria",
+    "Pantaloni",
+    "Denim",
     "Linea Uomo Calibrata (taglie forti)",
-    "Capispalla tecnici, parka, piumini",
+    "Capispalla",
+    "Parka",
+    "Piumini",
   ],
   Accessori: [
-    "Borse, cinture, portafogli",
-    "Sciarpe, cappelli e accessori moda",
+    "Borse",
+    "Cinture",
+    "Portafogli",
+    "Sciarpe",
+    "Cappelli",
+    "Accessori Moda",
   ],
 };
 
@@ -90,7 +102,7 @@ export const Catalog: React.FC = () => {
       <SEO
         title="Trovi da Noi | Dimensione Immagine"
         description="Esplora le nostre collezioni Uomo, Donna e Accessori. Il meglio della moda a Messina."
-        url={`https://www.dimensioneimmagine.net${location.pathname}${location.search}`}
+        url={`https://www.dimensioneimmagineabbigliamento.it${location.pathname}${location.search}`}
         image="/og-catalog.jpg"
       />
 

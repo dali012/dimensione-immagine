@@ -284,7 +284,7 @@ export const Locations: React.FC = () => {
       <SEO
         title="Le nostre Sedi | Dimensione Immagine"
         description="Vieni a trovarci nei nostri franchising e punti vendita in tutta Italia."
-        url={`https://www.dimensioneimmagine.net${location.pathname}`}
+        url={`https://www.dimensioneimmagineabbigliamento.it${location.pathname}`}
         image="/og-sedi.jpg"
       />
 

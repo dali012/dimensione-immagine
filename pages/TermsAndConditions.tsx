@@ -8,7 +8,7 @@ export const TermsAndConditions: React.FC = () => {
       <SEO
         title="Termini e Condizioni | Dimensione Immagine"
         description="Termini e condizioni generali di utilizzo del sito Dimensione Immagine Abbigliamento."
-        url="https://www.dimensioneimmagine.net/termini-condizioni"
+        url="https://www.dimensioneimmagineabbigliamento.it/termini-condizioni"
       />
       <div className="container mx-auto px-6 py-12 max-w-4xl">
         <Reveal width="100%">

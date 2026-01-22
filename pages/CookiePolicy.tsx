@@ -8,7 +8,7 @@ export const CookiePolicy: React.FC = () => {
       <SEO
         title="Cookie Policy | Dimensione Immagine"
         description="Informativa sui cookie di Dimensione Immagine Abbigliamento."
-        url="https://www.dimensioneimmagine.net/cookie-policy"
+        url="https://www.dimensioneimmagineabbigliamento.it/cookie-policy"
       />
       <div className="container mx-auto px-6 py-12 max-w-4xl">
         <Reveal width="100%">

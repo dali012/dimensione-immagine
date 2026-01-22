@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://www.dimensioneimmagine.net/sitemap.xml
+Sitemap: https://www.dimensioneimmagineabbigliamento.it/sitemap.xml

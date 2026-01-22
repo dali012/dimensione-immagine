@@ -14,7 +14,7 @@ export const Blog: React.FC = () => {
 
   const categories = useMemo(
     () => ["Tutte", ...Array.from(new Set(blogPosts.map((p) => p.category)))],
-    []
+    [],
   );
 
   const filteredPosts = useMemo(() => {
@@ -36,7 +36,7 @@ export const Blog: React.FC = () => {
       <SEO
         title="Blog e News | Dimensione Immagine"
         description="Leggi le ultime novità dal mondo della moda, consigli di stile e tendenze direttamente dal blog di Dimensione Immagine."
-        url={`https://www.dimensioneimmagine.net${location.pathname}`}
+        url={`https://www.dimensioneimmagineabbigliamento.it${location.pathname}`}
         image="/og-blog.jpg" // You might want to ensure this image exists or use a generic one
       />
 

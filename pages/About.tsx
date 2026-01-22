@@ -62,7 +62,7 @@ export const About: React.FC = () => {
       <SEO
         title="Chi Siamo | Dimensione Immagine"
         description="Dal 1984 a Messina, interpreti della moda come gesto di accoglienza. Scopri la nostra storia."
-        url={`https://www.dimensioneimmagine.net${location.pathname}`}
+        url={`https://www.dimensioneimmagineabbigliamento.it${location.pathname}`}
         image="/og-chi-siamo.jpg"
       />
 
