@@ -7,8 +7,14 @@ import { AnimatePresence, motion } from "framer-motion";
 
 const HERO_MEDIA = [
   { type: "image", src: "/images/hero-bg.jpg" },
-  { type: "video", src: "/images/hero-video2.mp4" },
-  { type: "video", src: "/images/hero-video.mp4" },
+  {
+    type: "video",
+    src: "/images/video/women-hero-video-dimensione-immagine.mp4",
+  },
+  {
+    type: "video",
+    src: "/images/video/men-hero-video-dimensione-immagine.mp4",
+  },
 ];
 
 export const Home: React.FC = () => {
