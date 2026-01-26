@@ -125,7 +125,7 @@ export const Contact: React.FC = () => {
           <Reveal>
             <h2 className="text-5xl xl:text-6xl font-serif text-white mb-6 leading-tight">
               Vieni a trovarci in <br />
-              <span className="text-[#b89b5e] italic font-light">Negozi</span>
+              <span className="text-[#b89b5e] italic font-light">Negozio</span>
             </h2>
           </Reveal>
           <Reveal delay={0.1} className="mx-auto">
