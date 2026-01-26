@@ -158,105 +158,102 @@ export const Locations: React.FC = () => {
                 delay={index * 0.1}
                 fullHeight
               >
-                <div className="group flex flex-col h-full bg-white rounded-sm pb-6 transition-shadow duration-300 hover:shadow-sm border border-brand-border">
-                  <div className="aspect-video relative overflow-hidden mb-6 bg-brand-surface">
-                    <img
-                      src={`${loc.image}`}
-                      alt={`Sede ${loc.name}`}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                    <div className="absolute top-4 left-4 bg-white/90 px-3 py-1 text-[10px] text-brand-text-primary uppercase tracking-widest backdrop-blur-sm">
-                      {loc.region}
-                    </div>
-                  </div>
-
-                  <div className="px-6 grow flex flex-col">
-                    <div className="flex justify-between items-start mb-3">
-                      <h3 className="text-xl font-serif text-brand-text-primary pr-2 leading-tight">
-                        {loc.name}
-                      </h3>
-                    </div>
-
-                    <span
-                      className={`text-[10px] tracking-widest pb-2 inline-block ${
-                        loc.isFranchise
-                          ? "text-brand-text-secondary"
-                          : "text-brand-accent"
-                      }`}
-                    >
-                      {loc.isFranchise ? (
-                        <span className="text-brand-text-secondary uppercase font-bold">
-                          Franchising
-                        </span>
-                      ) : (
-                        <div className="text-brand-text-secondary uppercase font-bold">
-                          Store Proprietario <br />
-                          {isOpenNow() ? (
-                            <span className="text-green-500">Aperto ora</span>
-                          ) : (
-                            <span className="text-red-500">Chiuso ora</span>
-                          )}
-                        </div>
-                      )}
-                    </span>
-
-                    <div className="space-y-3 text-brand-text-secondary text-sm font-light mb-6">
-                      <div className="flex items-start flex-col gap-3">
-                        <div className="flex items-start">
-                          <MapPin
-                            size={16}
-                            className="text-brand-accent mr-3 shrink-0 mt-0.5"
-                          />
-                          <span className="leading-relaxed">{loc.address}</span>
-                        </div>
-                        <div>
-                          {!loc.isFranchise && (
-                            <div className="flex items-center">
-                              <Store
-                                size={16}
-                                className="text-brand-accent mr-3 shrink-0"
-                              />
-                              <span>
-                                {(() => {
-                                  switch (loc.name) {
-                                    case "Torre Faro":
-                                      return "Orari: Lun-Sab 9:00-20:00, Dom 9:00-13:00 / 16:00-20:00";
-                                    case "Boutique Uomo":
-                                      return "Orari: Lun-Sab 9:00-20:00, Dom 9:00-13:00 / 16:00-20:00";
-                                    case "Boutique Donna":
-                                      return "Orari: Lun-Dom 9:30-13:00 / 16:00-20:00";
-                                    case "Centro Commerciale Tremestieri":
-                                      return "Orari: Lun-Sab 9:00-20:30, Dom e festivi: 9:30-20:30";
-                                    case "Montesilvano Store":
-                                      return "Orari: Lun-Sab 9:00-20:00, Dom 9:00-13:00 / 16:00-20:00";
-                                    case "Dimensione immagine":
-                                      return "Orari: Lun-Sab 9:00-13:00 / 16:00-20:00";
-                                    default:
-                                      return "Orari: Lun-Sab 9:30-13:00 / 16:30-20:30";
-                                  }
-                                })()}
-                              </span>
-                            </div>
-                          )}
-                        </div>
+                <a
+                  href={`https://maps.google.com/?q=${encodeURIComponent(
+                    loc.address,
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <div className="group flex flex-col h-full bg-white rounded-sm pb-6 transition-shadow duration-300 hover:shadow-sm border border-brand-border">
+                    <div className="aspect-video relative overflow-hidden mb-6 bg-brand-surface">
+                      <img
+                        src={`${loc.image}`}
+                        alt={`Sede ${loc.name}`}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        loading="lazy"
+                      />
+                      <div className="absolute top-4 left-4 bg-white/90 px-3 py-1 text-[10px] text-brand-text-primary uppercase tracking-widest backdrop-blur-sm">
+                        {loc.region}
                       </div>
                     </div>
 
-                    <div className="pt-6 border-t border-brand-border mt-auto">
-                      <a
-                        href={`https://maps.google.com/?q=${encodeURIComponent(
-                          loc.address,
-                        )}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center text-xs font-bold text-brand-text-primary hover:text-brand-accent uppercase tracking-widest transition-colors"
+                    <div className="px-6 grow flex flex-col">
+                      <div className="flex justify-between items-start mb-3">
+                        <h3 className="text-xl font-serif text-brand-text-primary pr-2 leading-tight">
+                          {loc.name}
+                        </h3>
+                      </div>
+
+                      <span
+                        className={`text-[10px] tracking-widest pb-2 inline-block ${
+                          loc.isFranchise
+                            ? "text-brand-text-secondary"
+                            : "text-brand-accent"
+                        }`}
                       >
-                        Indicazioni
-                      </a>
+                        {loc.isFranchise ? (
+                          <span className="text-brand-text-secondary uppercase font-bold">
+                            Franchising
+                          </span>
+                        ) : (
+                          <div className="text-brand-text-secondary uppercase font-bold">
+                            Store Proprietario <br />
+                            {isOpenNow() ? (
+                              <span className="text-green-500">Aperto ora</span>
+                            ) : (
+                              <span className="text-red-500">Chiuso ora</span>
+                            )}
+                          </div>
+                        )}
+                      </span>
+
+                      <div className="space-y-3 text-brand-text-secondary text-sm font-light mb-6">
+                        <div className="flex items-start flex-col gap-3">
+                          <div className="flex items-start">
+                            <MapPin
+                              size={16}
+                              className="text-brand-accent mr-3 shrink-0 mt-0.5"
+                            />
+                            <span className="leading-relaxed">
+                              {loc.address}
+                            </span>
+                          </div>
+                          <div>
+                            {!loc.isFranchise && (
+                              <div className="flex items-center">
+                                <Store
+                                  size={16}
+                                  className="text-brand-accent mr-3 shrink-0"
+                                />
+                                <span>
+                                  {(() => {
+                                    switch (loc.name) {
+                                      case "Torre Faro":
+                                        return "Orari: Lun-Sab 9:00-20:00, Dom 9:00-13:00 / 16:00-20:00";
+                                      case "Boutique Uomo":
+                                        return "Orari: Lun-Sab 9:00-20:00, Dom 9:00-13:00 / 16:00-20:00";
+                                      case "Boutique Donna":
+                                        return "Orari: Lun-Dom 9:30-13:00 / 16:00-20:00";
+                                      case "Centro Commerciale Tremestieri":
+                                        return "Orari: Lun-Sab 9:00-20:30, Dom e festivi: 9:30-20:30";
+                                      case "Montesilvano Store":
+                                        return "Orari: Lun-Sab 9:00-20:00, Dom 9:00-13:00 / 16:00-20:00";
+                                      case "Dimensione immagine":
+                                        return "Orari: Lun-Sab 9:00-13:00 / 16:00-20:00";
+                                      default:
+                                        return "Orari: Lun-Sab 9:30-13:00 / 16:30-20:30";
+                                    }
+                                  })()}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </a>
               </Reveal>
             ))}
           </div>

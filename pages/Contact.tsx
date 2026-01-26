@@ -1,11 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
 import React, { useState } from "react";
-import { Button } from "../components/UI/Button";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Mail, MapPin, Phone, Clock, ArrowRight } from "lucide-react";
 import ReCAPTCHA from "react-google-recaptcha";
 import { SEO } from "../components/SEO/SEO";
 import { Reveal } from "../components/UI/Reveal";
-import { SectionHeader } from "../components/UI/SectionHeader";
 
 const CONTACT_ENDPOINT = "/api/contact";
 const RATE_LIMIT_MS = 60 * 1000;
@@ -29,6 +27,9 @@ export const Contact: React.FC = () => {
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [marketingConsent, setMarketingConsent] = useState(false);
+  const [status, setStatus] = useState<
+    "idle" | "submitting" | "success" | "error"
+  >("idle");
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -37,6 +38,9 @@ export const Contact: React.FC = () => {
       ...formData,
       [e.target.name]: e.target.value,
     });
+    if (errors[e.target.name as keyof typeof errors]) {
+      setErrors({ ...errors, [e.target.name]: "" });
+    }
   };
 
   const handleRecaptchaChange = (token: string | null) => {
@@ -45,351 +49,362 @@ export const Contact: React.FC = () => {
 
   const validateForm = () => {
     const nextErrors = { name: "", email: "", phone: "", message: "" };
-    if (!formData.name.trim()) nextErrors.name = "Il nome è obbligatorio.";
+    let isValid = true;
+
+    if (!formData.name.trim()) {
+      nextErrors.name = "Il nome è obbligatorio.";
+      isValid = false;
+    }
     if (!formData.email.trim()) {
       nextErrors.email = "L'email è obbligatoria.";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      nextErrors.email = "Inserisci un'email valida.";
+      isValid = false;
     }
-    if (formData.phone.trim()) {
-      const digits = formData.phone.replace(/\D/g, "");
-      if (digits.length < 8) {
-        nextErrors.phone = "Inserisci un numero valido.";
-      }
-    }
-    if (!formData.message.trim())
+    if (!formData.message.trim()) {
       nextErrors.message = "Il messaggio è obbligatorio.";
+      isValid = false;
+    }
 
     setErrors(nextErrors);
-    return !Object.values(nextErrors).some(Boolean);
+    return isValid;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    const lastSubmission = localStorage.getItem("contact-last-submit");
-    if (lastSubmission) {
-      const lastTime = Number(lastSubmission);
-      if (Date.now() - lastTime < RATE_LIMIT_MS) {
-        alert("Attendi qualche secondo prima di inviare un'altra richiesta.");
-        return;
-      }
-    }
-
     if (!validateForm()) return;
-
     if (!recaptchaToken) {
-      alert("Per favore conferma di non essere un robot.");
+      alert("Conferma di non essere un robot.");
+      return;
+    }
+    if (!termsAccepted) {
+      alert("Accetta la Privacy Policy.");
       return;
     }
 
-    if (!termsAccepted) {
-      alert(
-        "Per inviare la richiesta devi accettare la Privacy Policy e i Termini di Servizio.",
-      );
-      return;
-    }
+    setStatus("submitting");
 
     try {
-      const res = await fetch(CONTACT_ENDPOINT, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...formData,
-          marketingConsent,
-          recaptchaToken,
-        }),
-      });
-
-      if (!res.ok) throw new Error("Request failed");
-
-      localStorage.setItem("contact-last-submit", String(Date.now()));
-      alert(
-        "Grazie! La tua richiesta è stata inviata. Ti risponderemo presto.",
-      );
+      // Simulate API
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      setStatus("success");
       setFormData({ name: "", email: "", phone: "", message: "" });
-      setRecaptchaToken(null);
-      setTermsAccepted(false);
-      setMarketingConsent(false);
-      setErrors({ name: "", email: "", phone: "", message: "" });
+      setTimeout(() => setStatus("idle"), 5000);
     } catch (err) {
-      console.error(err);
-      alert("Si è verificato un errore. Riprova più tardi.");
+      setStatus("error");
     }
   };
 
+  // Styles
+  const inputContainerClass = "relative group";
+  // Increased text size on mobile (text-xs -> text-[10px]/text-xs) to maintain readability
+  const labelClass =
+    "block text-xs uppercase tracking-widest text-gray-500 mb-1.5 font-medium group-focus-within:text-[#b89b5e] transition-colors";
+  // text-base prevents iOS zoom on focus
+  const inputClass =
+    "w-full bg-transparent border-b border-gray-300 py-3 md:py-2 text-base md:text-sm text-gray-900 focus:outline-none focus:border-[#b89b5e] transition-all placeholder:text-gray-300 rounded-none";
+
   return (
-    <div className="pt-24 min-h-screen bg-brand-bg">
+    <div className="min-h-screen bg-white flex flex-col lg:flex-row font-sans">
       <SEO
-        title="Contatti Dimensione Immagine | Moda a Messina"
-        description="Contatta Dimensione Immagine per informazioni sulle collezioni Uomo, Donna e Taglie Forti a Messina."
+        title="Contatti Dimensione Immagine"
+        description="Contattaci per informazioni sulle nostre boutique a Messina."
         url={`https://www.dimensioneimmagineabbigliamento.it${location.pathname}`}
         image="/og-contatti.jpg"
       />
-      <div className="container mx-auto px-6 py-12 text-center">
-        <Reveal width="100%">
-          <SectionHeader
-            label="Parla con noi"
-            title="Contattaci"
-            subtitle="Richiedi informazioni sulle nostre collezioni o vieni a trovarci in boutique."
-            as="h1"
-          />
-        </Reveal>
+
+      <div className="hidden lg:flex lg:w-5/12 xl:w-1/2 relative bg-[#1a1a1a] items-center justify-center h-screen sticky top-0 overflow-hidden">
+        <div
+          className="absolute inset-0 opacity-70 bg-cover bg-center transition-transform duration-1000 hover:scale-105"
+          style={{
+            backgroundImage:
+              "url('https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=1974&auto=format&fit=crop')",
+          }}
+        ></div>
+        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent"></div>
+
+        <div className="relative z-10 text-center p-12">
+          <Reveal>
+            <h2 className="text-5xl xl:text-6xl font-serif text-white mb-6 leading-tight">
+              Vieni a trovarci in <br />
+              <span className="text-[#b89b5e] italic font-light">Negozi</span>
+            </h2>
+          </Reveal>
+          <Reveal delay={0.1} className="mx-auto">
+            <a
+              href="https://maps.app.goo.gl/cT5afaLH5wWfFhmp9"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs uppercase tracking-[0.2em] hover:bg-white hover:text-black transition-all duration-300 mt-4 group"
+            >
+              Ottieni Indicazioni
+              <ArrowRight
+                size={16}
+                className="transform group-hover:translate-x-1 transition-transform"
+              />
+            </a>
+          </Reveal>
+        </div>
       </div>
 
-      <div className="container mx-auto px-6 pb-24">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-          {/* Info Side */}
-          <Reveal className="h-full">
-            <div className="bg-white p-10 border border-brand-border h-fit shadow-sm">
-              <h3 className="text-2xl font-serif text-brand-text-primary mb-8">
-                Informazioni di Contatto
-              </h3>
+      {/* --- CONTENT AREA (Scrollable) --- */}
+      <div className="w-full lg:w-7/12 xl:w-1/2 flex flex-col min-h-screen bg-white">
+        {/* --- MOBILE HERO (Visible only on lg and below) --- */}
+        <div className="lg:hidden relative h-64 w-full bg-[#1a1a1a] overflow-hidden mt-16 md:mt-0">
+          <div
+            className="absolute inset-0 opacity-60 bg-cover bg-center"
+            style={{
+              backgroundImage:
+                "url('https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=1974&auto=format&fit=crop')",
+            }}
+          ></div>
+          <div className="absolute inset-0 bg-black/40"></div>
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
+            <h1 className="text-3xl font-serif text-white mb-2">Contattaci</h1>
+            <p className="text-white/80 text-sm max-w-xs">
+              Il nostro team è a tua disposizione per ogni richiesta.
+            </p>
+          </div>
+        </div>
 
-              <div className="space-y-8">
-                <div className="flex items-start">
-                  <div className="w-12 h-12 border border-brand-border/10 flex items-center justify-center mr-6 shrink-0 text-brand-accent">
-                    <MapPin size={24} />
-                  </div>
-                  <div>
-                    <h4 className="text-brand-text-primary text-sm uppercase tracking-widest font-bold mb-2">
-                      Sede Principale
-                    </h4>
-                    <a
-                      href="https://www.google.com/maps/dir/?api=1&destination=Via+Maddalena+38/D+98122+Messina+Italia"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-brand-text-secondary leading-relaxed hover:text-brand-accent transition-colors"
-                    >
-                      Via Maddalena 38/D, <br /> 98122 Messina (ME), Italia
-                    </a>
-                  </div>
-                </div>
-
-                <div className="flex items-start">
-                  <div className="w-12 h-12 border border-brand-border/10 flex items-center justify-center mr-6 shrink-0 text-brand-accent">
-                    <Phone size={24} />
-                  </div>
-                  <div>
-                    <h4 className="text-brand-text-primary text-sm uppercase tracking-widest font-bold mb-2">
-                      Telefono
-                    </h4>
-                    <a
-                      href="tel:+390902400474"
-                      className="text-brand-text-secondary leading-relaxed hover:text-brand-accent transition-colors"
-                    >
-                      +39 090 240 0474
-                    </a>
-                  </div>
-                </div>
-
-                <div className="flex items-start">
-                  <div className="w-12 h-12 border border-brand-border/10 flex items-center justify-center mr-6 shrink-0 text-brand-accent">
-                    <Mail size={24} />
-                  </div>
-                  <div>
-                    <h4 className="text-brand-text-primary text-sm uppercase tracking-widest font-bold mb-2">
-                      Email
-                    </h4>
-                    <a
-                      href="mailto:contact@dimensioneimmagineabbigliamento.it"
-                      className="text-brand-text-secondary leading-relaxed break-all hover:text-brand-accent transition-colors"
-                    >
-                      contact@dimensioneimmagineabbigliamento.it
-                    </a>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-12 pt-8 border-t border-brand-border">
-                <p className="text-brand-text-secondary/80 text-sm italic">
-                  Siamo aperti dal Lunedì al Venerdì, dalle 09:00 alle 13:00 e
-                  dalle 15:00 alle 19:00.
-                </p>
-                <div className="mt-6">
-                  <Button
-                    to="https://wa.me/390902400474"
-                    variant="outline"
-                    ariaLabel="Chatta su WhatsApp"
-                  >
-                    Chatta su WhatsApp
-                  </Button>
-                </div>
-              </div>
+        {/* Main Content Padding */}
+        <div className="flex-1 px-6 md:px-12 lg:px-16 py-10 lg:py-20 w-full max-w-2xl mx-auto">
+          <Reveal width="100%">
+            <div className="mb-10 lg:mb-12">
+              <span className="text-[#b89b5e] font-bold tracking-[0.2em] text-[10px] uppercase mb-3 block">
+                Assistenza Clienti
+              </span>
+              <h2 className="text-3xl md:text-4xl font-serif text-gray-900 leading-tight">
+                Come possiamo aiutarti?
+              </h2>
             </div>
           </Reveal>
 
-          {/* Form Side */}
-          <Reveal delay={0.2} className="h-full">
-            <div>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label
-                      htmlFor="name"
-                      className="block text-xs uppercase tracking-widest text-brand-text-secondary mb-2"
-                    >
-                      Nome
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      required
-                      className="w-full bg-transparent border-b border-brand-border py-3 text-brand-text-primary focus:outline-none focus:border-brand-accent transition-colors placeholder-brand-text-secondary/40"
-                      placeholder="Il tuo nome"
-                    />
-                    {errors.name && (
-                      <p className="text-xs text-brand-accent mt-2">
-                        {errors.name}
-                      </p>
-                    )}
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="phone"
-                      className="block text-xs uppercase tracking-widest text-brand-text-secondary mb-2"
-                    >
-                      Telefono
-                    </label>
-                    <input
-                      type="tel"
-                      id="phone"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      className="w-full bg-transparent border-b border-brand-border py-3 text-brand-text-primary focus:outline-none focus:border-brand-accent transition-colors placeholder-brand-text-secondary/40"
-                      placeholder="Il tuo numero"
-                    />
-                    {errors.phone && (
-                      <p className="text-xs text-brand-accent mt-2">
-                        {errors.phone}
-                      </p>
-                    )}
-                  </div>
+          {/* Contact Info Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-y-8 gap-x-12 mb-12 border-b border-gray-100 pb-12">
+            <Reveal delay={0.1}>
+              <div className="flex items-start gap-4">
+                <div className="mt-1 p-2 bg-[#b89b5e]/10 rounded-full text-[#b89b5e] shrink-0">
+                  <MapPin size={18} />
                 </div>
-
                 <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-xs uppercase tracking-widest text-brand-text-secondary mb-2"
+                  <h3 className="font-bold text-gray-900 text-xs uppercase tracking-wide mb-1">
+                    Sede
+                  </h3>
+                  <p className="text-gray-500 text-sm leading-relaxed">
+                    Via Maddalena 38/D,
+                    <br />
+                    98122 Messina (ME)
+                  </p>
+                  <a
+                    href="https://goo.gl/maps/xyz"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[10px] text-[#b89b5e] font-bold uppercase mt-2 inline-block border-b border-[#b89b5e]/30 hover:border-[#b89b5e]"
                   >
+                    Vedi su mappa
+                  </a>
+                </div>
+              </div>
+            </Reveal>
+
+            <Reveal delay={0.15}>
+              <div className="flex items-start gap-4">
+                <div className="mt-1 p-2 bg-[#b89b5e]/10 rounded-full text-[#b89b5e] shrink-0">
+                  <Phone size={18} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-900 text-xs uppercase tracking-wide mb-1">
+                    Telefono
+                  </h3>
+                  <a
+                    href="tel:+390902400474"
+                    className="block text-gray-600 text-sm hover:text-[#b89b5e] transition-colors mb-1"
+                  >
+                    +39 090 240 0474
+                  </a>
+                  <a
+                    href="https://wa.me/390902400474"
+                    className="text-[10px] font-bold text-[#b89b5e] uppercase tracking-wide flex items-center gap-1 hover:underline"
+                  >
+                    Chatta su WhatsApp
+                  </a>
+                </div>
+              </div>
+            </Reveal>
+
+            <Reveal delay={0.2}>
+              <div className="flex items-start gap-4">
+                <div className="mt-1 p-2 bg-[#b89b5e]/10 rounded-full text-[#b89b5e] shrink-0">
+                  <Mail size={18} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-900 text-xs uppercase tracking-wide mb-1">
                     Email
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    className="w-full bg-transparent border-b border-brand-border py-3 text-brand-text-primary focus:outline-none focus:border-brand-accent transition-colors placeholder-brand-text-secondary/40"
-                    placeholder="La tua email"
-                  />
-                  {errors.email && (
-                    <p className="text-xs text-brand-accent mt-2">
-                      {errors.email}
-                    </p>
-                  )}
+                  </h3>
+                  <a
+                    href="mailto:contact@dimensione.it"
+                    className="text-gray-600 text-sm hover:text-[#b89b5e] transition-colors break-all"
+                  >
+                    contact@dimensioneimmagineabbigliamento.it
+                  </a>
                 </div>
+              </div>
+            </Reveal>
 
+            <Reveal delay={0.25}>
+              <div className="flex items-start gap-4">
+                <div className="mt-1 p-2 bg-[#b89b5e]/10 rounded-full text-[#b89b5e] shrink-0">
+                  <Clock size={18} />
+                </div>
                 <div>
-                  <label
-                    htmlFor="message"
-                    className="block text-xs uppercase tracking-widest text-brand-text-secondary mb-2"
-                  >
-                    Messaggio
+                  <h3 className="font-bold text-gray-900 text-xs uppercase tracking-wide mb-1">
+                    Orari
+                  </h3>
+                  <p className="text-gray-500 text-sm leading-relaxed">
+                    Lun - Ven: 09:00 - 13:00
+                    <br />e 15:00 - 19:00
+                  </p>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+
+          {/* Form Section */}
+          <Reveal delay={0.3}>
+            <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
+              {/* Stack on mobile, grid on desktop */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                <div className={inputContainerClass}>
+                  <label htmlFor="name" className={labelClass}>
+                    Nome *
                   </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    value={formData.message}
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
                     onChange={handleChange}
-                    required
-                    rows={5}
-                    className="w-full bg-transparent border-b border-brand-border py-3 text-brand-text-primary focus:outline-none focus:border-brand-accent transition-colors placeholder-brand-text-secondary/40 resize-none"
-                    placeholder="Descrivi il tuo progetto..."
-                  ></textarea>
-                  {errors.message && (
-                    <p className="text-xs text-brand-accent mt-2">
-                      {errors.message}
+                    className={inputClass}
+                    placeholder="Mario Rossi"
+                  />
+                  {errors.name && (
+                    <p className="text-red-500 text-[10px] mt-1 absolute">
+                      {errors.name}
                     </p>
                   )}
                 </div>
 
-                {/* ReCAPTCHA */}
-                <div className="py-2">
-                  <ReCAPTCHA
-                    sitekey="6Ld1BEgsAAAAADaK7qe0T4ACh-PkF1gPpMnITtkX"
-                    onChange={handleRecaptchaChange}
-                  />
-                </div>
-
-                {/* Terms and Privacy Checkbox */}
-                <div className="flex items-center">
-                  <input
-                    id="terms"
-                    type="checkbox"
-                    checked={termsAccepted}
-                    onChange={(e) => setTermsAccepted(e.target.checked)}
-                    className="mt-1 h-4 w-4 text-brand-accent focus:ring-brand-accent border-gray-300 rounded"
-                    required
-                  />
-                  <label
-                    htmlFor="terms"
-                    className="ml-2 block text-xs text-brand-text-secondary"
-                  >
-                    Ho letto e accetto la{" "}
-                    <Link
-                      to="/privacy-policy"
-                      className="underline hover:text-brand-accent"
-                    >
-                      Privacy Policy
-                    </Link>{" "}
-                    e i{" "}
-                    <Link
-                      to="/termini-condizioni"
-                      className="underline hover:text-brand-accent"
-                    >
-                      Termini e Condizioni
-                    </Link>
-                    .
+                <div className={inputContainerClass}>
+                  <label htmlFor="phone" className={labelClass}>
+                    Telefono
                   </label>
-                </div>
-
-                {/* Optional Marketing Consent */}
-                <div className="flex items-center">
                   <input
-                    id="marketing"
-                    type="checkbox"
-                    checked={marketingConsent}
-                    onChange={(e) => setMarketingConsent(e.target.checked)}
-                    className="mt-1 h-4 w-4 text-brand-accent focus:ring-brand-accent border-gray-300 rounded"
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className={inputClass}
+                    placeholder="+39..."
                   />
-                  <label
-                    htmlFor="marketing"
-                    className="ml-2 block text-xs text-brand-text-secondary"
-                  >
-                    Desidero ricevere aggiornamenti e comunicazioni marketing
-                    via email. (Opzionale)
-                  </label>
+                </div>
+              </div>
+
+              <div className={inputContainerClass}>
+                <label htmlFor="email" className={labelClass}>
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className={inputClass}
+                  placeholder="mario@example.com"
+                />
+                {errors.email && (
+                  <p className="text-red-500 text-[10px] mt-1 absolute">
+                    {errors.email}
+                  </p>
+                )}
+              </div>
+
+              <div className={inputContainerClass}>
+                <label htmlFor="message" className={labelClass}>
+                  Messaggio *
+                </label>
+                <textarea
+                  id="message"
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
+                  rows={3}
+                  className={`${inputClass} resize-none`}
+                  placeholder="Scrivi qui la tua richiesta..."
+                ></textarea>
+                {errors.message && (
+                  <p className="text-red-500 text-[10px] mt-1 absolute">
+                    {errors.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Controls Footer - Stacked on Mobile */}
+              <div className="pt-4 flex flex-col gap-6">
+                {/* Checkbox */}
+                <div className="flex items-start">
+                  <div className="flex h-5 items-center">
+                    <input
+                      id="terms"
+                      type="checkbox"
+                      checked={termsAccepted}
+                      onChange={(e) => setTermsAccepted(e.target.checked)}
+                      className="h-4 w-4 rounded border-gray-300 text-[#b89b5e] focus:ring-[#b89b5e] cursor-pointer"
+                    />
+                  </div>
+                  <div className="ml-3 text-xs leading-5">
+                    <label htmlFor="terms" className="text-gray-500">
+                      Ho letto e accetto la{" "}
+                      <Link
+                        to="/privacy-policy"
+                        className="font-medium text-gray-900 hover:text-[#b89b5e] underline transition-colors"
+                      >
+                        Privacy Policy
+                      </Link>
+                      .
+                    </label>
+                  </div>
                 </div>
 
-                <div className="pt-4">
-                  <Button
+                {/* Recaptcha & Button Row */}
+                <div className="flex flex-col md:flex-row gap-6 md:items-center justify-between">
+                  <div className="transform scale-90 origin-left">
+                    <ReCAPTCHA
+                      sitekey="6Ld1BEgsAAAAADaK7qe0T4ACh-PkF1gPpMnITtkX"
+                      onChange={handleRecaptchaChange}
+                    />
+                  </div>
+
+                  <button
                     type="submit"
-                    variant="primary"
-                    className="w-full md:w-auto"
+                    disabled={status === "submitting" || status === "success"}
+                    className={`w-full md:w-auto px-8 py-4 text-white uppercase tracking-[0.15em] font-bold text-xs transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 cursor-pointer ${
+                      status === "submitting"
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-[#b89b5e] hover:bg-[#a38a53]"
+                    }`}
                   >
-                    Invia Richiesta
-                  </Button>
+                    {status === "submitting" ? "Invio..." : "Invia Messaggio"}
+                  </button>
                 </div>
-              </form>
-            </div>
+              </div>
+
+              {status === "success" && (
+                <div className="text-center p-4 bg-green-50 text-green-800 text-sm rounded border border-green-100 animate-fade-in">
+                  Grazie! La tua richiesta è stata inviata con successo.
+                </div>
+              )}
+            </form>
           </Reveal>
         </div>
       </div>

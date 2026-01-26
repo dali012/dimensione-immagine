@@ -13,6 +13,7 @@ import { Footer } from "./components/Layout/Footer";
 import { BackToTop } from "./components/UI/BackToTop";
 import { PageTransition } from "./components/Layout/PageTransition";
 import { SEO } from "./components/SEO/SEO";
+import PurchaseRequest from "./pages/PurchaseRequest";
 
 // Lazy load pages
 const Home = React.lazy(() =>
@@ -53,6 +54,11 @@ const BlogPost = React.lazy(() =>
 );
 const NotFound = React.lazy(() =>
   import("./pages/NotFound").then((module) => ({ default: module.NotFound })),
+);
+const LavoraConNoi = React.lazy(() =>
+  import("./pages/LavoraConNoi").then((module) => ({
+    default: module.default,
+  })),
 );
 
 const LoadingFallback = () => (
@@ -164,6 +170,23 @@ const AnimatedRoutes = () => {
                 </PageTransition>
               }
             />
+            <Route
+              path="/lavora-con-noi"
+              element={
+                <PageTransition>
+                  <LavoraConNoi />
+                </PageTransition>
+              }
+            />
+            <Route
+              path="/purchase-request"
+              element={
+                <PageTransition>
+                  <PurchaseRequest />
+                </PageTransition>
+              }
+            />
+            ;
             <Route
               path="*"
               element={

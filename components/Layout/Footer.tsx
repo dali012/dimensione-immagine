@@ -227,7 +227,7 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Simple Copyright/Legal Line optional, kept minimal as per refined design request */}
-        <div className="mt-16 pt-8 border-t border-brand-border flex flex-col items-center space-y-4 text-xs text-brand-text-secondary font-light">
+        <div className="mt-8 pt-8 border-t border-brand-border flex flex-col items-center space-y-4 text-xs text-brand-text-secondary font-light">
           <p>
             &copy; {new Date().getFullYear()} Dimensione Immagine Abbigliamento
             SRL.
