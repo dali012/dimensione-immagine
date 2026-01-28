@@ -14,6 +14,9 @@ import { BackToTop } from "./components/UI/BackToTop";
 import { PageTransition } from "./components/Layout/PageTransition";
 import { SEO } from "./components/SEO/SEO";
 import PurchaseRequest from "./pages/PurchaseRequest";
+import { AuthProvider, RequireAuth, useAuth } from "./contexts/AuthContext";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 // Lazy load pages
 const Home = React.lazy(() =>
@@ -179,13 +182,17 @@ const AnimatedRoutes = () => {
               }
             />
             <Route
-              path="/purchase-request"
+              path="/distribuzione-in-grosso"
               element={
                 <PageTransition>
-                  <PurchaseRequest />
+                  <RequireAuth>
+                    <PurchaseRequest />
+                  </RequireAuth>
                 </PageTransition>
               }
             />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             ;
             <Route
               path="*"
@@ -202,7 +209,44 @@ const AnimatedRoutes = () => {
   );
 };
 
+// Render Navbar only on non-auth pages
+const ConditionalNavbar: React.FC = () => {
+  const location = useLocation();
+  const hiddenPaths = ["/login", "/register"];
+  if (hiddenPaths.includes(location.pathname)) return null;
+  return <Navbar />;
+};
+
 const App: React.FC = () => {
+  const RequireAuth: React.FC<{ children: React.ReactElement }> = ({
+    children,
+  }) => {
+    // use hook inside component body
+    const { isAuthenticated } = useAuth();
+    const { pathname } = useLocation();
+    // We can't use Navigate here at top-level of App because this component is defined inside App
+    if (!isAuthenticated)
+      return (
+        // Render a Navigate to /login preserving the original path
+        // eslint-disable-next-line react/jsx-no-undef
+        // We import Navigate via react-router-dom in outer scope
+        window.location.pathname !== "/login" ? (
+          ((<NavigateToLogin from={pathname} />) as any)
+        ) : (
+          <>{children}</>
+        )
+      );
+    return children;
+  };
+
+  const NavigateToLogin: React.FC<{ from: string }> = ({ from }) => {
+    // Use window.location to set state via query param for simplicity
+    const to = `/login`;
+    // attach from in history state using replace
+    window.history.replaceState({ from }, "", window.location.href);
+    window.location.href = to;
+    return null;
+  };
   const localBusinessSchema = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
@@ -275,7 +319,7 @@ const App: React.FC = () => {
         <ScrollToTop />
         <Toaster closeButton position="bottom-left" />
         <div className="flex flex-col min-h-screen bg-brand-bg text-brand-text-primary selection:bg-brand-accent selection:text-white">
-          <Navbar />
+          <ConditionalNavbar />
           <main className="grow">
             <AnimatedRoutes />
           </main>
