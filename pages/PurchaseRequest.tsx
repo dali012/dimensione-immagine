@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { PageTransition } from "../components/Layout/PageTransition";
 import { SEO } from "@/components/SEO/SEO";
 import { Reveal } from "@/components/UI/Reveal";
 import {
   Building2,
-  User,
   ShoppingBag,
   Send,
   AlertCircle,
@@ -12,8 +12,6 @@ import {
 } from "lucide-react";
 
 // --- Types ---
-type RequestType = "b2c" | "b2b";
-
 interface FormData {
   // Common
   email: string;
@@ -25,16 +23,14 @@ interface FormData {
   vatId: string; // P.IVA
   sdiCode: string; // Codice Univoco
   contactPerson: string;
-  // B2C Specific
-  firstName: string;
-  lastName: string;
 }
 
 const PurchaseRequest: React.FC = () => {
-  const [requestType, setRequestType] = useState<RequestType>("b2b"); // Default to B2B or B2C
+  // always B2B flow
   const [status, setStatus] = useState<
     "idle" | "submitting" | "success" | "error"
   >("idle");
+  const navigate = useNavigate();
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
@@ -46,8 +42,6 @@ const PurchaseRequest: React.FC = () => {
     vatId: "",
     sdiCode: "",
     contactPerson: "",
-    firstName: "",
-    lastName: "",
   });
 
   const handleChange = (
@@ -65,13 +59,9 @@ const PurchaseRequest: React.FC = () => {
       return;
     }
 
-    // Type specific validation
-    if (requestType === "b2b" && (!formData.companyName || !formData.vatId)) {
+    // B2B validation
+    if (!formData.companyName || !formData.vatId) {
       alert("Inserisci i dati aziendali obbligatori.");
-      return;
-    }
-    if (requestType === "b2c" && (!formData.firstName || !formData.lastName)) {
-      alert("Inserisci il tuo nome e cognome.");
       return;
     }
 
@@ -80,7 +70,8 @@ const PurchaseRequest: React.FC = () => {
     // Simulate API Call
     setTimeout(() => {
       setStatus("success");
-      // Reset form logic here if needed
+      // short delay for UX then redirect to thank-you page
+      setTimeout(() => navigate("/thank-you"), 800);
     }, 2000);
   };
 
@@ -117,161 +108,160 @@ const PurchaseRequest: React.FC = () => {
           </Reveal>
 
           <Reveal delay={0.1} className="mx-auto max-w-4xl">
-            <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-              {/* --- Toggle Switch --- */}
-              <div className="flex border-b border-gray-100">
-                <button
-                  onClick={() => setRequestType("b2c")}
-                  className={`flex-1 py-6 flex items-center justify-center gap-3 transition-all duration-300 ${
-                    requestType === "b2c"
-                      ? "bg-white text-[#b89b5e]"
-                      : "bg-gray-50 text-gray-400 hover:text-gray-600 hover:bg-gray-100"
-                  }`}
-                >
-                  <User
-                    size={20}
-                    className={requestType === "b2c" ? "stroke-[2.5px]" : ""}
-                  />
-                  <span
-                    className={`text-sm uppercase tracking-widest font-bold ${requestType === "b2c" ? "" : "font-medium"}`}
+            {/* Top action cards: Ecommerce link for clients + quick access to B2B form */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-6 flex items-start gap-4">
+                <ShoppingBag size={28} className="text-[#b89b5e]" />
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Compra online
+                  </h3>
+                  <p className="text-sm text-gray-500 mb-3">
+                    Vai al nostro e-commerce per acquistare capi singoli e
+                    scoprire le collezioni.
+                  </p>
+                  <a
+                    href="https://shop.dimensioneimmagineabbigliamento.it"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-block px-4 py-2 bg-[#b89b5e] text-white rounded font-medium text-sm"
                   >
-                    Cliente Privato
-                  </span>
-                  {requestType === "b2c" && (
-                    <div className="absolute top-0 left-0 w-1/2 h-1 bg-[#b89b5e]" />
-                  )}
-                </button>
+                    Vai allo Shop
+                  </a>
+                </div>
+              </div>
 
-                <button
-                  onClick={() => setRequestType("b2b")}
-                  className={`flex-1 py-6 flex items-center justify-center gap-3 transition-all duration-300 ${
-                    requestType === "b2b"
-                      ? "bg-white text-[#b89b5e]"
-                      : "bg-gray-50 text-gray-400 hover:text-gray-600 hover:bg-gray-100"
-                  }`}
-                >
-                  <Building2
-                    size={20}
-                    className={requestType === "b2b" ? "stroke-[2.5px]" : ""}
-                  />
-                  <span
-                    className={`text-sm uppercase tracking-widest font-bold ${requestType === "b2b" ? "" : "font-medium"}`}
+              <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-6 flex items-start gap-4">
+                <Building2 size={28} className="text-[#b89b5e]" />
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Distribuzione in grosso
+                  </h3>
+                  <p className="text-sm text-gray-500 mb-3">
+                    Se sei un rivenditore o un'azienda, compila il modulo per
+                    richiedere prezzi per quantità e condizioni B2B.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const el = document.getElementById("purchase-form");
+                      if (el)
+                        el.scrollIntoView({
+                          behavior: "smooth",
+                          block: "start",
+                        });
+                    }}
+                    className="inline-block px-4 py-2 bg-transparent border border-[#b89b5e] text-[#b89b5e] rounded font-medium text-sm cursor-pointer"
                   >
+                    Compila il modulo
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+              {/* B2B only: simplified header */}
+              <div className="flex border-b border-gray-100">
+                <div className="flex-1 py-6 flex items-center justify-center gap-3 bg-white text-[#b89b5e]">
+                  <Building2 size={20} className="stroke-[2.5px]" />
+                  <span className="text-sm uppercase tracking-widest font-bold">
                     Azienda (B2B)
                   </span>
-                  {requestType === "b2b" && (
-                    <div className="absolute top-0 right-0 w-1/2 h-1 bg-[#b89b5e]" />
-                  )}
-                </button>
+                </div>
               </div>
 
               {/* --- Form Body --- */}
               <div className="p-8 md:p-12">
-                <form onSubmit={handleSubmit} className="space-y-8">
+                <form
+                  id="purchase-form"
+                  onSubmit={handleSubmit}
+                  className="space-y-8"
+                >
                   {/* Mode Header */}
                   <div className="flex items-center gap-2 mb-6 opacity-70">
                     <AlertCircle size={16} className="text-[#b89b5e]" />
                     <p className="text-xs text-gray-500 uppercase tracking-wide">
                       Stai compilando il modulo come:{" "}
                       <strong className="text-gray-900">
-                        {requestType === "b2b"
-                          ? "Business / Partita IVA"
-                          : "Cliente Privato"}
+                        Business / Partita IVA
                       </strong>
                     </p>
                   </div>
 
                   {/* --- DYNAMIC FIELDS: B2C vs B2B --- */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fade-in">
-                    {requestType === "b2c" ? (
-                      <>
-                        <div className={inputContainerClass}>
-                          <label htmlFor="firstName" className={labelClass}>
-                            Nome *
-                          </label>
-                          <input
-                            required
-                            type="text"
-                            name="firstName"
-                            value={formData.firstName}
-                            onChange={handleChange}
-                            className={inputClass}
-                            placeholder="Il tuo nome"
-                          />
-                        </div>
-                        <div className={inputContainerClass}>
-                          <label htmlFor="lastName" className={labelClass}>
-                            Cognome *
-                          </label>
-                          <input
-                            required
-                            type="text"
-                            name="lastName"
-                            value={formData.lastName}
-                            onChange={handleChange}
-                            className={inputClass}
-                            placeholder="Il tuo cognome"
-                          />
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div className={`${inputContainerClass} md:col-span-2`}>
-                          <label htmlFor="companyName" className={labelClass}>
-                            Ragione Sociale *
-                          </label>
-                          <input
-                            required
-                            type="text"
-                            name="companyName"
-                            value={formData.companyName}
-                            onChange={handleChange}
-                            className={inputClass}
-                            placeholder="Nome Azienda SRL"
-                          />
-                        </div>
-                        <div className={inputContainerClass}>
-                          <label htmlFor="vatId" className={labelClass}>
-                            Partita IVA *
-                          </label>
-                          <input
-                            required
-                            type="text"
-                            name="vatId"
-                            value={formData.vatId}
-                            onChange={handleChange}
-                            className={inputClass}
-                            placeholder="IT00000000000"
-                          />
-                        </div>
-                        <div className={inputContainerClass}>
-                          <label htmlFor="sdiCode" className={labelClass}>
-                            Codice SDI / PEC
-                          </label>
-                          <input
-                            type="text"
-                            name="sdiCode"
-                            value={formData.sdiCode}
-                            onChange={handleChange}
-                            className={inputClass}
-                            placeholder="XXXXXXX"
-                          />
-                        </div>
-                        <div className={`${inputContainerClass} md:col-span-2`}>
-                          <label htmlFor="contactPerson" className={labelClass}>
-                            Persona di Riferimento
-                          </label>
-                          <input
-                            type="text"
-                            name="contactPerson"
-                            value={formData.contactPerson}
-                            onChange={handleChange}
-                            className={inputClass}
-                            placeholder="Responsabile Acquisti"
-                          />
-                        </div>
-                      </>
-                    )}
+                    <>
+                      <div className={`${inputContainerClass} md:col-span-2`}>
+                        <label htmlFor="companyName" className={labelClass}>
+                          Ragione Sociale *
+                        </label>
+                        <input
+                          required
+                          type="text"
+                          name="companyName"
+                          value={formData.companyName}
+                          onChange={handleChange}
+                          className={inputClass}
+                          placeholder="Nome Azienda SRL"
+                        />
+                      </div>
+                      <div className={inputContainerClass}>
+                        <label htmlFor="vatId" className={labelClass}>
+                          Partita IVA *
+                        </label>
+                        <input
+                          required
+                          type="text"
+                          name="vatId"
+                          value={formData.vatId}
+                          onChange={handleChange}
+                          className={inputClass}
+                          placeholder="IT00000000000"
+                        />
+                      </div>
+                      <div className={inputContainerClass}>
+                        <label htmlFor="sdiCode" className={labelClass}>
+                          Codice SDI / PEC
+                        </label>
+                        <input
+                          type="text"
+                          name="sdiCode"
+                          value={formData.sdiCode}
+                          onChange={handleChange}
+                          className={inputClass}
+                          placeholder="XXXXXXX"
+                        />
+                      </div>
+                      <div className={`${inputContainerClass} md:col-span-2`}>
+                        <label htmlFor="contactPerson" className={labelClass}>
+                          Persona di Riferimento
+                        </label>
+                        <input
+                          type="text"
+                          name="contactPerson"
+                          value={formData.contactPerson}
+                          onChange={handleChange}
+                          className={inputClass}
+                          placeholder="Responsabile Acquisti"
+                        />
+                      </div>
+                    </>
+                  </div>
+
+                  {/* Product details (required) */}
+                  <div className="mt-4">
+                    <label htmlFor="productDetails" className={labelClass}>
+                      Dettagli prodotto / Quantità richieste *
+                    </label>
+                    <textarea
+                      id="productDetails"
+                      name="productDetails"
+                      value={formData.productDetails}
+                      onChange={handleChange}
+                      required
+                      className="w-full h-32 p-3 border border-gray-200 rounded resize-none text-sm text-gray-900 focus:outline-none focus:border-[#b89b5e]"
+                      placeholder="Dettaglia articoli, taglie, colori, quantità desiderata..."
+                    />
                   </div>
 
                   {/* --- COMMON FIELDS --- */}
@@ -320,7 +310,15 @@ const PurchaseRequest: React.FC = () => {
                         className="ml-3 text-xs text-gray-500 leading-relaxed"
                       >
                         Acconsento al trattamento dei dati personali secondo la
-                        Privacy Policy.
+                        <a
+                          href="/privacy-policy"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-[#b89b5e] underline mx-1"
+                        >
+                          Privacy Policy
+                        </a>
+                        e ai sensi del GDPR. *
                       </label>
                     </div>
 

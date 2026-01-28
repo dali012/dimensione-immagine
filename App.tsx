@@ -55,6 +55,9 @@ const Blog = React.lazy(() =>
 const BlogPost = React.lazy(() =>
   import("./pages/BlogPost").then((module) => ({ default: module.BlogPost })),
 );
+const ThankYou = React.lazy(() =>
+  import("./pages/ThankYou").then((module) => ({ default: module.ThankYou })),
+);
 const NotFound = React.lazy(() =>
   import("./pages/NotFound").then((module) => ({ default: module.NotFound })),
 );
@@ -199,6 +202,14 @@ const AnimatedRoutes = () => {
               element={
                 <PageTransition>
                   <NotFound />
+                </PageTransition>
+              }
+            />
+            <Route
+              path="/thank-you"
+              element={
+                <PageTransition>
+                  <ThankYou />
                 </PageTransition>
               }
             />
