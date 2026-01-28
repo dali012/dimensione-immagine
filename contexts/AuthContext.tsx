@@ -18,20 +18,52 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 const USERS_KEY = "mock_users";
 const AUTH_USER_KEY = "auth_user";
 
+function getCookie(name: string) {
+  if (typeof document === "undefined") return null;
+  const pattern = "(?:^|; )" + name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "=([^;]*)";
+  const matches = document.cookie.match(new RegExp(pattern));
+  return matches ? decodeURIComponent(matches[1]) : null;
+}
+
+function setCookie(name: string, value: string, days = 365) {
+  if (typeof document === "undefined") return;
+  const hostname = window.location.hostname.replace(/^www\./, "");
+  const domain = "." + hostname; // e.g. .example.com to cover www and apex
+  const maxAge = days * 24 * 60 * 60;
+  document.cookie = `${name}=${encodeURIComponent(value)};max-age=${maxAge};domain=${domain};path=/`;
+}
+
+function deleteCookie(name: string) {
+  if (typeof document === "undefined") return;
+  const hostname = window.location.hostname.replace(/^www\./, "");
+  const domain = "." + hostname;
+  document.cookie = `${name}=;max-age=0;domain=${domain};path=/`;
+}
+
 function readUsers(): Array<{
   email: string;
   password: string;
   name?: string;
 }> {
   try {
-    return JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
-  } catch {
+    const raw = typeof localStorage !== "undefined" ? localStorage.getItem(USERS_KEY) : null;
+    if (raw) return JSON.parse(raw);
+    const cookieRaw = getCookie(USERS_KEY);
+    if (cookieRaw) return JSON.parse(cookieRaw);
+    return [];
+  } catch (err) {
+    console.debug("readUsers error", err);
     return [];
   }
 }
 
 function writeUsers(users: any[]) {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+  try {
+    if (typeof localStorage !== "undefined") localStorage.setItem(USERS_KEY, JSON.stringify(users));
+    setCookie(USERS_KEY, JSON.stringify(users));
+  } catch (err) {
+    console.debug("writeUsers error", err);
+  }
 }
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -39,15 +71,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [user, setUser] = useState<AuthUser>(() => {
     try {
-      return JSON.parse(localStorage.getItem(AUTH_USER_KEY) || "null");
-    } catch {
+      const raw = typeof localStorage !== "undefined" ? localStorage.getItem(AUTH_USER_KEY) : null;
+      if (raw) return JSON.parse(raw);
+      const cookieRaw = getCookie(AUTH_USER_KEY);
+      if (cookieRaw) return JSON.parse(cookieRaw);
+      return null;
+    } catch (err) {
+      console.debug("init auth user parse error", err);
       return null;
     }
   });
 
   useEffect(() => {
-    if (user) localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
-    else localStorage.removeItem(AUTH_USER_KEY);
+    try {
+      if (user) {
+        if (typeof localStorage !== "undefined") localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
+        setCookie(AUTH_USER_KEY, JSON.stringify(user));
+      } else {
+        if (typeof localStorage !== "undefined") localStorage.removeItem(AUTH_USER_KEY);
+        deleteCookie(AUTH_USER_KEY);
+      }
+    } catch (err) {
+      console.debug("persist auth_user error", err);
+    }
   }, [user]);
 
   const login = async (email: string, password: string) => {
@@ -69,6 +115,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     users.push({ email, password, name });
     writeUsers(users);
     setUser({ email, name });
+    console.debug("registered user", email);
     return true;
   };
 
