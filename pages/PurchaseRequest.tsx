@@ -86,7 +86,7 @@ const PurchaseRequest: React.FC = () => {
     <PageTransition>
       <div className="pt-24 min-h-screen bg-gray-50 font-sans">
         <SEO
-          title="Distribuzione in grosso & Preventivi | Dimensione Immagine"
+          title="Distribuzione Ingrosso & Preventivi | Dimensione Immagine"
           description="Richiedi un preventivo per acquisti all'ingrosso (B2B) o ordina capi specifici (B2C)."
           url="https://www.dimensioneimmagineabbigliamento.it/distribuzione-in-grosso"
         />
@@ -136,7 +136,7 @@ const PurchaseRequest: React.FC = () => {
                 <Building2 size={28} className="text-[#b89b5e]" />
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">
-                    Distribuzione in grosso
+                    Distribuzione Ingrosso
                   </h3>
                   <p className="text-sm text-gray-500 mb-3">
                     Se sei un rivenditore o un'azienda, compila il modulo per
