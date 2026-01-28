@@ -98,7 +98,7 @@ const PurchaseRequest: React.FC = () => {
                 Shop & Ordini
               </span>
               <h1 className="text-3xl md:text-5xl font-serif text-gray-900 mb-6">
-                Distribuzione in grosso
+                Distribuzione Ingrosso
               </h1>
               <p className="text-gray-500 max-w-xl mx-auto font-light text-lg">
                 Compila il modulo qui sotto per richiedere informazioni su
