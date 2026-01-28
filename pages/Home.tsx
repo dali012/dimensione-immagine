@@ -6,7 +6,6 @@ import { Reveal } from "../components/UI/Reveal";
 import { AnimatePresence, motion } from "framer-motion";
 
 const HERO_MEDIA = [
-  { type: "image", src: "/images/hero-bg.jpg" },
   {
     type: "video",
     src: "/images/video/women-hero-video-dimensione-immagine.mp4",
