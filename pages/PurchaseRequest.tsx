@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { PageTransition } from "../components/Layout/PageTransition";
 import { SEO } from "@/components/SEO/SEO";
@@ -55,13 +56,13 @@ const PurchaseRequest: React.FC = () => {
 
     // Basic Validation
     if (!formData.email || !formData.productDetails || !privacyAccepted) {
-      alert("Compila i campi obbligatori e accetta la privacy.");
+      toast.error("Compila i campi obbligatori e accetta la privacy.");
       return;
     }
 
     // B2B validation
     if (!formData.companyName || !formData.vatId) {
-      alert("Inserisci i dati aziendali obbligatori.");
+      toast.error("Inserisci i dati aziendali obbligatori.");
       return;
     }
 
