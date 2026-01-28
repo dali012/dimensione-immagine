@@ -11,7 +11,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Blog", path: "/blog" },
   { label: "Negozi & Sedi", path: "/sedi" },
   { label: "Lavora con Noi", path: "/lavora-con-noi" },
-  { label: "Distribuzione in grosso", path: "/purchase-request" },
+  { label: "Distribuzione in grosso", path: "/distribuzione-in-grosso" },
   { label: "Contatti", path: "/contatti" },
 ];
 
