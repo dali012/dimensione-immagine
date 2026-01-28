@@ -94,9 +94,9 @@ const PurchaseRequest: React.FC = () => {
     <PageTransition>
       <div className="pt-24 min-h-screen bg-gray-50 font-sans">
         <SEO
-          title="Richiesta Acquisto & Preventivi | Dimensione Immagine"
+          title="Distribuzione in grosso & Preventivi | Dimensione Immagine"
           description="Richiedi un preventivo per acquisti all'ingrosso (B2B) o ordina capi specifici (B2C)."
-          url="https://www.dimensioneimmagineabbigliamento.it/richiesta-acquisto"
+          url="https://www.dimensioneimmagineabbigliamento.it/distribuzione-in-grosso"
         />
 
         <section className="container mx-auto px-6 py-12 pb-24 max-w-4xl">
@@ -106,11 +106,12 @@ const PurchaseRequest: React.FC = () => {
                 Shop & Ordini
               </span>
               <h1 className="text-3xl md:text-5xl font-serif text-gray-900 mb-6">
-                Richiesta Acquisto
+                Distribuzione in grosso
               </h1>
               <p className="text-gray-500 max-w-xl mx-auto font-light text-lg">
-                Compila il modulo sottostante per richiedere disponibilità,
-                prezzi per quantità o per ordinare un capo specifico.
+                Compila il modulo qui sotto per richiedere informazioni su
+                disponibilità, prezzi per quantità o per ordinare un articolo
+                specifico.
               </p>
             </div>
           </Reveal>

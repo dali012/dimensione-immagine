@@ -8,7 +8,9 @@ import {
 } from "react-router-dom";
 import { SEO } from "../components/SEO/SEO";
 import { Reveal } from "../components/UI/Reveal";
-import { blogPosts } from "../data/blog";
+import { getPostBySlug, getAllPosts } from "../sanity/posts";
+import { PortableText } from "@portabletext/react";
+import type { BlogPost as BlogPostType } from "../types";
 import { Calendar, User, Tag, ArrowLeft, Link as LinkIcon } from "lucide-react";
 import { toast } from "sonner";
 
@@ -16,23 +18,65 @@ export const BlogPost: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const post = blogPosts.find((p) => p.slug === slug);
+  const [post, setPost] = React.useState<BlogPostType | null>(null);
+  const [related, setRelated] = React.useState<BlogPostType[]>([]);
+  const [loading, setLoading] = React.useState(true);
 
-  if (!post) {
-    return <Navigate to="/blog" replace />;
-  }
+  React.useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+    if (!slug) {
+      setLoading(false);
+      return;
+    }
 
-  const sameCategory = blogPosts.filter(
-    (p) => p.id !== post.id && p.category === post.category,
-  );
-  const related = (
-    sameCategory.length
-      ? sameCategory
-      : blogPosts.filter((p) => p.id !== post.id)
-  ).slice(0, 3);
+    Promise.all([getPostBySlug(slug), getAllPosts()])
+      .then(([p, all]) => {
+        if (!mounted) return;
+        if (!p) {
+          setPost(null);
+          setRelated([]);
+          return;
+        }
+        setPost(p);
+
+        const sameCategory = all.filter(
+          (x) => x.id !== p.id && x.category === p.category,
+        );
+        const rel = (
+          sameCategory.length ? sameCategory : all.filter((x) => x.id !== p.id)
+        ).slice(0, 3);
+        setRelated(rel);
+      })
+      .catch((err) => {
+        console.error("Failed to load post or related posts", err);
+        if (mounted) {
+          setPost(null);
+          setRelated([]);
+        }
+      })
+      .finally(() => mounted && setLoading(false));
+
+    return () => {
+      mounted = false;
+    };
+  }, [slug]);
 
   const shareUrl = `https://www.dimensioneimmagineabbigliamento.it${location.pathname}`;
-  const shareText = `${post.title} | Dimensione Immagine`;
+  const shareText = `${post?.title ?? ""} | Dimensione Immagine`;
+
+  const formatDate = (iso?: string) => {
+    if (!iso) return "";
+    try {
+      return new Date(iso).toLocaleDateString("it-IT", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+      });
+    } catch (e) {
+      return iso;
+    }
+  };
 
   const handleCopy = async () => {
     try {
@@ -43,6 +87,22 @@ export const BlogPost: React.FC = () => {
       toast.error("Impossibile copiare il link");
     }
   };
+
+  if (!slug) return <Navigate to="/blog" replace />;
+
+  if (loading) {
+    return (
+      <div className="pt-24 min-h-screen bg-brand-bg text-brand-text-primary">
+        <div className="container mx-auto px-6 py-12 text-center">
+          Caricamento articolo…
+        </div>
+      </div>
+    );
+  }
+
+  if (!post) {
+    return <Navigate to="/blog" replace />;
+  }
 
   return (
     <div className="pt-24 min-h-screen bg-brand-bg text-brand-text-primary">
@@ -79,7 +139,7 @@ export const BlogPost: React.FC = () => {
               <div className="flex flex-wrap items-center text-xs text-brand-text-secondary mb-4 gap-4">
                 <span className="flex items-center">
                   <Calendar size={14} className="mr-1" />
-                  {post.date}
+                  {formatDate(post.date)}
                 </span>
                 <span className="flex items-center">
                   <User size={14} className="mr-1" />
@@ -96,11 +156,7 @@ export const BlogPost: React.FC = () => {
               </h1>
 
               <div className="prose prose-lg max-w-none text-brand-text-secondary leading-relaxed">
-                {post.content.map((paragraph, idx) => (
-                  <p key={idx} className="mb-5">
-                    {paragraph}
-                  </p>
-                ))}
+                <PortableText value={post.content || []} />
               </div>
 
               <div className="mt-10 pt-8 border-t border-brand-border">
@@ -110,7 +166,7 @@ export const BlogPost: React.FC = () => {
                 <div className="flex flex-wrap gap-3">
                   <button
                     onClick={handleCopy}
-                    className="inline-flex items-center gap-2 px-4 py-2 text-xs uppercase tracking-widest border border-brand-border text-brand-text-primary hover:border-brand-accent hover:text-brand-accent transition-colors"
+                    className="inline-flex items-center gap-2 px-4 py-2 text-xs uppercase tracking-widest border border-brand-border text-brand-text-primary hover:border-brand-accent hover:text-brand-accent transition-colors cursor-pointer"
                   >
                     <LinkIcon size={14} />
                     Copia link
