@@ -1,5 +1,5 @@
-import { authorType } from "./author";
-import { postType } from "./post";
+import { author } from "./author";
+import { post } from "./post";
 import { quoteType } from "./blocks/quote";
 import { videoEmbedType } from "./blocks/video-embed";
 import { callToActionType } from "./blocks/call-to-action";
@@ -10,10 +10,12 @@ import { mapType } from "./blocks/map";
 import { chartType } from "./blocks/chart";
 import { timelineType } from "./blocks/timeline";
 import { faqType } from "./blocks/faq";
+import { categoryType } from "./category";
 
 export const schemaTypes = [
-  postType,
-  authorType,
+  categoryType,
+  post,
+  author,
   videoEmbedType,
   callToActionType,
   quoteType,

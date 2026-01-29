@@ -12,6 +12,7 @@ import { getPostBySlug, getAllPosts } from "../sanity/posts";
 import { PortableText } from "@portabletext/react";
 import type { BlogPost as BlogPostType } from "../types";
 import { Calendar, User, Tag, ArrowLeft, Link as LinkIcon } from "lucide-react";
+import { generateArticleSchema } from "../lib/generateArticleSchema";
 import { toast } from "sonner";
 
 export const BlogPost: React.FC = () => {
@@ -88,6 +89,9 @@ export const BlogPost: React.FC = () => {
     }
   };
 
+  // Prepare structured data early so hooks stay in same order across renders
+  const structuredData = post ? generateArticleSchema(post) : undefined;
+
   if (!slug) return <Navigate to="/blog" replace />;
 
   if (loading) {
@@ -111,6 +115,7 @@ export const BlogPost: React.FC = () => {
         description={post.excerpt}
         image={post.imageUrl}
         url={shareUrl}
+        structuredData={structuredData}
       />
 
       <div className="container mx-auto px-6 py-12 max-w-5xl">

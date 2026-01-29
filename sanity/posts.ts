@@ -20,9 +20,11 @@ export async function getAllPosts(): Promise<BlogPostType[]> {
     "slug": slug.current,
     excerpt,
     content,
-    "imageUrl": coverImage.asset->url,
+    "imageUrl": heroImage.asset->url,
     publishedAt,
+    updatedAt,
     "author": author->name,
+    "categories": categories[]->title,
     tags
   }`;
 
@@ -35,9 +37,10 @@ export async function getAllPosts(): Promise<BlogPostType[]> {
     excerpt: it.excerpt || "",
     content: it.content || [],
     imageUrl: it.imageUrl || "",
-    date: it.publishedAt || "",
+    date: it.publishedAt || it.updatedAt || "",
     author: it.author || "",
-    category: (it.tags && it.tags[0]) || "",
+    category:
+      (it.categories && it.categories[0]) || (it.tags && it.tags[0]) || "",
     tags: it.tags || [],
     // helper used by the blog list search
     _plainText: blocksToPlainText(it.content),
@@ -53,9 +56,11 @@ export async function getPostBySlug(
     "slug": slug.current,
     excerpt,
     content,
-    "imageUrl": coverImage.asset->url,
+    "imageUrl": heroImage.asset->url,
     publishedAt,
+    updatedAt,
     "author": author->name,
+    "categories": categories[]->title,
     tags
   }`;
 
@@ -69,9 +74,10 @@ export async function getPostBySlug(
     excerpt: it.excerpt || "",
     content: it.content || [],
     imageUrl: it.imageUrl || "",
-    date: it.publishedAt || "",
+    date: it.publishedAt || it.updatedAt || "",
     author: it.author || "",
-    category: (it.tags && it.tags[0]) || "",
+    category:
+      (it.categories && it.categories[0]) || (it.tags && it.tags[0]) || "",
     tags: it.tags || [],
   };
 }
