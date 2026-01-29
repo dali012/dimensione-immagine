@@ -187,16 +187,15 @@ const AnimatedRoutes = () => {
             <Route
               path="/distribuzione-in-grosso"
               element={
-                <PageTransition>
-                  <RequireAuth>
+                <RequireAuth>
+                  <PageTransition>
                     <PurchaseRequest />
-                  </RequireAuth>
-                </PageTransition>
+                  </PageTransition>
+                </RequireAuth>
               }
             />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            ;
             <Route
               path="*"
               element={
@@ -229,35 +228,7 @@ const ConditionalNavbar: React.FC = () => {
 };
 
 const App: React.FC = () => {
-  const RequireAuth: React.FC<{ children: React.ReactElement }> = ({
-    children,
-  }) => {
-    // use hook inside component body
-    const { isAuthenticated } = useAuth();
-    const { pathname } = useLocation();
-    // We can't use Navigate here at top-level of App because this component is defined inside App
-    if (!isAuthenticated)
-      return (
-        // Render a Navigate to /login preserving the original path
-        // eslint-disable-next-line react/jsx-no-undef
-        // We import Navigate via react-router-dom in outer scope
-        window.location.pathname !== "/login" ? (
-          ((<NavigateToLogin from={pathname} />) as any)
-        ) : (
-          <>{children}</>
-        )
-      );
-    return children;
-  };
-
-  const NavigateToLogin: React.FC<{ from: string }> = ({ from }) => {
-    // Use window.location to set state via query param for simplicity
-    const to = `/login`;
-    // attach from in history state using replace
-    window.history.replaceState({ from }, "", window.location.href);
-    window.location.href = to;
-    return null;
-  };
+  // Use the exported `RequireAuth` from `AuthContext` (no local override)
   const localBusinessSchema = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",

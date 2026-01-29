@@ -44,6 +44,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           ? localStorage.getItem(AUTH_USER_KEY)
           : null;
       if (raw) return JSON.parse(raw);
+      return null;
     } catch {
       return null;
     }
