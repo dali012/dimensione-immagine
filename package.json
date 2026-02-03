@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.981.0",
+    "@aws-sdk/s3-request-presigner": "^3.981.0",
     "@portabletext/react": "^6.0.2",
     "@sanity/client": "^7.14.1",
     "@sanity/code-input": "^7.0.6",

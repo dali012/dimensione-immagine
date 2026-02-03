@@ -1,7 +1,13 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import Busboy from "busboy";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+} from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { Client } from "pg";
+import crypto from "crypto";
 
 export const config = {
   api: { bodyParser: false },
@@ -24,8 +30,6 @@ const ALLOWED_MIME = new Set([
 ]);
 
 const getEnv = (key: string) => process.env[key] || "";
-
-const normalizeBaseUrl = (url: string) => url.replace(/\/+$/, "");
 
 async function verifyRecaptcha(token: string) {
   const secret = getEnv("SECRET_KEY");
@@ -67,6 +71,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   let fileBuffer: Buffer | null = null;
   let fileName = "";
   let fileType = "";
+  const deleteToken = crypto.randomBytes(24).toString("hex");
 
   try {
     await new Promise<void>((resolve, reject) => {
@@ -130,7 +135,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const accountId = getEnv("ACCOUNT_ID");
   const accessKeyId = getEnv("ACCESS_KEY_ID");
   const secretAccessKey = getEnv("SECRET_ACCESS_KEY");
-  const publicBase = normalizeBaseUrl(getEnv("PUBLIC_BASE_URL"));
 
   if (!bucket || !accountId || !accessKeyId || !secretAccessKey) {
     return res.status(500).json({ error: "R2 configuration missing" });
@@ -156,7 +160,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: "Failed to upload CV" });
   }
 
-  const cvUrl = publicBase ? `${publicBase}/${key}` : key;
+  let signedCvUrl = "";
+  try {
+    signedCvUrl = await getSignedUrl(
+      s3,
+      new GetObjectCommand({
+        Bucket: bucket,
+        Key: key,
+      }),
+      { expiresIn: 60 * 60 },
+    );
+  } catch {
+    // continue without signed URL if signing fails
+  }
 
   const db = new Client({
     connectionString: getEnv("DATABASE_URL"),
@@ -173,8 +189,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         phone TEXT NOT NULL,
         position TEXT NOT NULL,
         message TEXT,
-        cv_url TEXT NOT NULL,
+        cv_url TEXT,
         cv_key TEXT NOT NULL,
+        delete_token TEXT NOT NULL,
         ip TEXT,
         user_agent TEXT,
         recaptcha_score REAL
@@ -183,17 +200,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     await db.query(
       `INSERT INTO job_applications
-        (name, email, phone, position, message, cv_url, cv_key, ip, user_agent, recaptcha_score)
+        (name, email, phone, position, message, cv_url, cv_key, delete_token, ip, user_agent, recaptcha_score)
        VALUES
-        ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+        ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
       [
         fields.name,
         fields.email,
         fields.phone,
         fields.position,
         fields.message || null,
-        cvUrl,
+        null,
         key,
+        deleteToken,
         req.headers["x-forwarded-for"]?.toString() || req.socket.remoteAddress,
         req.headers["user-agent"] || null,
         recaptchaScore,
@@ -209,9 +227,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const resendKey = getEnv("RESEND_API_KEY");
   const resendTo = getEnv("RESEND_TO_EMAIL");
   const resendFrom = getEnv("RESEND_FROM_EMAIL");
+  const appUrl = (getEnv("APP_URL") || "").replace(/\/+$/, "");
 
   if (resendKey && resendTo && resendFrom) {
     try {
+      const deleteLink =
+        appUrl && fields.email
+          ? `${appUrl}/lavora-con-noi?deleteToken=${encodeURIComponent(
+              deleteToken,
+            )}&email=${encodeURIComponent(fields.email)}`
+          : "";
       await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
@@ -229,10 +254,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             <p><strong>Telefono:</strong> ${fields.phone}</p>
             <p><strong>Posizione:</strong> ${fields.position}</p>
             <p><strong>Messaggio:</strong> ${fields.message || "-"}</p>
-            <p><strong>CV:</strong> <a href="${cvUrl}">${cvUrl}</a></p>
+            <p><strong>CV (link valido 1 ora):</strong> <a href="${signedCvUrl}">${signedCvUrl}</a></p>
+            ${
+              deleteLink
+                ? `<p><strong>Link rimozione GDPR:</strong> <a href="${deleteLink}">${deleteLink}</a></p>`
+                : ""
+            }
           `,
         }),
       });
+      if (fields.email && deleteLink) {
+        await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${resendKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            from: resendFrom,
+            to: fields.email,
+            subject: "Conferma candidatura - Dimensione Immagine",
+            html: `
+              <p>Grazie per la tua candidatura.</p>
+              <p>Se vuoi richiedere la cancellazione dei dati (GDPR), usa questo link:</p>
+              <p><a href="${deleteLink}">${deleteLink}</a></p>
+              <p>Il link non ha scadenza.</p>
+            `,
+          }),
+        });
+      }
     } catch {
       // Email failure shouldn't block the submission
     }
