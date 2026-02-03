@@ -174,8 +174,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // continue without signed URL if signing fails
   }
 
+  const dbUrl = getEnv("DATABASE_URL");
+  if (!dbUrl) {
+    return res.status(500).json({ error: "Database error: missing DATABASE_URL" });
+  }
+
   const db = new Client({
-    connectionString: getEnv("DATABASE_URL"),
+    connectionString: dbUrl,
   });
 
   try {
@@ -218,6 +223,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       ],
     );
   } catch (err: any) {
+    console.error("LavoraConNoi DB error:", err);
     await db.end().catch(() => {});
     return res.status(500).json({ error: "Database error" });
   } finally {
