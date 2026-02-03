@@ -213,7 +213,7 @@ const LavoraConNoi: React.FC = () => {
         <section className="container mx-auto px-6 py-12 md:py-20">
           <Reveal width="100%">
             <div className="text-center mb-12">
-              <span className="text-[#b89b5e] font-medium tracking-widest uppercase text-sm mb-2 block">
+              <span className="text-brand-gold font-medium tracking-widest uppercase text-sm mb-2 block">
                 Carriere
               </span>
               <h1 className="text-3xl md:text-5xl font-serif mb-4">
@@ -244,7 +244,7 @@ const LavoraConNoi: React.FC = () => {
           </Reveal>
 
           <Reveal width="100%">
-            <div className="max-w-2xl mx-auto bg-white p-8 md:p-10 rounded-2xl shadow-xl border-t-4 border-[#b89b5e]">
+            <div className="max-w-2xl mx-auto bg-white p-8 md:p-10 rounded-2xl shadow-xl border-t-4 border-brand-gold">
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Name & Phone */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -330,7 +330,7 @@ const LavoraConNoi: React.FC = () => {
                         </p>
                       )}
                       {/* Custom Arrow for select */}
-                      <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#b89b5e]">
+                      <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-brand-gold">
                         <svg
                           className="h-4 w-4 fill-current"
                           viewBox="0 0 20 20"
@@ -361,8 +361,8 @@ const LavoraConNoi: React.FC = () => {
                       htmlFor="cv-upload"
                       className={`flex items-center justify-between w-full px-4 py-3 border-2 border-dashed rounded-lg cursor-pointer transition-all ${
                         file
-                          ? "bg-[#b89b5e]/10 border-[#b89b5e] text-[#b89b5e]"
-                          : "bg-gray-50 border-gray-300 hover:border-[#b89b5e] hover:bg-[#b89b5e]/5"
+                          ? "bg-brand-gold/10 border-brand-gold text-brand-gold"
+                          : "bg-gray-50 border-gray-300 hover:border-brand-gold hover:bg-brand-gold/5"
                       }`}
                     >
                       <div className="flex items-center gap-3">
@@ -373,7 +373,7 @@ const LavoraConNoi: React.FC = () => {
                           viewBox="0 0 24 24"
                           strokeWidth={1.5}
                           stroke="currentColor"
-                          className={`w-5 h-5 ${file ? "text-[#b89b5e]" : "text-gray-400 group-hover:text-[#b89b5e]"}`}
+                          className={`w-5 h-5 ${file ? "text-brand-gold" : "text-gray-400 group-hover:text-brand-gold"}`}
                         >
                           <path
                             strokeLinecap="round"
@@ -389,7 +389,7 @@ const LavoraConNoi: React.FC = () => {
                       </div>
 
                       {!file && (
-                        <span className="text-xs uppercase bg-white border border-gray-200 px-2 py-1 rounded text-gray-500 font-medium group-hover:border-[#b89b5e] group-hover:text-[#b89b5e] transition-colors">
+                        <span className="text-xs uppercase bg-white border border-gray-200 px-2 py-1 rounded text-gray-500 font-medium group-hover:border-brand-gold group-hover:text-brand-gold transition-colors">
                           Sfoglia
                         </span>
                       )}
@@ -425,7 +425,7 @@ const LavoraConNoi: React.FC = () => {
                       type="checkbox"
                       checked={privacyAccepted}
                       onChange={(e) => setPrivacyAccepted(e.target.checked)}
-                      className="h-4 w-4 rounded border-gray-300 text-[#b89b5e] focus:ring-[#b89b5e] cursor-pointer"
+                      className="h-4 w-4 rounded border-gray-300 text-brand-gold focus:ring-brand-gold cursor-pointer"
                     />
                   </div>
                   <div className="text-sm leading-6">
@@ -433,7 +433,7 @@ const LavoraConNoi: React.FC = () => {
                       Acconsento al trattamento dei dati personali secondo la{" "}
                       <a
                         href="/privacy-policy"
-                        className="text-[#b89b5e] hover:underline font-medium"
+                        className="text-brand-gold hover:underline font-medium"
                       >
                         Privacy Policy
                       </a>
@@ -466,7 +466,7 @@ const LavoraConNoi: React.FC = () => {
                   className={`w-full py-4 rounded-lg font-bold text-white uppercase tracking-wider transition-all transform hover:-translate-y-1 shadow-md hover:shadow-lg cursor-pointer ${
                     status === "submitting"
                       ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-[#b89b5e] hover:bg-[#a38a53]"
+                      : "bg-brand-gold hover:bg-[#a38a53]"
                   }`}
                 >
                   {status === "submitting" ? (
