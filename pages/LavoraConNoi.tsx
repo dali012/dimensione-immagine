@@ -315,7 +315,7 @@ const LavoraConNoi: React.FC = () => {
                         id="position"
                         value={position}
                         onChange={(e) => setPosition(e.target.value)}
-                        className={`${inputClasses} appearance-none cursor-pointer`}
+                        className={`${inputClasses} appearance-none cursor-pointer pr-10 h-12 leading-[1.2]`}
                         disabled={status === "submitting" || showNoPositions}
                       >
                         {selectOptions.map((p) => (
@@ -330,7 +330,7 @@ const LavoraConNoi: React.FC = () => {
                         </p>
                       )}
                       {/* Custom Arrow for select */}
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-[#b89b5e]">
+                      <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#b89b5e]">
                         <svg
                           className="h-4 w-4 fill-current"
                           viewBox="0 0 20 20"
