@@ -67,6 +67,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
+  const debug =
+    req.query?.debug === "1" || req.headers["x-debug"] === "1";
   const fields: FormFields = {};
   let fileBuffer: Buffer | null = null;
   let fileName = "";
@@ -225,7 +227,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } catch (err: any) {
     console.error("LavoraConNoi DB error:", err);
     await db.end().catch(() => {});
-    return res.status(500).json({ error: "Database error" });
+    return res.status(500).json({
+      error: "Database error",
+      detail: debug ? String(err?.message || err) : undefined,
+    });
   } finally {
     await db.end().catch(() => {});
   }
