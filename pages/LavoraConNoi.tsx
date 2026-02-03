@@ -149,36 +149,52 @@ const LavoraConNoi: React.FC = () => {
       return;
     }
 
-    let token: string;
     try {
-      token = await window.grecaptcha.execute(siteKey, {
-        action: "lavora_con_noi",
-      });
-      setRecaptchaToken(token);
-    } catch {
-      setStatus("error");
-      setFeedbackMsg("reCAPTCHA non disponibile. Riprova tra qualche secondo.");
-      return;
-    }
+      const buildFormData = (tokenValue: string) => {
+        const fd = new FormData();
+        fd.append("name", name);
+        fd.append("email", email);
+        fd.append("phone", phone);
+        fd.append("position", position);
+        fd.append("cv", file);
+        fd.append("message", message);
+        fd.append("recaptchaToken", tokenValue);
+        return fd;
+      };
 
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("email", email);
-    formData.append("phone", phone);
-    formData.append("position", position);
-    formData.append("cv", file);
-    formData.append("message", message);
-    formData.append("recaptchaToken", token);
+      const executeRecaptcha = async () => {
+        const token = await window.grecaptcha.execute(siteKey, {
+          action: "lavora_con_noi",
+        });
+        setRecaptchaToken(token);
+        return token;
+      };
 
-    try {
-      const res = await fetch("/api/lavora-con-noi", {
-        method: "POST",
-        body: formData,
-      });
+      const submitOnce = async (tokenValue: string) => {
+        const res = await fetch("/api/lavora-con-noi", {
+          method: "POST",
+          body: buildFormData(tokenValue),
+        });
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data?.error || "Submission failed");
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          const err = new Error(data?.error || "Submission failed");
+          (err as any).codes = data?.codes || [];
+          throw err;
+        }
+      };
+
+      let token = await executeRecaptcha();
+      try {
+        await submitOnce(token);
+      } catch (err: any) {
+        const codes: string[] = err?.codes || [];
+        if (codes.includes("timeout-or-duplicate")) {
+          token = await executeRecaptcha();
+          await submitOnce(token);
+        } else {
+          throw err;
+        }
       }
 
       setStatus("success");

@@ -130,13 +130,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const actionOk = verify.action
       ? verify.action === expectedAction
       : true;
-    if (
-      !verify.success ||
-      !actionOk ||
-      (verify.score ?? 0) < minScore
-    ) {
+    if (!verify.success || !actionOk || (verify.score ?? 0) < minScore) {
       return res.status(400).json({
         error: "reCAPTCHA verification failed",
+        codes: verify["error-codes"] || [],
         detail: debug ? verify : undefined,
       });
     }
