@@ -168,7 +168,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         Bucket: bucket,
         Key: key,
       }),
-      { expiresIn: 60 * 60 },
+      { expiresIn: 60 * 60 * 24 * 7 },
     );
   } catch {
     // continue without signed URL if signing fails
@@ -227,6 +227,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const resendKey = getEnv("RESEND_API_KEY");
   const resendTo = getEnv("RESEND_TO_EMAIL");
   const resendFrom = getEnv("RESEND_FROM_EMAIL");
+  const applicantFrom =
+    getEnv("RESEND_APPLICANT_FROM_EMAIL") || resendFrom;
   const appUrl = (getEnv("APP_URL") || "").replace(/\/+$/, "");
 
   if (resendKey && resendTo && resendFrom) {
@@ -254,7 +256,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             <p><strong>Telefono:</strong> ${fields.phone}</p>
             <p><strong>Posizione:</strong> ${fields.position}</p>
             <p><strong>Messaggio:</strong> ${fields.message || "-"}</p>
-            <p><strong>CV (link valido 1 ora):</strong> <a href="${signedCvUrl}">${signedCvUrl}</a></p>
+            ${
+              signedCvUrl
+                ? `<p><strong>CV (link valido 7 giorni):</strong> <a href="${signedCvUrl}">${signedCvUrl}</a></p>`
+                : "<p><strong>CV:</strong> Link temporaneo non disponibile. Richiedere un nuovo link.</p>"
+            }
             ${
               deleteLink
                 ? `<p><strong>Link rimozione GDPR:</strong> <a href="${deleteLink}">${deleteLink}</a></p>`
@@ -263,7 +269,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           `,
         }),
       });
-      if (fields.email && deleteLink) {
+      if (fields.email) {
         await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: {
@@ -271,14 +277,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            from: resendFrom,
+            from: applicantFrom,
             to: fields.email,
             subject: "Conferma candidatura - Dimensione Immagine",
             html: `
               <p>Grazie per la tua candidatura.</p>
-              <p>Se vuoi richiedere la cancellazione dei dati (GDPR), usa questo link:</p>
-              <p><a href="${deleteLink}">${deleteLink}</a></p>
-              <p>Il link non ha scadenza.</p>
+              ${
+                deleteLink
+                  ? `<p>Se vuoi richiedere la cancellazione dei dati (GDPR), usa questo link:</p><p><a href="${deleteLink}">${deleteLink}</a></p><p>Il link non ha scadenza.</p>`
+                  : "<p>Per richiedere la cancellazione dei dati (GDPR), contattaci via email.</p>"
+              }
             `,
           }),
         });

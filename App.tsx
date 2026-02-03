@@ -66,6 +66,11 @@ const LavoraConNoi = React.lazy(() =>
     default: module.default,
   })),
 );
+const HrCvLink = React.lazy(() =>
+  import("./pages/HrCvLink").then((module) => ({
+    default: module.HrCvLink,
+  })),
+);
 
 const LoadingFallback = () => (
   <div className="min-h-screen flex items-center justify-center bg-brand-bg">
@@ -192,6 +197,14 @@ const AnimatedRoutes = () => {
               element={
                 <PageTransition>
                   <LavoraConNoi />
+                </PageTransition>
+              }
+            />
+            <Route
+              path="/hr-cv-link"
+              element={
+                <PageTransition>
+                  <HrCvLink />
                 </PageTransition>
               }
             />

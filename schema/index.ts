@@ -11,11 +11,13 @@ import { chartType } from "./blocks/chart";
 import { timelineType } from "./blocks/timeline";
 import { faqType } from "./blocks/faq";
 import { categoryType } from "./category";
+import { jobPositionType } from "./jobPosition";
 
 export const schemaTypes = [
   categoryType,
   post,
   author,
+  jobPositionType,
   videoEmbedType,
   callToActionType,
   quoteType,
