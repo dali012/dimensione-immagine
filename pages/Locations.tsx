@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { MapPin, Filter, Store } from "lucide-react";
+import { MapPin, Filter, Store, Phone } from "lucide-react";
 import { SEO } from "../components/SEO/SEO";
 import { Button } from "../components/UI/Button";
 import { Reveal } from "../components/UI/Reveal";
@@ -12,6 +12,7 @@ interface LocationData {
   address: string;
   isFranchise: boolean;
   image: string;
+  phone?: string;
 }
 
 const LOCATIONS: LocationData[] = [
@@ -28,6 +29,7 @@ const LOCATIONS: LocationData[] = [
     address: "Via Nicola Fabrizi 89, 98123 Messina (ME)",
     isFranchise: false,
     image: "/images/dimensione-immagine.jpeg",
+    phone: "0902141746",
   },
   {
     name: "Vittoria Company",
@@ -50,6 +52,7 @@ const LOCATIONS: LocationData[] = [
     address: "Corso Umberto Primo, 610 (PE)",
     isFranchise: false,
     image: "/images/montesilvano.jpeg",
+    phone: "0852034097",
   },
   {
     name: "Boutique Donna",
@@ -57,6 +60,7 @@ const LOCATIONS: LocationData[] = [
     address: "Via Maddalena, 74, 98122 angolo Via dei Mille (ME)",
     isFranchise: false,
     image: "/images/boutique-donna.jpeg",
+    phone: "0902131218",
   },
   {
     name: "Torre Faro",
@@ -64,6 +68,7 @@ const LOCATIONS: LocationData[] = [
     address: "Via Circuito, 177, 98164 Ex Lumachina (ME)",
     isFranchise: false,
     image: "/images/torre-faro.jpeg",
+    phone: "090326785",
   },
   {
     name: "Boutique Uomo",
@@ -71,6 +76,7 @@ const LOCATIONS: LocationData[] = [
     address: "Via Giordano Bruno, 38/D, angolo Via Maddalena (ME)",
     isFranchise: false,
     image: "/images/boutique-uomo.jpeg",
+    phone: "0909074525",
   },
   {
     name: "Centro Commerciale Tremestieri",
@@ -78,6 +84,7 @@ const LOCATIONS: LocationData[] = [
     address: "2.Piano accanto al cinema, Tremestieri (ME)",
     isFranchise: false,
     image: "/images/tremestieri.jpeg",
+    phone: "0902406782",
   },
 ];
 
@@ -251,6 +258,20 @@ export const Locations: React.FC = () => {
                               </div>
                             )}
                           </div>
+                          {loc.phone && (
+                            <div className="flex items-center">
+                              <Phone
+                                size={16}
+                                className="text-brand-accent mr-3 shrink-0"
+                              />
+                              <a
+                                href={`tel:${loc.phone}`}
+                                className="hover:text-brand-accent transition-colors"
+                              >
+                                {loc.phone}
+                              </a>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
