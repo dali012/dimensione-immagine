@@ -17,6 +17,7 @@ import PurchaseRequest from "./pages/PurchaseRequest";
 import { AuthProvider, RequireAuth, useAuth } from "./contexts/AuthContext";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import { prefetchPosts } from "./sanity/posts";
 
 // Lazy load pages
 const Home = React.lazy(() =>
@@ -252,6 +253,17 @@ const ConditionalNavbar: React.FC = () => {
 };
 
 const App: React.FC = () => {
+  useEffect(() => {
+    const prefetch = () => {
+      prefetchPosts();
+    };
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(prefetch, { timeout: 2000 });
+    } else {
+      setTimeout(prefetch, 2000);
+    }
+  }, []);
+
   // Use the exported `RequireAuth` from `AuthContext` (no local override)
   const localBusinessSchema = {
     "@context": "https://schema.org",

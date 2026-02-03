@@ -1,6 +1,40 @@
 import { client } from "./client";
 import type { BlogPost as BlogPostType } from "../types";
 
+const CACHE_KEY = "blog_posts_cache_v1";
+const CACHE_TTL_MS = 10 * 60 * 1000;
+let memoryCache: { data: BlogPostType[]; ts: number } | null = null;
+
+function getCachedPosts(): BlogPostType[] | null {
+  const now = Date.now();
+  if (memoryCache && now - memoryCache.ts < CACHE_TTL_MS) {
+    return memoryCache.data;
+  }
+
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { ts: number; data: BlogPostType[] };
+    if (!parsed?.data || now - parsed.ts >= CACHE_TTL_MS) return null;
+    memoryCache = { data: parsed.data, ts: parsed.ts };
+    return parsed.data;
+  } catch {
+    return null;
+  }
+}
+
+function setCachedPosts(data: BlogPostType[]) {
+  const payload = { ts: Date.now(), data };
+  memoryCache = payload;
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(payload));
+  } catch {
+    // ignore cache errors
+  }
+}
+
 function blocksToPlainText(blocks: any[] = []) {
   return blocks
     .map((blk) => {
@@ -14,6 +48,9 @@ function blocksToPlainText(blocks: any[] = []) {
 }
 
 export async function getAllPosts(): Promise<BlogPostType[]> {
+  const cached = getCachedPosts();
+  if (cached) return cached;
+
   const query = `*[_type == "post" && !(_id in path('drafts.**'))] | order(publishedAt desc){
     _id,
     title,
@@ -30,7 +67,7 @@ export async function getAllPosts(): Promise<BlogPostType[]> {
 
   const items = await client.fetch(query);
 
-  return (items || []).map((it: any) => ({
+  const mapped = (items || []).map((it: any) => ({
     id: it._id,
     slug: it.slug,
     title: it.title,
@@ -45,6 +82,17 @@ export async function getAllPosts(): Promise<BlogPostType[]> {
     // helper used by the blog list search
     _plainText: blocksToPlainText(it.content),
   }));
+
+  setCachedPosts(mapped);
+  return mapped;
+}
+
+export async function prefetchPosts(): Promise<void> {
+  try {
+    await getAllPosts();
+  } catch {
+    // ignore
+  }
 }
 
 export async function getPostBySlug(
