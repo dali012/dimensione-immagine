@@ -3,6 +3,7 @@ import { PageTransition } from "../components/Layout/PageTransition";
 import { SEO } from "@/components/SEO/SEO";
 import { Reveal } from "@/components/UI/Reveal";
 import { useLocation } from "react-router-dom";
+import { getActiveJobPositions } from "../sanity/jobPositions";
 
 // Updated input classes with the new brand color on focus
 const inputClasses =
@@ -13,7 +14,9 @@ const LavoraConNoi: React.FC = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [position, setPosition] = useState("Sales Assistant");
+  const [position, setPosition] = useState("Commessa / Commesso");
+  const [positions, setPositions] = useState<string[]>([]);
+  const [positionsLoaded, setPositionsLoaded] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [message, setMessage] = useState("");
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
@@ -44,6 +47,42 @@ const LavoraConNoi: React.FC = () => {
     script.src = `https://www.google.com/recaptcha/api.js?render=${siteKey}`;
     document.head.appendChild(script);
   }, [siteKey]);
+
+  useEffect(() => {
+    let mounted = true;
+    getActiveJobPositions()
+      .then((items) => {
+        if (!mounted) return;
+        setPositionsLoaded(true);
+        if (items.length > 0) {
+          setPositions(items);
+          if (!items.includes(position)) {
+            setPosition(items[0]);
+          }
+        }
+      })
+      .catch(() => {
+        if (mounted) setPositionsLoaded(true);
+        // Keep fallback positions on error
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+  const showNoPositions = positionsLoaded && positions.length === 0;
+  const fallbackPositions = [
+    "Commessa / Commesso",
+    "Responsabile di Negozio",
+    "Visual Merchandiser",
+    "Magazzino / Logistica",
+    "Amministrazione",
+    "Candidatura Spontanea",
+  ];
+  const selectOptions = showNoPositions
+    ? ["Nessuna posizione disponibile"]
+    : positionsLoaded && positions.length > 0
+      ? positions
+      : fallbackPositions;
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -149,7 +188,7 @@ const LavoraConNoi: React.FC = () => {
       setName("");
       setEmail("");
       setPhone("");
-      setPosition("Sales Assistant");
+      setPosition("Commessa / Commesso");
       setFile(null);
       setMessage("");
       setPrivacyAccepted(false);
@@ -277,21 +316,19 @@ const LavoraConNoi: React.FC = () => {
                         value={position}
                         onChange={(e) => setPosition(e.target.value)}
                         className={`${inputClasses} appearance-none cursor-pointer`}
-                        disabled={status === "submitting"}
+                        disabled={status === "submitting" || showNoPositions}
                       >
-                        <option value="Sales Assistant">
-                          Commessa / Commesso
-                        </option>
-                        <option value="Store Manager">
-                          Responsabile di Negozio
-                        </option>
-                        <option value="Visual Merchandiser">
-                          Visual Merchandiser
-                        </option>
-                        <option value="Magazzino">Magazzino / Logistica</option>
-                        <option value="Amministrazione">Amministrazione</option>
-                        <option value="Altro">Candidatura Spontanea</option>
+                        {selectOptions.map((p) => (
+                          <option key={p} value={p}>
+                            {p}
+                          </option>
+                        ))}
                       </select>
+                      {showNoPositions && (
+                        <p className="mt-2 text-xs text-red-600">
+                          Al momento non ci sono posizioni aperte.
+                        </p>
+                      )}
                       {/* Custom Arrow for select */}
                       <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-[#b89b5e]">
                         <svg
@@ -421,7 +458,11 @@ const LavoraConNoi: React.FC = () => {
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  disabled={status === "submitting" || status === "success"}
+                  disabled={
+                    status === "submitting" ||
+                    status === "success" ||
+                    showNoPositions
+                  }
                   className={`w-full py-4 rounded-lg font-bold text-white uppercase tracking-wider transition-all transform hover:-translate-y-1 shadow-md hover:shadow-lg cursor-pointer ${
                     status === "submitting"
                       ? "bg-gray-400 cursor-not-allowed"
