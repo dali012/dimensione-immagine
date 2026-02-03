@@ -172,6 +172,8 @@ export const Locations: React.FC = () => {
                         alt={`Sede ${loc.name}`}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         loading="lazy"
+                        decoding="async"
+                        sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
                       />
                       <div className="absolute top-4 left-4 bg-white/90 px-3 py-1 text-[10px] text-brand-text-primary uppercase tracking-widest backdrop-blur-sm">
                         {loc.region}
@@ -185,7 +187,7 @@ export const Locations: React.FC = () => {
                         </h3>
                       </div>
 
-                      <span
+                      <div
                         className={`text-[10px] tracking-widest pb-2 inline-block ${
                           loc.isFranchise
                             ? "text-brand-text-secondary"
@@ -197,16 +199,16 @@ export const Locations: React.FC = () => {
                             Franchising
                           </span>
                         ) : (
-                          <div className="text-brand-text-secondary uppercase font-bold">
+                          <span className="text-brand-text-secondary uppercase font-bold">
                             Store Proprietario <br />
                             {isOpenNow() ? (
                               <span className="text-green-500">Aperto ora</span>
                             ) : (
                               <span className="text-red-500">Chiuso ora</span>
                             )}
-                          </div>
+                          </span>
                         )}
-                      </span>
+                      </div>
 
                       <div className="space-y-3 text-brand-text-secondary text-sm font-light mb-6">
                         <div className="flex items-start flex-col gap-3">

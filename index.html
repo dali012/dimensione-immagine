@@ -18,11 +18,31 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://embeds.iubenda.com">
+  <link rel="preconnect" href="https://idb.iubenda.com">
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
     rel="stylesheet">
-  <script type="text/javascript"
-    src="https://embeds.iubenda.com/widgets/ef677c05-ac27-443c-a4c8-bfa72cbe62af.js"></script>
+  <script>
+    window.addEventListener("load", () => {
+      const loadIubenda = () => {
+        if (window.__iubendaLoaded) return;
+        window.__iubendaLoaded = true;
+        const script = document.createElement("script");
+        script.src =
+          "https://embeds.iubenda.com/widgets/ef677c05-ac27-443c-a4c8-bfa72cbe62af.js";
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+      };
+
+      if ("requestIdleCallback" in window) {
+        window.requestIdleCallback(loadIubenda, { timeout: 2000 });
+      } else {
+        setTimeout(loadIubenda, 2000);
+      }
+    });
+  </script>
 </head>
 
 <body>

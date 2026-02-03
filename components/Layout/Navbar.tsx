@@ -55,14 +55,23 @@ export const Navbar: React.FC = () => {
             className="z-50 group relative flex items-center"
             onClick={() => setIsOpen(false)}
           >
-            <img
-              src="/images/logo.png"
-              alt="Dimensione Immagine"
-              className="h-12 w-auto object-contain transition-opacity duration-300"
-              width="180"
-              height="48"
-              style={{ filter: "invert(1) grayscale(1) brightness(0.2)" }}
-            />
+            <picture>
+              <source
+                type="image/webp"
+                srcSet="/images/logo-124.webp 1x, /images/logo-248.webp 2x"
+                sizes="124px"
+              />
+              <img
+                src="/images/logo-124.png"
+                srcSet="/images/logo-124.png 1x, /images/logo-248.png 2x"
+                sizes="124px"
+                alt="Dimensione Immagine"
+                className="h-12 w-auto object-contain transition-opacity duration-300"
+                width="124"
+                height="48"
+                style={{ filter: "invert(1) grayscale(1) brightness(0.2)" }}
+              />
+            </picture>
           </Link>
 
           {/* Desktop Menu - Hidden on tablets/mobile (< 1024px) */}

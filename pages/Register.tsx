@@ -27,11 +27,22 @@ export const Register: React.FC = () => {
         <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-brand-border">
           <div className="p-8 md:p-10">
             <div className="mb-6 text-center">
-              <img
-                src="/images/logo.png"
-                alt="Logo"
-                className="mx-auto h-12 mb-4"
-              />
+              <picture>
+                <source
+                  type="image/webp"
+                  srcSet="/images/logo-124.webp 1x, /images/logo-248.webp 2x"
+                  sizes="124px"
+                />
+                <img
+                  src="/images/logo-124.png"
+                  srcSet="/images/logo-124.png 1x, /images/logo-248.png 2x"
+                  sizes="124px"
+                  alt="Logo"
+                  className="mx-auto h-12 mb-4"
+                  width="124"
+                  height="48"
+                />
+              </picture>
               <h1 className="text-2xl font-serif font-bold">
                 Registrati
               </h1>

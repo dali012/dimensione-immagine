@@ -69,11 +69,22 @@ const LavoraConNoi = React.lazy(() =>
 
 const LoadingFallback = () => (
   <div className="min-h-screen flex items-center justify-center bg-brand-bg">
-    <img
-      src="/images/loading-elephant.png"
-      alt="Caricamento..."
-      className="w-32 animate-pulse"
-    />
+    <picture>
+      <source
+        type="image/webp"
+        srcSet="/images/loading-elephant-128.webp 1x, /images/loading-elephant-256.webp 2x"
+        sizes="128px"
+      />
+      <img
+        src="/images/loading-elephant-128.png"
+        srcSet="/images/loading-elephant-128.png 1x, /images/loading-elephant-256.png 2x"
+        sizes="128px"
+        alt="Caricamento..."
+        className="w-32 animate-pulse"
+        width="128"
+        height="129"
+      />
+    </picture>
   </div>
 );
 

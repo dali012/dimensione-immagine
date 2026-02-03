@@ -8,11 +8,13 @@ import { AnimatePresence, motion } from "framer-motion";
 const HERO_MEDIA = [
   {
     type: "video",
-    src: "/images/video/women-hero-video-dimensione-immagine.mp4",
+    src: "/images/video/women-hero-video-dimensione-immagine-1280.mp4",
+    poster: "/images/video/women-hero-video-poster.jpg",
   },
   {
     type: "video",
-    src: "/images/video/men-hero-video-dimensione-immagine.mp4",
+    src: "/images/video/men-hero-video-dimensione-immagine-1280.mp4",
+    poster: "/images/video/men-hero-video-poster.jpg",
   },
 ];
 
@@ -58,6 +60,8 @@ export const Home: React.FC = () => {
                   autoPlay
                   muted
                   playsInline
+                  preload="metadata"
+                  poster={HERO_MEDIA[currentIndex].poster}
                   onEnded={() =>
                     setCurrentIndex((prev) => (prev + 1) % HERO_MEDIA.length)
                   }
@@ -67,6 +71,9 @@ export const Home: React.FC = () => {
                   src={HERO_MEDIA[currentIndex].src}
                   alt={`Slide ${currentIndex + 1}`}
                   className="w-full h-full object-cover object-top md:object-center"
+                  loading="eager"
+                  decoding="async"
+                  sizes="100vw"
                 />
               )}
             </motion.div>
@@ -105,6 +112,7 @@ export const Home: React.FC = () => {
       {/* Philosophy / Value Proposition */}
       <section className="py-24 md:py-32 bg-white">
         <div className="container mx-auto px-6">
+          <h2 className="sr-only">I nostri valori</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-8">
             <Reveal
               delay={0.2}

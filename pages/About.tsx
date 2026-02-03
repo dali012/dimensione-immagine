@@ -278,6 +278,9 @@ export const About: React.FC = () => {
                         src={value.image}
                         alt={value.title}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        loading="lazy"
+                        decoding="async"
+                        sizes="(min-width: 1024px) 50vw, 100vw"
                       />
                     </div>
                   </div>
