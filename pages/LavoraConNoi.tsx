@@ -2,12 +2,14 @@ import React, { useState, useRef, useEffect } from "react";
 import { PageTransition } from "../components/Layout/PageTransition";
 import { SEO } from "@/components/SEO/SEO";
 import { Reveal } from "@/components/UI/Reveal";
+import { useLocation } from "react-router-dom";
 
 // Updated input classes with the new brand color on focus
 const inputClasses =
   "w-full bg-white border border-gray-200 rounded-lg px-4 py-3 text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#b89b5e] focus:ring-1 focus:ring-[#b89b5e] transition-all";
 
 const LavoraConNoi: React.FC = () => {
+  const location = useLocation();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -22,6 +24,9 @@ const LavoraConNoi: React.FC = () => {
     "idle" | "submitting" | "success" | "error"
   >("idle");
   const [feedbackMsg, setFeedbackMsg] = useState("");
+  const [deleteStatus, setDeleteStatus] = useState<
+    "idle" | "deleting" | "deleted" | "error"
+  >("idle");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY as
@@ -39,6 +44,30 @@ const LavoraConNoi: React.FC = () => {
     script.src = `https://www.google.com/recaptcha/api.js?render=${siteKey}`;
     document.head.appendChild(script);
   }, [siteKey]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const deleteToken = params.get("deleteToken");
+    const emailParam = params.get("email");
+    if (!deleteToken || !emailParam) return;
+
+    const runDelete = async () => {
+      setDeleteStatus("deleting");
+      try {
+        const res = await fetch("/api/lavora-con-noi-delete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ deleteToken, email: emailParam }),
+        });
+        if (!res.ok) throw new Error("Delete failed");
+        setDeleteStatus("deleted");
+      } catch {
+        setDeleteStatus("error");
+      }
+    };
+
+    runDelete();
+  }, [location.search]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -155,6 +184,23 @@ const LavoraConNoi: React.FC = () => {
                 Unisciti al nostro team dinamico. Siamo sempre alla ricerca di
                 nuovi talenti appassionati di moda.
               </p>
+              {deleteStatus !== "idle" && (
+                <div
+                  className={`mt-4 inline-flex items-center px-4 py-2 rounded-md text-sm font-medium ${
+                    deleteStatus === "deleted"
+                      ? "bg-green-50 text-green-700 border border-green-200"
+                      : deleteStatus === "deleting"
+                        ? "bg-gray-50 text-gray-700 border border-gray-200"
+                        : "bg-red-50 text-red-700 border border-red-200"
+                  }`}
+                >
+                  {deleteStatus === "deleting" && "Rimozione in corso..."}
+                  {deleteStatus === "deleted" &&
+                    "Dati rimossi correttamente."}
+                  {deleteStatus === "error" &&
+                    "Impossibile rimuovere i dati. Contattaci per assistenza."}
+                </div>
+              )}
             </div>
           </Reveal>
 
