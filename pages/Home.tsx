@@ -10,17 +10,24 @@ const HERO_MEDIA = [
     type: "video",
     src: "/images/video/women-hero-video-dimensione-immagine-1280.mp4",
     poster: "/images/video/women-hero-video-poster.jpg",
+    posterWebp: "/images/video/women-hero-video-poster.webp",
+    posterMobileWebp: "/images/video/women-hero-video-poster-640.webp",
+    posterMobileJpg: "/images/video/women-hero-video-poster-640.jpg",
   },
   {
     type: "video",
     src: "/images/video/men-hero-video-dimensione-immagine-1280.mp4",
     poster: "/images/video/men-hero-video-poster.jpg",
+    posterWebp: "/images/video/men-hero-video-poster.webp",
+    posterMobileWebp: "/images/video/men-hero-video-poster-640.webp",
+    posterMobileJpg: "/images/video/men-hero-video-poster-640.jpg",
   },
 ];
 
 export const Home: React.FC = () => {
   const location = useLocation();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [showVideo, setShowVideo] = useState(false);
 
   useEffect(() => {
     if (HERO_MEDIA[currentIndex].type === "image") {
@@ -30,6 +37,18 @@ export const Home: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, [currentIndex]);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const update = () => setShowVideo(mq.matches);
+    update();
+    if (mq.addEventListener) {
+      mq.addEventListener("change", update);
+      return () => mq.removeEventListener("change", update);
+    }
+    mq.addListener(update);
+    return () => mq.removeListener(update);
+  }, []);
 
   return (
     <div className="flex flex-col bg-brand-bg min-h-screen">
@@ -54,18 +73,40 @@ export const Home: React.FC = () => {
               className="absolute inset-0 w-full h-full"
             >
               {HERO_MEDIA[currentIndex].type === "video" ? (
-                <video
-                  src={HERO_MEDIA[currentIndex].src}
-                  className="w-full h-full object-cover object-top md:object-center"
-                  autoPlay
-                  muted
-                  playsInline
-                  preload="metadata"
-                  poster={HERO_MEDIA[currentIndex].poster}
-                  onEnded={() =>
-                    setCurrentIndex((prev) => (prev + 1) % HERO_MEDIA.length)
-                  }
-                />
+                <>
+                  {/* Desktop/tablet video */}
+                  {showVideo && (
+                    <video
+                      src={HERO_MEDIA[currentIndex].src}
+                      className="w-full h-full object-cover object-top md:object-center"
+                      autoPlay
+                      muted
+                      playsInline
+                      preload="metadata"
+                      poster={HERO_MEDIA[currentIndex].poster}
+                      onEnded={() =>
+                        setCurrentIndex((prev) => (prev + 1) % HERO_MEDIA.length)
+                      }
+                    />
+                  )}
+                  {/* Mobile: image fallback (no video download) */}
+                  {!showVideo && (
+                    <picture className="block w-full h-full">
+                      <source
+                        type="image/webp"
+                        srcSet={`${HERO_MEDIA[currentIndex].posterMobileWebp} 1x`}
+                      />
+                      <img
+                        src={HERO_MEDIA[currentIndex].posterMobileJpg}
+                        alt={`Slide ${currentIndex + 1}`}
+                        className="w-full h-full object-cover object-top"
+                        loading="eager"
+                        decoding="async"
+                        fetchPriority="high"
+                      />
+                    </picture>
+                  )}
+                </>
               ) : (
                 <img
                   src={HERO_MEDIA[currentIndex].src}
@@ -74,6 +115,7 @@ export const Home: React.FC = () => {
                   loading="eager"
                   decoding="async"
                   sizes="100vw"
+                  fetchPriority="high"
                 />
               )}
             </motion.div>
