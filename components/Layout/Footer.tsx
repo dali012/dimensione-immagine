@@ -36,9 +36,9 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-12 lg:gap-4">
           {/* Column 1: COMPANY */}
           <div className="flex flex-col space-y-6">
-            <h4 className="font-serif font-bold text-xs tracking-widest uppercase text-brand-text-primary">
+            <h3 className="font-serif font-bold text-xs tracking-widest uppercase text-brand-text-primary">
               Azienda
-            </h4>
+            </h3>
             <ul className="flex flex-col space-y-3 text-sm text-brand-text-secondary font-light">
               <li>
                 <Link
@@ -69,9 +69,9 @@ export const Footer: React.FC = () => {
 
           {/* Column 3: TERMS & POLICY */}
           <div className="flex flex-col space-y-6">
-            <h4 className="font-serif font-bold text-xs tracking-widest uppercase text-brand-text-primary">
+            <h3 className="font-serif font-bold text-xs tracking-widest uppercase text-brand-text-primary">
               Termini & Policy
-            </h4>
+            </h3>
             <ul className="flex flex-col space-y-3 text-sm text-brand-text-secondary font-light">
               <li>
                 <Link
@@ -103,16 +103,17 @@ export const Footer: React.FC = () => {
           {/* Column 4: SUBSCRIBE */}
           <div className="flex flex-col space-y-6 lg:pl-4">
             <div className="flex justify-between items-start">
-              <h4 className="font-serif font-bold text-xs tracking-widest uppercase text-brand-text-primary leading-relaxed">
+              <h3 className="font-serif font-bold text-xs tracking-widest uppercase text-brand-text-primary leading-relaxed">
                 Rimani Ispirato.
                 <br />
                 Rimani Elegante.
-              </h4>
+              </h3>
               <div className="flex space-x-3 text-brand-text-secondary">
                 <a
                   href="https://www.facebook.com/profile.php?id=61584264163679"
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label="Facebook"
                   className="hover:text-brand-accent transition-colors"
                 >
                   <Facebook size={18} />
@@ -121,6 +122,7 @@ export const Footer: React.FC = () => {
                   href="https://www.instagram.com/dimensione.immagine/"
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label="Instagram"
                   className="hover:text-brand-accent transition-colors"
                 >
                   <Instagram size={18} />
@@ -129,6 +131,7 @@ export const Footer: React.FC = () => {
                   href="https://www.tiktok.com/@dimensioneimmagine"
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label="TikTok"
                   className="hover:text-brand-accent transition-colors"
                 >
                   <TikTokIcon size={18} />

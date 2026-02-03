@@ -138,6 +138,9 @@ export const Blog: React.FC = () => {
                         src={post.imageUrl}
                         alt={post.title}
                         className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                        loading="lazy"
+                        decoding="async"
+                        sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
                       />
                     </Link>
                     <div className="p-6 flex-1 flex flex-col min-h-0">

@@ -137,6 +137,9 @@ export const BlogPost: React.FC = () => {
                 src={post.imageUrl}
                 alt={post.title}
                 className="w-full h-full object-cover"
+                loading="eager"
+                decoding="async"
+                sizes="(min-width: 1024px) 1024px, 100vw"
               />
             </div>
 
@@ -219,6 +222,9 @@ export const BlogPost: React.FC = () => {
                       src={rel.imageUrl}
                       alt={rel.title}
                       className="w-full h-full object-cover"
+                      loading="lazy"
+                      decoding="async"
+                      sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
                     />
                   </div>
                   <div className="p-4">

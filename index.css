@@ -4,9 +4,9 @@
   /* Editorial Palette */
   --color-brand-bg: #fafafa;
   --color-brand-text-primary: #111111;
-  --color-brand-text-secondary: #6b6b6b;
+  --color-brand-text-secondary: #4f4f4f;
   --color-brand-border: #e5e5e5;
-  --color-brand-accent: #b89b5e;
+  --color-brand-accent: #8a6f2a;
 
   /* Legacy mapping for cleaner migration, or redefine */
   --color-brand-black: #111111; /* Mapping old to new primary text */

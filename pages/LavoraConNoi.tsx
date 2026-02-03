@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { PageTransition } from "../components/Layout/PageTransition";
 import { SEO } from "@/components/SEO/SEO";
 import { Reveal } from "@/components/UI/Reveal";
@@ -15,6 +15,7 @@ const LavoraConNoi: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
   const [message, setMessage] = useState("");
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
 
   // UI States
   const [status, setStatus] = useState<
@@ -23,6 +24,21 @@ const LavoraConNoi: React.FC = () => {
   const [feedbackMsg, setFeedbackMsg] = useState("");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY as
+    | string
+    | undefined;
+
+  useEffect(() => {
+    if (!siteKey) return;
+    const scriptId = "recaptcha-v3";
+    if (document.getElementById(scriptId)) return;
+    const script = document.createElement("script");
+    script.id = scriptId;
+    script.async = true;
+    script.defer = true;
+    script.src = `https://www.google.com/recaptcha/api.js?render=${siteKey}`;
+    document.head.appendChild(script);
+  }, [siteKey]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -59,6 +75,22 @@ const LavoraConNoi: React.FC = () => {
     setStatus("submitting");
     setFeedbackMsg("");
 
+    if (!siteKey || !window.grecaptcha) {
+      setStatus("error");
+      setFeedbackMsg("reCAPTCHA non disponibile. Riprova tra qualche secondo.");
+      return;
+    }
+
+    let token: string;
+    try {
+      token = await window.grecaptcha.execute(siteKey, { action: "submit" });
+      setRecaptchaToken(token);
+    } catch {
+      setStatus("error");
+      setFeedbackMsg("reCAPTCHA non disponibile. Riprova tra qualche secondo.");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("name", name);
     formData.append("email", email);
@@ -66,10 +98,18 @@ const LavoraConNoi: React.FC = () => {
     formData.append("position", position);
     formData.append("cv", file);
     formData.append("message", message);
+    formData.append("recaptchaToken", token);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const res = await fetch("/api/lavora-con-noi", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data?.error || "Submission failed");
+      }
 
       setStatus("success");
       setFeedbackMsg(
@@ -84,6 +124,7 @@ const LavoraConNoi: React.FC = () => {
       setFile(null);
       setMessage("");
       setPrivacyAccepted(false);
+      setRecaptchaToken(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (error) {
       setStatus("error");
