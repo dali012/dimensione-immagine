@@ -151,7 +151,9 @@ const LavoraConNoi: React.FC = () => {
 
     let token: string;
     try {
-      token = await window.grecaptcha.execute(siteKey, { action: "submit" });
+      token = await window.grecaptcha.execute(siteKey, {
+        action: "lavora_con_noi",
+      });
       setRecaptchaToken(token);
     } catch {
       setStatus("error");

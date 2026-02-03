@@ -53,6 +53,7 @@ async function verifyRecaptcha(token: string) {
     success: boolean;
     score?: number;
     action?: string;
+    hostname?: string;
     "error-codes"?: string[];
   };
 }
@@ -124,8 +125,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const verify = await verifyRecaptcha(fields.recaptchaToken);
     recaptchaScore = typeof verify.score === "number" ? verify.score : null;
     const minScore = Number(getEnv("RECAPTCHA_MIN_SCORE") || "0.5");
-    if (!verify.success || (verify.score ?? 0) < minScore) {
-      return res.status(400).json({ error: "reCAPTCHA verification failed" });
+    const expectedAction =
+      getEnv("RECAPTCHA_EXPECTED_ACTION") || "lavora_con_noi";
+    const actionOk = verify.action
+      ? verify.action === expectedAction
+      : true;
+    if (
+      !verify.success ||
+      !actionOk ||
+      (verify.score ?? 0) < minScore
+    ) {
+      return res.status(400).json({
+        error: "reCAPTCHA verification failed",
+        detail: debug ? verify : undefined,
+      });
     }
   } catch (err: any) {
     return res
