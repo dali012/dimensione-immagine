@@ -5,7 +5,6 @@ import { SEO } from "../components/SEO/SEO";
 import { Reveal } from "../components/UI/Reveal";
 
 const CONTACT_ENDPOINT = "/api/contact";
-const RATE_LIMIT_MS = 60 * 1000;
 
 export const Contact: React.FC = () => {
   const location = useLocation();
@@ -25,6 +24,8 @@ export const Contact: React.FC = () => {
 
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [marketingConsent, setMarketingConsent] = useState(false);
+  const [honey, setHoney] = useState("");
+  const [submitMessage, setSubmitMessage] = useState("");
   const [status, setStatus] = useState<
     "idle" | "submitting" | "success" | "error"
   >("idle");
@@ -36,6 +37,7 @@ export const Contact: React.FC = () => {
       ...formData,
       [e.target.name]: e.target.value,
     });
+
     if (errors[e.target.name as keyof typeof errors]) {
       setErrors({ ...errors, [e.target.name]: "" });
     }
@@ -46,15 +48,23 @@ export const Contact: React.FC = () => {
     let isValid = true;
 
     if (!formData.name.trim()) {
-      nextErrors.name = "Il nome è obbligatorio.";
+      nextErrors.name = "Il nome e obbligatorio.";
       isValid = false;
     }
+
     if (!formData.email.trim()) {
-      nextErrors.email = "L'email è obbligatoria.";
+      nextErrors.email = "L'email e obbligatoria.";
+      isValid = false;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      nextErrors.email = "Inserisci un'email valida.";
       isValid = false;
     }
+
     if (!formData.message.trim()) {
-      nextErrors.message = "Il messaggio è obbligatorio.";
+      nextErrors.message = "Il messaggio e obbligatorio.";
+      isValid = false;
+    } else if (formData.message.trim().length < 10) {
+      nextErrors.message = "Il messaggio deve avere almeno 10 caratteri.";
       isValid = false;
     }
 
@@ -64,31 +74,60 @@ export const Contact: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!validateForm()) return;
     if (!termsAccepted) {
-      alert("Accetta la Privacy Policy.");
+      setStatus("error");
+      setSubmitMessage("Accetta la Privacy Policy.");
       return;
     }
 
     setStatus("submitting");
+    setSubmitMessage("");
 
     try {
-      // Simulate API
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const response = await fetch(CONTACT_ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          phone: formData.phone.trim(),
+          message: formData.message.trim(),
+          privacyAccepted: termsAccepted,
+          marketingConsent,
+          honey,
+          sourcePage: location.pathname,
+        }),
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.success) {
+        throw new Error(data?.error || "Invio non riuscito. Riprova piu tardi.");
+      }
+
       setStatus("success");
+      setSubmitMessage("Grazie! La tua richiesta e stata inviata con successo.");
       setFormData({ name: "", email: "", phone: "", message: "" });
-      setTimeout(() => setStatus("idle"), 5000);
-    } catch (err) {
+      setTermsAccepted(false);
+      setMarketingConsent(false);
+      setHoney("");
+
+      setTimeout(() => {
+        setStatus("idle");
+        setSubmitMessage("");
+      }, 5000);
+    } catch (err: any) {
       setStatus("error");
+      setSubmitMessage(err?.message || "Invio non riuscito. Riprova piu tardi.");
     }
   };
 
-  // Styles
   const inputContainerClass = "relative group";
-  // Increased text size on mobile (text-xs -> text-[10px]/text-xs) to maintain readability
   const labelClass =
     "block text-xs uppercase tracking-widest text-gray-500 mb-1.5 font-medium group-focus-within:text-[#b89b5e] transition-colors";
-  // text-base prevents iOS zoom on focus
   const inputClass =
     "w-full bg-transparent border-b border-gray-300 py-3 md:py-2 text-base md:text-sm text-gray-900 focus:outline-none focus:border-[#b89b5e] transition-all placeholder:text-gray-300 rounded-none";
 
@@ -135,9 +174,7 @@ export const Contact: React.FC = () => {
         </div>
       </div>
 
-      {/* --- CONTENT AREA (Scrollable) --- */}
       <div className="w-full lg:w-7/12 xl:w-1/2 flex flex-col min-h-screen bg-white">
-        {/* --- MOBILE HERO (Visible only on lg and below) --- */}
         <div className="lg:hidden relative h-64 w-full bg-[#1a1a1a] overflow-hidden mt-16 md:mt-0">
           <div
             className="absolute inset-0 opacity-60 bg-cover bg-center"
@@ -150,12 +187,11 @@ export const Contact: React.FC = () => {
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
             <h1 className="text-3xl font-serif text-white mb-2">Contattaci</h1>
             <p className="text-white/80 text-sm max-w-xs">
-              Il nostro team è a tua disposizione per ogni richiesta.
+              Il nostro team e a tua disposizione per ogni richiesta.
             </p>
           </div>
         </div>
 
-        {/* Main Content Padding */}
         <div className="flex-1 px-6 md:px-12 lg:px-16 py-10 lg:py-20 w-full max-w-2xl mx-auto">
           <Reveal width="100%">
             <div className="mb-10 lg:mb-12">
@@ -168,7 +204,6 @@ export const Contact: React.FC = () => {
             </div>
           </Reveal>
 
-          {/* Contact Info Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-y-8 gap-x-12 mb-12 border-b border-gray-100 pb-12">
             <Reveal delay={0.1}>
               <div className="flex items-start gap-4">
@@ -258,10 +293,23 @@ export const Contact: React.FC = () => {
             </Reveal>
           </div>
 
-          {/* Form Section */}
           <Reveal delay={0.3}>
             <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
-              {/* Stack on mobile, grid on desktop */}
+              <div className="hidden" aria-hidden="true">
+                <label htmlFor="company">
+                  Company
+                  <input
+                    id="company"
+                    name="company"
+                    type="text"
+                    value={honey}
+                    onChange={(e) => setHoney(e.target.value)}
+                    autoComplete="off"
+                    tabIndex={-1}
+                  />
+                </label>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                 <div className={inputContainerClass}>
                   <label htmlFor="name" className={labelClass}>
@@ -277,9 +325,7 @@ export const Contact: React.FC = () => {
                     placeholder="Mario Rossi"
                   />
                   {errors.name && (
-                    <p className="text-red-500 text-[10px] mt-1 absolute">
-                      {errors.name}
-                    </p>
+                    <p className="text-red-500 text-[10px] mt-1 absolute">{errors.name}</p>
                   )}
                 </div>
 
@@ -313,9 +359,7 @@ export const Contact: React.FC = () => {
                   placeholder="mario@example.com"
                 />
                 {errors.email && (
-                  <p className="text-red-500 text-[10px] mt-1 absolute">
-                    {errors.email}
-                  </p>
+                  <p className="text-red-500 text-[10px] mt-1 absolute">{errors.email}</p>
                 )}
               </div>
 
@@ -333,15 +377,11 @@ export const Contact: React.FC = () => {
                   placeholder="Scrivi qui la tua richiesta..."
                 ></textarea>
                 {errors.message && (
-                  <p className="text-red-500 text-[10px] mt-1 absolute">
-                    {errors.message}
-                  </p>
+                  <p className="text-red-500 text-[10px] mt-1 absolute">{errors.message}</p>
                 )}
               </div>
 
-              {/* Controls Footer - Stacked on Mobile */}
-              <div className="pt-4 flex flex-col gap-6">
-                {/* Checkbox */}
+              <div className="pt-4 flex flex-col gap-4">
                 <div className="flex items-start">
                   <div className="flex h-5 items-center">
                     <input
@@ -366,7 +406,23 @@ export const Contact: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Submit Row */}
+                <div className="flex items-start">
+                  <div className="flex h-5 items-center">
+                    <input
+                      id="marketing"
+                      type="checkbox"
+                      checked={marketingConsent}
+                      onChange={(e) => setMarketingConsent(e.target.checked)}
+                      className="h-4 w-4 rounded border-gray-300 text-[#b89b5e] focus:ring-[#b89b5e] cursor-pointer"
+                    />
+                  </div>
+                  <div className="ml-3 text-xs leading-5">
+                    <label htmlFor="marketing" className="text-gray-500">
+                      Acconsento a ricevere aggiornamenti commerciali (opzionale).
+                    </label>
+                  </div>
+                </div>
+
                 <div className="flex flex-col md:flex-row gap-6 md:items-center justify-between">
                   <button
                     type="submit"
@@ -384,7 +440,12 @@ export const Contact: React.FC = () => {
 
               {status === "success" && (
                 <div className="text-center p-4 bg-green-50 text-green-800 text-sm rounded border border-green-100 animate-fade-in">
-                  Grazie! La tua richiesta è stata inviata con successo.
+                  {submitMessage}
+                </div>
+              )}
+              {status === "error" && (
+                <div className="text-center p-4 bg-red-50 text-red-700 text-sm rounded border border-red-100 animate-fade-in">
+                  {submitMessage}
                 </div>
               )}
             </form>

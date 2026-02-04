@@ -47,3 +47,13 @@ Esegui la build e pubblica la cartella `dist/` sul tuo hosting:
 ## Licenza
 
 Proprietà privata. Tutti i diritti riservati.
+
+## Contact form backend
+
+Il form contatti usa `POST /api/contact` (Vercel serverless), con:
+- validazione server-side
+- rate limit per IP + honeypot
+- salvataggio su PostgreSQL (`DATABASE_URL`)
+- notifica email opzionale via Resend (`RESEND_API_KEY`, `RESEND_TO_EMAIL`, `RESEND_FROM_EMAIL`)
+
+Imposta anche `CONTACT_IP_SALT` in produzione per hashare gli IP nei log DB.
