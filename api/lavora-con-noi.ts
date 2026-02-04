@@ -160,6 +160,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       )
     `);
 
+    // Backward-compatible migrations for existing tables created with older schemas.
+    await db.query(`
+      ALTER TABLE job_applications
+      ADD COLUMN IF NOT EXISTS position TEXT,
+      ADD COLUMN IF NOT EXISTS cv_key TEXT,
+      ADD COLUMN IF NOT EXISTS delete_token TEXT,
+      ADD COLUMN IF NOT EXISTS ip TEXT,
+      ADD COLUMN IF NOT EXISTS user_agent TEXT
+    `);
+
     await db.query(
       `INSERT INTO job_applications
         (name, email, phone, position, message, cv_url, cv_key, delete_token, ip, user_agent)
