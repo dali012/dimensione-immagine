@@ -30,6 +30,7 @@ const ALLOWED_MIME = new Set([
 ]);
 
 const getEnv = (key: string) => process.env[key] || "";
+let schemaEnsured = false;
 
 async function verifyRecaptcha(token: string) {
   const secret = getEnv("SECRET_KEY");
@@ -60,13 +61,12 @@ function sanitizeFilename(filename: string) {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  res.setHeader("Cache-Control", "no-store");
+
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
     return res.status(405).json({ error: "Method not allowed" });
   }
-
-  const debug =
-    req.query?.debug === "1" || req.headers["x-debug"] === "1";
   const fields: FormFields = {};
   let fileBuffer: Buffer | null = null;
   let fileName = "";
@@ -123,7 +123,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({
         error: "reCAPTCHA verification failed",
         codes: verify["error-codes"] || [],
-        detail: debug ? verify : undefined,
       });
     }
   } catch (err: any) {
@@ -186,32 +185,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     await db.connect();
-    await db.query(`
-      CREATE TABLE IF NOT EXISTS job_applications (
-        id BIGSERIAL PRIMARY KEY,
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        name TEXT NOT NULL,
-        email TEXT NOT NULL,
-        phone TEXT NOT NULL,
-        position TEXT NOT NULL,
-        message TEXT,
-        cv_url TEXT,
-        cv_key TEXT NOT NULL,
-        delete_token TEXT NOT NULL,
-        ip TEXT,
-        user_agent TEXT
-      )
-    `);
+    if (!schemaEnsured) {
+      await db.query(`
+        CREATE TABLE IF NOT EXISTS job_applications (
+          id BIGSERIAL PRIMARY KEY,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+          name TEXT NOT NULL,
+          email TEXT NOT NULL,
+          phone TEXT NOT NULL,
+          position TEXT NOT NULL,
+          message TEXT,
+          cv_url TEXT,
+          cv_key TEXT NOT NULL,
+          delete_token TEXT NOT NULL,
+          ip TEXT,
+          user_agent TEXT
+        )
+      `);
 
-    // Backward-compatible migrations for existing tables created with older schemas.
-    await db.query(`
-      ALTER TABLE job_applications
-      ADD COLUMN IF NOT EXISTS position TEXT,
-      ADD COLUMN IF NOT EXISTS cv_key TEXT,
-      ADD COLUMN IF NOT EXISTS delete_token TEXT,
-      ADD COLUMN IF NOT EXISTS ip TEXT,
-      ADD COLUMN IF NOT EXISTS user_agent TEXT
-    `);
+      // Backward-compatible migrations for existing tables created with older schemas.
+      await db.query(`
+        ALTER TABLE job_applications
+        ADD COLUMN IF NOT EXISTS position TEXT,
+        ADD COLUMN IF NOT EXISTS cv_key TEXT,
+        ADD COLUMN IF NOT EXISTS delete_token TEXT,
+        ADD COLUMN IF NOT EXISTS ip TEXT,
+        ADD COLUMN IF NOT EXISTS user_agent TEXT
+      `);
+      schemaEnsured = true;
+    }
 
     await db.query(
       `INSERT INTO job_applications

@@ -136,41 +136,41 @@ export const HrCvLink: React.FC = () => {
                   Logout
                 </button>
               </div>
-            <div>
-              <label className="block text-xs uppercase tracking-wide text-brand-text-secondary mb-2">
-                Email Candidato
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full p-3 border border-brand-border rounded"
-                placeholder="candidato@example.com"
-              />
-            </div>
+              <div>
+                <label className="block text-xs uppercase tracking-wide text-brand-text-secondary mb-2">
+                  Email Candidato
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full p-3 border border-brand-border rounded"
+                  placeholder="candidato@example.com"
+                />
+              </div>
 
-            <div>
-              <label className="block text-xs uppercase tracking-wide text-brand-text-secondary mb-2">
-                HR Token
-              </label>
-              <input
-                type="password"
-                value={token}
-                onChange={(e) => setToken(e.target.value)}
-                required
-                className="w-full p-3 border border-brand-border rounded"
-                placeholder="HR API token"
-              />
-            </div>
+              <div>
+                <label className="block text-xs uppercase tracking-wide text-brand-text-secondary mb-2">
+                  HR Token
+                </label>
+                <input
+                  type="password"
+                  value={token}
+                  onChange={(e) => setToken(e.target.value)}
+                  required
+                  className="w-full p-3 border border-brand-border rounded"
+                  placeholder="HR API token"
+                />
+              </div>
 
-            <button
-              type="submit"
-              disabled={status === "loading"}
-              className="px-6 py-3 bg-brand-accent text-white rounded-lg font-semibold cursor-pointer"
-            >
-              {status === "loading" ? "Generazione..." : "Genera Link"}
-            </button>
+              <button
+                type="submit"
+                disabled={status === "loading"}
+                className="px-6 py-3 bg-brand-accent text-white rounded-lg font-semibold cursor-pointer"
+              >
+                {status === "loading" ? "Generazione..." : "Genera Link"}
+              </button>
             </form>
           )}
 
