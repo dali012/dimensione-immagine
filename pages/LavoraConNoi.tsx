@@ -4,6 +4,7 @@ import { SEO } from "@/components/SEO/SEO";
 import { Reveal } from "@/components/UI/Reveal";
 import { useLocation } from "react-router-dom";
 import { getActiveJobPositions } from "../sanity/jobPositions";
+import ReCAPTCHA from "react-google-recaptcha";
 
 // Updated input classes with the new brand color on focus
 const inputClasses =
@@ -32,21 +33,10 @@ const LavoraConNoi: React.FC = () => {
   >("idle");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const recaptchaRef = useRef<ReCAPTCHA | null>(null);
   const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY as
     | string
     | undefined;
-
-  useEffect(() => {
-    if (!siteKey) return;
-    const scriptId = "recaptcha-v3";
-    if (document.getElementById(scriptId)) return;
-    const script = document.createElement("script");
-    script.id = scriptId;
-    script.async = true;
-    script.defer = true;
-    script.src = `https://www.google.com/recaptcha/api.js?render=${siteKey}`;
-    document.head.appendChild(script);
-  }, [siteKey]);
 
   useEffect(() => {
     let mounted = true;
@@ -141,66 +131,52 @@ const LavoraConNoi: React.FC = () => {
       return;
     }
 
-    setStatus("submitting");
-    setFeedbackMsg("");
-
-    if (!siteKey || !window.grecaptcha) {
+    if (!siteKey) {
       setStatus("error");
-      setFeedbackMsg("reCAPTCHA non disponibile. Riprova tra qualche secondo.");
+      setFeedbackMsg("reCAPTCHA non configurato. Contattaci per assistenza.");
       return;
     }
 
+    if (!recaptchaToken) {
+      setStatus("error");
+      setFeedbackMsg("Conferma di non essere un robot prima di inviare.");
+      return;
+    }
+
+    setStatus("submitting");
+    setFeedbackMsg("");
+
     try {
-      const buildFormData = (tokenValue: string) => {
-        const fd = new FormData();
-        fd.append("name", name);
-        fd.append("email", email);
-        fd.append("phone", phone);
-        fd.append("position", position);
-        fd.append("recaptchaToken", tokenValue);
-        fd.append("message", message);
-        fd.append("cv", file);
-        return fd;
-      };
+      const fd = new FormData();
+      fd.append("name", name);
+      fd.append("email", email);
+      fd.append("phone", phone);
+      fd.append("position", position);
+      fd.append("recaptchaToken", recaptchaToken);
+      fd.append("message", message);
+      fd.append("cv", file);
 
-      const executeRecaptcha = async () => {
-        const token = await window.grecaptcha.execute(siteKey, {
-          action: "lavora_con_noi",
-        });
-        setRecaptchaToken(token);
-        return token;
-      };
+      const res = await fetch("/api/lavora-con-noi", {
+        method: "POST",
+        body: fd,
+      });
 
-      const submitOnce = async (tokenValue: string) => {
-        const res = await fetch("/api/lavora-con-noi", {
-          method: "POST",
-          body: buildFormData(tokenValue),
-        });
-
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          const err = new Error(data?.error || "Submission failed");
-          (err as any).codes = data?.codes || [];
-          throw err;
-        }
-      };
-
-      let token = await executeRecaptcha();
-      try {
-        await submitOnce(token);
-      } catch (err: any) {
-        const codes: string[] = err?.codes || [];
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        const codes: string[] = data?.codes || [];
         if (codes.includes("timeout-or-duplicate")) {
-          token = await executeRecaptcha();
-          await submitOnce(token);
-        } else {
-          throw err;
+          recaptchaRef.current?.reset();
+          setRecaptchaToken(null);
+          throw new Error(
+            "reCAPTCHA scaduto. Spunta di nuovo la casella e riprova.",
+          );
         }
+        throw new Error(data?.error || "Submission failed");
       }
 
       setStatus("success");
       setFeedbackMsg(
-        "Grazie! La tua candidatura è stata inviata con successo.",
+        "Grazie! La tua candidatura e stata inviata con successo.",
       );
 
       // Reset form
@@ -212,10 +188,11 @@ const LavoraConNoi: React.FC = () => {
       setMessage("");
       setPrivacyAccepted(false);
       setRecaptchaToken(null);
+      recaptchaRef.current?.reset();
       if (fileInputRef.current) fileInputRef.current.value = "";
-    } catch (error) {
+    } catch (error: any) {
       setStatus("error");
-      setFeedbackMsg("Si è verificato un errore. Riprova più tardi.");
+      setFeedbackMsg(error?.message || "Si e verificato un errore. Riprova.");
     }
   };
 
@@ -461,6 +438,15 @@ const LavoraConNoi: React.FC = () => {
                   </div>
                 </div>
 
+                <div className="pt-1">
+                  <ReCAPTCHA
+                    ref={recaptchaRef}
+                    sitekey={siteKey || ""}
+                    onChange={(token) => setRecaptchaToken(token)}
+                    onExpired={() => setRecaptchaToken(null)}
+                  />
+                </div>
+
                 {/* Feedback Messages */}
                 {feedbackMsg && (
                   <div
@@ -480,7 +466,8 @@ const LavoraConNoi: React.FC = () => {
                   disabled={
                     status === "submitting" ||
                     status === "success" ||
-                    showNoPositions
+                    showNoPositions ||
+                    !recaptchaToken
                   }
                   className={`w-full py-4 rounded-lg font-bold text-white uppercase tracking-wider transition-all transform hover:-translate-y-1 shadow-md hover:shadow-lg cursor-pointer ${
                     status === "submitting"

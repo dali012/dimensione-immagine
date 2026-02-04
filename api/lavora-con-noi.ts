@@ -127,10 +127,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const minScore = Number(getEnv("RECAPTCHA_MIN_SCORE") || "0.5");
     const expectedAction =
       getEnv("RECAPTCHA_EXPECTED_ACTION") || "lavora_con_noi";
-    const actionOk = verify.action
+    const isV3 = typeof verify.score === "number" || !!verify.action;
+    const actionOk = isV3 && verify.action
       ? verify.action === expectedAction
       : true;
-    if (!verify.success || !actionOk || (verify.score ?? 0) < minScore) {
+    const scoreOk = isV3 ? (verify.score ?? 0) >= minScore : true;
+    if (!verify.success || !actionOk || !scoreOk) {
       return res.status(400).json({
         error: "reCAPTCHA verification failed",
         codes: verify["error-codes"] || [],
