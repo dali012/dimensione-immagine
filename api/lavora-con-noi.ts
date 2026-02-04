@@ -1,13 +1,13 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
-import Busboy from "busboy";
 import {
-  S3Client,
-  PutObjectCommand,
   GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { Client } from "pg";
+import type { VercelRequest, VercelResponse } from "@vercel/node";
+import Busboy from "busboy";
 import crypto from "crypto";
+import { Client } from "pg";
 
 export const config = {
   api: { bodyParser: false },
@@ -132,7 +132,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const dbUrl = getEnv("DATABASE_URL");
   if (!dbUrl) {
-    return res.status(500).json({ error: "Database error: missing DATABASE_URL" });
+    return res
+      .status(500)
+      .json({ error: "Database error: missing DATABASE_URL" });
   }
 
   const db = new Client({
@@ -181,7 +183,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     await db.end().catch(() => {});
     return res.status(500).json({
       error: "Database error",
-      detail: debug ? String(err?.message || err) : undefined,
     });
   } finally {
     await db.end().catch(() => {});
@@ -190,8 +191,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const resendKey = getEnv("RESEND_API_KEY");
   const resendTo = getEnv("RESEND_TO_EMAIL");
   const resendFrom = getEnv("RESEND_FROM_EMAIL");
-  const applicantFrom =
-    getEnv("RESEND_APPLICANT_FROM_EMAIL") || resendFrom;
+  const applicantFrom = getEnv("RESEND_APPLICANT_FROM_EMAIL") || resendFrom;
   const appUrl = (getEnv("APP_URL") || "").replace(/\/+$/, "");
 
   if (resendKey && resendTo && resendFrom) {
