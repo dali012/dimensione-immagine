@@ -67,16 +67,16 @@ export const About: React.FC = () => {
       />
 
       {/* Editorial Header */}
-      <section className="container mx-auto px-6 py-20 lg:py-32">
+      <section className="container mx-auto px-4 sm:px-6 py-14 sm:py-16 lg:py-32">
         <Reveal width="100%">
           <div className="max-w-4xl mx-auto text-center md:text-left">
             <span className="block text-xs font-bold uppercase tracking-widest text-brand-text-secondary mb-6">
               Dal 1984
             </span>
-            <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl mb-12 leading-[0.9]">
+            <h1 className="font-serif text-4xl sm:text-5xl md:text-7xl lg:text-8xl mb-8 sm:mb-12 leading-[0.95]">
               Chi Siamo
             </h1>
-            <div className="md:pl-24 lg:pl-32 border-l border-brand-accent/30 pl-6">
+            <div className="pl-4 sm:pl-6 md:pl-24 lg:pl-32 border-l border-brand-accent/30">
               <div className="space-y-6 text-brand-text-secondary text-base md:text-lg leading-relaxed font-light max-w-2xl">
                 <p>
                   Un racconto di stile, autenticità e visione curato da{" "}
@@ -204,10 +204,10 @@ export const About: React.FC = () => {
       </section>
 
       {/* Stats - Minimal */}
-      <section className="py-24 border-y border-brand-border bg-white">
+      <section className="py-16 sm:py-20 md:py-24 border-y border-brand-border bg-white">
         <div className="container mx-auto px-6">
           <Reveal width="100%">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12 text-center">
               <div>
                 <span className="block text-5xl font-serif text-brand-accent mb-4">
                   5000+
@@ -238,8 +238,8 @@ export const About: React.FC = () => {
       </section>
 
       {/* Values List - Alternating Layout like Photo */}
-      <section className="py-24 lg:py-32">
-        <div className="container mx-auto px-6">
+      <section className="py-16 sm:py-20 lg:py-32">
+        <div className="container mx-auto px-4 sm:px-6">
           <Reveal className="mb-24 mx-auto">
             <h2 className="font-serif text-4xl lg:text-5xl mb-2">
               I Nostri Valori
@@ -248,7 +248,7 @@ export const About: React.FC = () => {
             <p>I principi che definiscono la nostra identità.</p>
           </Reveal>
 
-          <div className="space-y-24 lg:space-y-32">
+          <div className="space-y-16 sm:space-y-20 lg:space-y-32">
             {VALUES.map((value, index) => (
               <Reveal key={index} width="100%">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">

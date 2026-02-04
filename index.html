@@ -18,14 +18,24 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://zqo9eojr.apicdn.sanity.io" crossorigin>
+  <link rel="dns-prefetch" href="//zqo9eojr.apicdn.sanity.io">
   <link rel="preconnect" href="https://embeds.iubenda.com">
   <link rel="preconnect" href="https://idb.iubenda.com">
   <link
-    rel="stylesheet"
+    rel="preload"
+    as="style"
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+    onload="this.onload=null;this.rel='stylesheet'"
   >
+  <noscript>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+    >
+  </noscript>
   <script>
-    window.addEventListener("load", () => {
+    (function () {
       const loadIubenda = () => {
         if (window.__iubendaLoaded) return;
         window.__iubendaLoaded = true;
@@ -37,12 +47,23 @@
         document.head.appendChild(script);
       };
 
-      if ("requestIdleCallback" in window) {
-        window.requestIdleCallback(loadIubenda, { timeout: 2000 });
-      } else {
-        setTimeout(loadIubenda, 2000);
-      }
-    });
+      // Keep legal scripts off the initial critical path.
+      const kickoff = () => {
+        window.removeEventListener("scroll", kickoff, { passive: true });
+        window.removeEventListener("pointerdown", kickoff);
+        window.removeEventListener("keydown", kickoff);
+        if ("requestIdleCallback" in window) {
+          window.requestIdleCallback(loadIubenda, { timeout: 3000 });
+        } else {
+          setTimeout(loadIubenda, 3000);
+        }
+      };
+
+      window.addEventListener("scroll", kickoff, { passive: true, once: true });
+      window.addEventListener("pointerdown", kickoff, { once: true });
+      window.addEventListener("keydown", kickoff, { once: true });
+      setTimeout(kickoff, 8000);
+    })();
   </script>
 </head>
 

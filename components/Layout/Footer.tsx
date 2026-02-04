@@ -144,7 +144,7 @@ export const Footer: React.FC = () => {
             </p>
 
             <form
-              className="w-full flex items-end pt-2"
+              className="w-full flex flex-col sm:flex-row sm:items-end gap-3 sm:gap-0 pt-2"
               onSubmit={async (e) => {
                 e.preventDefault();
 
@@ -186,12 +186,12 @@ export const Footer: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Indirizzo e-mail"
-                className="grow bg-transparent border-b border-brand-text-secondary py-2 text-sm text-brand-text-primary placeholder-brand-text-secondary/60 outline-none focus:border-brand-accent transition-colors mr-4"
+                className="w-full grow bg-transparent border-b border-brand-text-secondary py-2 text-sm text-brand-text-primary placeholder-brand-text-secondary/60 outline-none focus:border-brand-accent transition-colors sm:mr-4"
               />
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="bg-brand-accent text-white text-xs font-semibold uppercase px-6 py-3 hover:bg-brand-accent/80 transition-colors disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+                className="w-full sm:w-auto bg-brand-accent text-white text-xs font-semibold uppercase px-6 py-3 hover:bg-brand-accent/80 transition-colors disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
               >
                 {isSubmitting ? (
                   <span className="flex items-center space-x-2">

@@ -309,7 +309,7 @@ export const Locations: React.FC = () => {
       />
 
       {/* Editorial Header */}
-      <section className="container mx-auto px-6 py-12 md:py-20 text-center">
+      <section className="container mx-auto px-4 sm:px-6 py-12 md:py-20 text-center">
         <Reveal width="100%">
           <SectionHeader
             label="Dove trovarci"
@@ -321,7 +321,7 @@ export const Locations: React.FC = () => {
       </section>
 
       {/* Map Embed */}
-      <section className="container mx-auto px-6 mb-16">
+      <section className="container mx-auto px-4 sm:px-6 mb-16">
         <Reveal width="100%">
           <div className="bg-white border border-brand-border shadow-sm overflow-hidden rounded-sm">
             <iframe
@@ -336,9 +336,9 @@ export const Locations: React.FC = () => {
       </section>
 
       {/* Clean Filters */}
-      <div className="container mx-auto px-6 mb-16">
+      <div className="container mx-auto px-4 sm:px-6 mb-16">
         <Reveal width="100%" delay={0.2} direction="down">
-          <div className="flex flex-col md:flex-row justify-center items-center gap-8 border-y border-brand-border py-8 max-w-4xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-center items-center gap-6 md:gap-8 border-y border-brand-border py-6 md:py-8 max-w-4xl mx-auto">
             <div className="flex items-center gap-2 text-brand-text-primary mb-2 md:mb-0">
               <Filter size={18} />
               <span className="uppercase tracking-widest text-xs font-bold">
@@ -350,7 +350,7 @@ export const Locations: React.FC = () => {
               <select
                 value={selectedRegion}
                 onChange={(e) => setSelectedRegion(e.target.value)}
-                className="bg-transparent text-brand-text-primary border-b border-brand-border px-4 py-2 hover:border-brand-accent focus:border-brand-accent focus:outline-none transition-colors cursor-pointer"
+                className="w-full sm:w-auto bg-transparent text-brand-text-primary border-b border-brand-border px-4 py-2 hover:border-brand-accent focus:border-brand-accent focus:outline-none transition-colors cursor-pointer"
                 aria-label="Filtra per regione"
               >
                 {REGIONS.map((region) => (
@@ -363,7 +363,7 @@ export const Locations: React.FC = () => {
               <select
                 value={selectedOwnership}
                 onChange={(e) => setSelectedOwnership(e.target.value)}
-                className="bg-transparent text-brand-text-primary border-b border-brand-border px-4 py-2 hover:border-brand-accent focus:border-brand-accent focus:outline-none transition-colors cursor-pointer"
+                className="w-full sm:w-auto bg-transparent text-brand-text-primary border-b border-brand-border px-4 py-2 hover:border-brand-accent focus:border-brand-accent focus:outline-none transition-colors cursor-pointer"
                 aria-label="Filtra per tipologia"
               >
                 {OWNERSHIP_TYPES.map((type) => (

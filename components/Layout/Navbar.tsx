@@ -58,15 +58,15 @@ export const Navbar: React.FC = () => {
             <picture>
               <source
                 type="image/webp"
-                srcSet="/images/logo-124.webp 1x, /images/logo-248.webp 2x"
-                sizes="124px"
+                srcSet="/images/logo-124.webp"
+                sizes="(max-width: 640px) 108px, 124px"
               />
               <img
                 src="/images/logo-124.png"
-                srcSet="/images/logo-124.png 1x, /images/logo-248.png 2x"
-                sizes="124px"
+                srcSet="/images/logo-124.png"
+                sizes="(max-width: 640px) 108px, 124px"
                 alt="Dimensione Immagine"
-                className="h-12 w-auto object-contain transition-opacity duration-300"
+                className="h-10 sm:h-12 w-auto object-contain transition-opacity duration-300"
                 width="124"
                 height="48"
                 style={{ filter: "invert(1) grayscale(1) brightness(0.2)" }}

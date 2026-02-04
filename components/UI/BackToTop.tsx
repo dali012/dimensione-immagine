@@ -29,7 +29,7 @@ export const BackToTop: React.FC = () => {
   return (
     <button
       onClick={scrollToTop}
-      className={`fixed bottom-8 right-8 z-40 p-3 bg-brand-gold text-white shadow-lg transition-all duration-500 ease-in-out hover:bg-white hover:text-brand-black border border-transparent hover:border-brand-gold focus:outline-none cursor-pointer ${
+      className={`fixed bottom-4 right-4 sm:bottom-8 sm:right-8 z-40 p-2.5 sm:p-3 bg-brand-gold text-white shadow-lg transition-all duration-500 ease-in-out hover:bg-white hover:text-brand-black border border-transparent hover:border-brand-gold focus:outline-none cursor-pointer ${
         isVisible
           ? "opacity-100 translate-y-0"
           : "opacity-0 translate-y-10 pointer-events-none"

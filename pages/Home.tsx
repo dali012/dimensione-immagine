@@ -60,7 +60,7 @@ export const Home: React.FC = () => {
       />
 
       {/* Full Screen Hero with Carousel and Fade */}
-      <section className="relative h-screen min-h-150 flex items-center overflow-hidden">
+      <section className="relative min-h-[75svh] md:min-h-screen flex items-center overflow-hidden pt-20 md:pt-0">
         {/* Carousel Background */}
         <div className="absolute inset-0 w-full h-full">
           <AnimatePresence mode="popLayout">
@@ -128,17 +128,17 @@ export const Home: React.FC = () => {
         <div className="absolute inset-0 bg-linear-to-t from-brand-bg via-transparent to-transparent z-10 md:hidden h-1/2 mt-auto"></div>
 
         {/* Content */}
-        <div className="container mx-auto px-6 relative z-20 h-full flex items-center">
+        <div className="container mx-auto px-4 sm:px-6 relative z-20 h-full flex items-center">
           <div className="max-w-2xl pt-20 md:pt-0">
             <Reveal width="100%">
-              <h1 className="font-serif text-5xl md:text-7xl text-brand-text-primary mb-6 leading-[1.1]">
+              <h1 className="font-serif text-4xl sm:text-5xl md:text-7xl text-brand-text-primary mb-6 leading-[1.1]">
                 Moda che parla
                 <span className="block italic text-brand-accent">
                   alle persone.
                 </span>
               </h1>
               <div className="h-px w-24 bg-brand-accent mb-8"></div>
-              <p className="text-lg md:text-xl text-brand-text-secondary max-w-lg mb-10 font-light leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl text-brand-text-secondary max-w-lg mb-10 font-light leading-relaxed">
                 La nostra mission è offrire una moda accessibile, inclusiva e in
                 grado di valorizzare ogni fisicità, ogni storia e ogni momento
                 della vita.
@@ -152,7 +152,7 @@ export const Home: React.FC = () => {
       </section>
 
       {/* Philosophy / Value Proposition */}
-      <section className="py-24 md:py-32 bg-white">
+      <section className="py-16 sm:py-20 md:py-32 bg-white">
         <div className="container mx-auto px-6">
           <h2 className="sr-only">I nostri valori</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-8">
@@ -207,7 +207,7 @@ export const Home: React.FC = () => {
       </section>
 
       {/* Minimal CTA Section */}
-      <section className="py-32 bg-brand-bg border-t border-brand-border text-center mx-auto">
+      <section className="py-20 sm:py-24 md:py-32 bg-brand-bg border-t border-brand-border text-center mx-auto">
         <div className="container mx-auto px-6 max-w-3xl">
           <Reveal className="flex flex-col items-center">
             <h2 className="text-4xl md:text-5xl font-serif text-brand-text-primary mb-8">
