@@ -42,15 +42,17 @@ const LavoraConNoi: React.FC = () => {
     if (!siteKey) return;
     let mounted = true;
     const scriptId = "recaptcha-v2";
+    let retryTimer: number | null = null;
 
     const renderWidget = () => {
       if (
         !mounted ||
         !window.grecaptcha ||
+        typeof window.grecaptcha.render !== "function" ||
         !recaptchaContainerRef.current ||
         recaptchaWidgetIdRef.current !== null
       ) {
-        return;
+        return false;
       }
 
       recaptchaWidgetIdRef.current = window.grecaptcha.render(
@@ -62,11 +64,27 @@ const LavoraConNoi: React.FC = () => {
           "error-callback": () => setRecaptchaToken(null),
         },
       );
+      return true;
     };
 
-    if (window.grecaptcha) {
-      renderWidget();
+    const waitAndRender = (attempt = 0) => {
+      if (!mounted) return;
+      if (renderWidget()) return;
+      if (attempt >= 30) return;
+      retryTimer = window.setTimeout(() => waitAndRender(attempt + 1), 150);
+    };
+
+    if (
+      window.grecaptcha &&
+      typeof window.grecaptcha.render === "function"
+    ) {
+      waitAndRender();
     } else {
+      // If a non-v2 grecaptcha object is present (e.g. enterprise), reset it.
+      if (window.grecaptcha && typeof window.grecaptcha.render !== "function") {
+        delete (window as any).grecaptcha;
+      }
+
       const existing = document.getElementById(scriptId);
       if (!existing) {
         const script = document.createElement("script");
@@ -74,13 +92,18 @@ const LavoraConNoi: React.FC = () => {
         script.src = "https://www.google.com/recaptcha/api.js?render=explicit";
         script.async = true;
         script.defer = true;
-        script.onload = () => renderWidget();
+        script.onload = () => waitAndRender();
         document.head.appendChild(script);
+      } else {
+        waitAndRender();
       }
     }
 
     return () => {
       mounted = false;
+      if (retryTimer !== null) {
+        window.clearTimeout(retryTimer);
+      }
       recaptchaWidgetIdRef.current = null;
       setRecaptchaToken(null);
       if (recaptchaContainerRef.current) {
