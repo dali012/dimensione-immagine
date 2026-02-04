@@ -31,33 +31,6 @@ const LavoraConNoi: React.FC = () => {
   >("idle");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY as
-    | string
-    | undefined;
-
-  useEffect(() => {
-    if (!siteKey) return;
-    const scriptId = "recaptcha-enterprise";
-    const existing = document.getElementById(scriptId);
-    if (!existing) {
-      const script = document.createElement("script");
-      script.id = scriptId;
-      script.src = `https://www.google.com/recaptcha/enterprise.js?render=${siteKey}`;
-      script.async = true;
-      script.defer = true;
-      document.head.appendChild(script);
-    }
-
-    return () => {
-      document.getElementById(scriptId)?.remove();
-      document
-        .querySelectorAll(".grecaptcha-badge, iframe[title='reCAPTCHA']")
-        .forEach((el) => el.remove());
-      if (window.grecaptcha) {
-        delete (window as any).grecaptcha;
-      }
-    };
-  }, [siteKey]);
 
   useEffect(() => {
     let mounted = true;
@@ -152,52 +125,25 @@ const LavoraConNoi: React.FC = () => {
       return;
     }
 
-    if (!siteKey) {
-      setStatus("error");
-      setFeedbackMsg("reCAPTCHA non configurato. Contattaci per assistenza.");
-      return;
-    }
-
     setStatus("submitting");
     setFeedbackMsg("");
 
     try {
-      if (!window.grecaptcha?.enterprise) {
-        throw new Error("reCAPTCHA non disponibile. Riprova tra qualche secondo.");
-      }
-
-      await new Promise<void>((resolve) => {
-        window.grecaptcha?.enterprise?.ready(() => resolve());
-      });
-      const recaptchaToken = await window.grecaptcha.enterprise.execute(siteKey, {
-        action: "submit",
-      });
-
       const fd = new FormData();
       fd.append("name", name);
       fd.append("email", email);
       fd.append("phone", phone);
       fd.append("position", position);
-      fd.append("recaptchaToken", recaptchaToken);
       fd.append("message", message);
       fd.append("cv", file);
 
       const res = await fetch("/api/lavora-con-noi", {
         method: "POST",
-        headers: {
-          "x-recaptcha-token": recaptchaToken,
-        },
         body: fd,
       });
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        const codes: string[] = data?.codes || [];
-        if (codes.includes("timeout-or-duplicate")) {
-          throw new Error(
-            "Token reCAPTCHA scaduto o gia usato. Riprova.",
-          );
-        }
         throw new Error(data?.error || "Invio non riuscito. Riprova.");
       }
 

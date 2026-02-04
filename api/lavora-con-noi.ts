@@ -19,7 +19,6 @@ type FormFields = {
   phone?: string;
   position?: string;
   message?: string;
-  recaptchaToken?: string;
 };
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -31,33 +30,6 @@ const ALLOWED_MIME = new Set([
 
 const getEnv = (key: string) => process.env[key] || "";
 
-async function verifyRecaptcha(token: string) {
-  const secret = getEnv("SECRET_KEY");
-  if (!secret) throw new Error("Missing reCAPTCHA secret key");
-
-  const params = new URLSearchParams();
-  params.append("secret", secret);
-  params.append("response", token);
-
-  const res = await fetch("https://www.google.com/recaptcha/api/siteverify", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: params.toString(),
-  });
-
-  if (!res.ok) {
-    throw new Error("reCAPTCHA verification failed");
-  }
-
-  return (await res.json()) as {
-    success: boolean;
-    score?: number;
-    action?: string;
-    hostname?: string;
-    "error-codes"?: string[];
-  };
-}
-
 function sanitizeFilename(filename: string) {
   return filename.replace(/[^a-zA-Z0-9._-]/g, "_");
 }
@@ -68,47 +40,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const debug =
-    req.query?.debug === "1" || req.headers["x-debug"] === "1";
-  const tokenHeader = req.headers["x-recaptcha-token"];
-  const recaptchaTokenFromHeader = Array.isArray(tokenHeader)
-    ? tokenHeader[0]
-    : tokenHeader;
   const fields: FormFields = {};
   let fileBuffer: Buffer | null = null;
   let fileName = "";
   let fileType = "";
   const deleteToken = crypto.randomBytes(24).toString("hex");
-
-  const validateRecaptcha = async (token: string) => {
-    const verify = await verifyRecaptcha(token);
-    const expectedAction = getEnv("RECAPTCHA_EXPECTED_ACTION") || "submit";
-    const minScore = Number(getEnv("RECAPTCHA_MIN_SCORE") || "0.0");
-    const actionOk = verify.action ? verify.action === expectedAction : true;
-    const scoreOk = typeof verify.score === "number"
-      ? verify.score >= minScore
-      : true;
-
-    if (!verify.success || !actionOk || !scoreOk) {
-      return res.status(400).json({
-        error: "reCAPTCHA verification failed",
-        codes: verify["error-codes"] || [],
-        detail: debug ? verify : undefined,
-      });
-    }
-    return null;
-  };
-
-  if (recaptchaTokenFromHeader) {
-    try {
-      const recaptchaError = await validateRecaptcha(recaptchaTokenFromHeader);
-      if (recaptchaError) return;
-    } catch (err: any) {
-      return res
-        .status(400)
-        .json({ error: err?.message || "reCAPTCHA error" });
-    }
-  }
 
   try {
     await new Promise<void>((resolve, reject) => {
@@ -144,25 +80,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!fields.name || !fields.email || !fields.phone || !fields.position) {
     return res.status(400).json({ error: "Missing required fields" });
   }
-  if (!fields.recaptchaToken && !recaptchaTokenFromHeader) {
-    return res.status(400).json({ error: "Missing reCAPTCHA token" });
-  }
   if (!fileBuffer || !fileName) {
     return res.status(400).json({ error: "Missing CV file" });
   }
   if (!ALLOWED_MIME.has(fileType)) {
     return res.status(400).json({ error: "Unsupported file type" });
-  }
-
-  if (!recaptchaTokenFromHeader && fields.recaptchaToken) {
-    try {
-      const recaptchaError = await validateRecaptcha(fields.recaptchaToken);
-      if (recaptchaError) return;
-    } catch (err: any) {
-      return res
-        .status(400)
-        .json({ error: err?.message || "reCAPTCHA error" });
-    }
   }
 
   const bucket = getEnv("BUCKET_NAME");
