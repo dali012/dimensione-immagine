@@ -122,6 +122,7 @@ const LavoraConNoi: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (status === "submitting") return;
 
     // Validation
     if (!name || !email || !phone || !position || !file) {
@@ -156,9 +157,9 @@ const LavoraConNoi: React.FC = () => {
         fd.append("email", email);
         fd.append("phone", phone);
         fd.append("position", position);
-        fd.append("cv", file);
-        fd.append("message", message);
         fd.append("recaptchaToken", tokenValue);
+        fd.append("message", message);
+        fd.append("cv", file);
         return fd;
       };
 
