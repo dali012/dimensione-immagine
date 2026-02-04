@@ -39,14 +39,24 @@ const LavoraConNoi: React.FC = () => {
     if (!siteKey) return;
     const scriptId = "recaptcha-enterprise";
     const existing = document.getElementById(scriptId);
-    if (existing) return;
+    if (!existing) {
+      const script = document.createElement("script");
+      script.id = scriptId;
+      script.src = `https://www.google.com/recaptcha/enterprise.js?render=${siteKey}`;
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    }
 
-    const script = document.createElement("script");
-    script.id = scriptId;
-    script.src = `https://www.google.com/recaptcha/enterprise.js?render=${siteKey}`;
-    script.async = true;
-    script.defer = true;
-    document.head.appendChild(script);
+    return () => {
+      document.getElementById(scriptId)?.remove();
+      document
+        .querySelectorAll(".grecaptcha-badge, iframe[title='reCAPTCHA']")
+        .forEach((el) => el.remove());
+      if (window.grecaptcha) {
+        delete (window as any).grecaptcha;
+      }
+    };
   }, [siteKey]);
 
   useEffect(() => {
