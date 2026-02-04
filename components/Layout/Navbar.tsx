@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { NavItem } from "../../types";
 
@@ -90,10 +89,7 @@ export const Navbar: React.FC = () => {
                 >
                   {item.label}
                   {isActive && (
-                    <motion.span
-                      className="absolute left-0 -bottom-1 h-px bg-brand-accent w-full"
-                      layoutId="navbar-underline"
-                    />
+                    <span className="absolute left-0 -bottom-1 h-px bg-brand-accent w-full" />
                   )}
                 </Link>
               );
