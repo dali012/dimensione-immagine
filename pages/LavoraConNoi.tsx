@@ -20,6 +20,7 @@ const LavoraConNoi: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
   const [message, setMessage] = useState("");
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
 
   // UI States
   const [status, setStatus] = useState<
@@ -31,6 +32,64 @@ const LavoraConNoi: React.FC = () => {
   >("idle");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
+  const recaptchaWidgetIdRef = useRef<number | null>(null);
+  const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY as
+    | string
+    | undefined;
+
+  useEffect(() => {
+    if (!siteKey) return;
+    let mounted = true;
+    const scriptId = "recaptcha-v2";
+
+    const renderWidget = () => {
+      if (
+        !mounted ||
+        !window.grecaptcha ||
+        !recaptchaContainerRef.current ||
+        recaptchaWidgetIdRef.current !== null
+      ) {
+        return;
+      }
+
+      recaptchaWidgetIdRef.current = window.grecaptcha.render(
+        recaptchaContainerRef.current,
+        {
+          sitekey: siteKey,
+          callback: (token: string) => setRecaptchaToken(token),
+          "expired-callback": () => setRecaptchaToken(null),
+          "error-callback": () => setRecaptchaToken(null),
+        },
+      );
+    };
+
+    if (window.grecaptcha) {
+      renderWidget();
+    } else {
+      const existing = document.getElementById(scriptId);
+      if (!existing) {
+        const script = document.createElement("script");
+        script.id = scriptId;
+        script.src = "https://www.google.com/recaptcha/api.js?render=explicit";
+        script.async = true;
+        script.defer = true;
+        script.onload = () => renderWidget();
+        document.head.appendChild(script);
+      }
+    }
+
+    return () => {
+      mounted = false;
+      recaptchaWidgetIdRef.current = null;
+      setRecaptchaToken(null);
+      if (recaptchaContainerRef.current) {
+        recaptchaContainerRef.current.innerHTML = "";
+      }
+      document.getElementById(scriptId)?.remove();
+      document.querySelectorAll(".grecaptcha-badge").forEach((el) => el.remove());
+    };
+  }, [siteKey]);
 
   useEffect(() => {
     let mounted = true;
@@ -125,6 +184,18 @@ const LavoraConNoi: React.FC = () => {
       return;
     }
 
+    if (!siteKey) {
+      setStatus("error");
+      setFeedbackMsg("reCAPTCHA non configurato.");
+      return;
+    }
+
+    if (!recaptchaToken) {
+      setStatus("error");
+      setFeedbackMsg("Conferma di non essere un robot.");
+      return;
+    }
+
     setStatus("submitting");
     setFeedbackMsg("");
 
@@ -135,6 +206,7 @@ const LavoraConNoi: React.FC = () => {
       fd.append("phone", phone);
       fd.append("position", position);
       fd.append("message", message);
+      fd.append("recaptchaToken", recaptchaToken);
       fd.append("cv", file);
 
       const res = await fetch("/api/lavora-con-noi", {
@@ -144,6 +216,10 @@ const LavoraConNoi: React.FC = () => {
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
+        if (window.grecaptcha && recaptchaWidgetIdRef.current !== null) {
+          window.grecaptcha.reset(recaptchaWidgetIdRef.current);
+        }
+        setRecaptchaToken(null);
         throw new Error(data?.error || "Invio non riuscito. Riprova.");
       }
 
@@ -160,6 +236,10 @@ const LavoraConNoi: React.FC = () => {
       setFile(null);
       setMessage("");
       setPrivacyAccepted(false);
+      if (window.grecaptcha && recaptchaWidgetIdRef.current !== null) {
+        window.grecaptcha.reset(recaptchaWidgetIdRef.current);
+      }
+      setRecaptchaToken(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (error: any) {
       setStatus("error");
@@ -409,6 +489,10 @@ const LavoraConNoi: React.FC = () => {
                   </div>
                 </div>
 
+                <div className="pt-1">
+                  <div ref={recaptchaContainerRef} />
+                </div>
+
                 {/* Feedback Messages */}
                 {feedbackMsg && (
                   <div
@@ -428,7 +512,8 @@ const LavoraConNoi: React.FC = () => {
                   disabled={
                     status === "submitting" ||
                     status === "success" ||
-                    showNoPositions
+                    showNoPositions ||
+                    !recaptchaToken
                   }
                   className={`w-full py-4 rounded-lg font-bold text-white uppercase tracking-wider transition-all transform hover:-translate-y-1 shadow-md hover:shadow-lg cursor-pointer ${
                     status === "submitting"

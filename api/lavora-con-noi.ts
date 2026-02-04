@@ -19,6 +19,7 @@ type FormFields = {
   phone?: string;
   position?: string;
   message?: string;
+  recaptchaToken?: string;
 };
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -30,6 +31,30 @@ const ALLOWED_MIME = new Set([
 
 const getEnv = (key: string) => process.env[key] || "";
 
+async function verifyRecaptcha(token: string) {
+  const secret = getEnv("SECRET_KEY");
+  if (!secret) throw new Error("Missing reCAPTCHA secret key");
+
+  const params = new URLSearchParams();
+  params.append("secret", secret);
+  params.append("response", token);
+
+  const res = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: params.toString(),
+  });
+
+  if (!res.ok) {
+    throw new Error("reCAPTCHA verification failed");
+  }
+
+  return (await res.json()) as {
+    success: boolean;
+    "error-codes"?: string[];
+  };
+}
+
 function sanitizeFilename(filename: string) {
   return filename.replace(/[^a-zA-Z0-9._-]/g, "_");
 }
@@ -40,6 +65,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
+  const debug =
+    req.query?.debug === "1" || req.headers["x-debug"] === "1";
   const fields: FormFields = {};
   let fileBuffer: Buffer | null = null;
   let fileName = "";
@@ -80,11 +107,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!fields.name || !fields.email || !fields.phone || !fields.position) {
     return res.status(400).json({ error: "Missing required fields" });
   }
+  if (!fields.recaptchaToken) {
+    return res.status(400).json({ error: "Missing reCAPTCHA token" });
+  }
   if (!fileBuffer || !fileName) {
     return res.status(400).json({ error: "Missing CV file" });
   }
   if (!ALLOWED_MIME.has(fileType)) {
     return res.status(400).json({ error: "Unsupported file type" });
+  }
+
+  try {
+    const verify = await verifyRecaptcha(fields.recaptchaToken);
+    if (!verify.success) {
+      return res.status(400).json({
+        error: "reCAPTCHA verification failed",
+        codes: verify["error-codes"] || [],
+        detail: debug ? verify : undefined,
+      });
+    }
+  } catch (err: any) {
+    return res.status(400).json({ error: err?.message || "reCAPTCHA error" });
   }
 
   const bucket = getEnv("BUCKET_NAME");
