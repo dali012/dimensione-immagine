@@ -158,20 +158,23 @@ const LavoraConNoi: React.FC = () => {
 
       const res = await fetch("/api/lavora-con-noi", {
         method: "POST",
+        headers: {
+          "x-recaptcha-token": recaptchaToken,
+        },
         body: fd,
       });
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         const codes: string[] = data?.codes || [];
+        recaptchaRef.current?.reset();
+        setRecaptchaToken(null);
         if (codes.includes("timeout-or-duplicate")) {
-          recaptchaRef.current?.reset();
-          setRecaptchaToken(null);
           throw new Error(
             "reCAPTCHA scaduto. Spunta di nuovo la casella e riprova.",
           );
         }
-        throw new Error(data?.error || "Submission failed");
+        throw new Error(data?.error || "Invio non riuscito. Riprova.");
       }
 
       setStatus("success");

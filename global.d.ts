@@ -8,9 +8,4 @@ declare global {
   interface ImportMeta {
     readonly env: ImportMetaEnv;
   }
-  interface Window {
-    grecaptcha?: {
-      execute: (siteKey: string, options: { action: string }) => Promise<string>;
-    };
-  }
 }

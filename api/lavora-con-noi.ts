@@ -51,8 +51,6 @@ async function verifyRecaptcha(token: string) {
 
   return (await res.json()) as {
     success: boolean;
-    score?: number;
-    action?: string;
     hostname?: string;
     "error-codes"?: string[];
   };
@@ -70,11 +68,38 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const debug =
     req.query?.debug === "1" || req.headers["x-debug"] === "1";
+  const tokenHeader = req.headers["x-recaptcha-token"];
+  const recaptchaTokenFromHeader = Array.isArray(tokenHeader)
+    ? tokenHeader[0]
+    : tokenHeader;
   const fields: FormFields = {};
   let fileBuffer: Buffer | null = null;
   let fileName = "";
   let fileType = "";
   const deleteToken = crypto.randomBytes(24).toString("hex");
+
+  const validateRecaptcha = async (token: string) => {
+    const verify = await verifyRecaptcha(token);
+    if (!verify.success) {
+      return res.status(400).json({
+        error: "reCAPTCHA verification failed",
+        codes: verify["error-codes"] || [],
+        detail: debug ? verify : undefined,
+      });
+    }
+    return null;
+  };
+
+  if (recaptchaTokenFromHeader) {
+    try {
+      const recaptchaError = await validateRecaptcha(recaptchaTokenFromHeader);
+      if (recaptchaError) return;
+    } catch (err: any) {
+      return res
+        .status(400)
+        .json({ error: err?.message || "reCAPTCHA error" });
+    }
+  }
 
   try {
     await new Promise<void>((resolve, reject) => {
@@ -110,7 +135,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!fields.name || !fields.email || !fields.phone || !fields.position) {
     return res.status(400).json({ error: "Missing required fields" });
   }
-  if (!fields.recaptchaToken) {
+  if (!fields.recaptchaToken && !recaptchaTokenFromHeader) {
     return res.status(400).json({ error: "Missing reCAPTCHA token" });
   }
   if (!fileBuffer || !fileName) {
@@ -120,29 +145,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: "Unsupported file type" });
   }
 
-  let recaptchaScore: number | null = null;
-  try {
-    const verify = await verifyRecaptcha(fields.recaptchaToken);
-    recaptchaScore = typeof verify.score === "number" ? verify.score : null;
-    const minScore = Number(getEnv("RECAPTCHA_MIN_SCORE") || "0.5");
-    const expectedAction =
-      getEnv("RECAPTCHA_EXPECTED_ACTION") || "lavora_con_noi";
-    const isV3 = typeof verify.score === "number" || !!verify.action;
-    const actionOk = isV3 && verify.action
-      ? verify.action === expectedAction
-      : true;
-    const scoreOk = isV3 ? (verify.score ?? 0) >= minScore : true;
-    if (!verify.success || !actionOk || !scoreOk) {
-      return res.status(400).json({
-        error: "reCAPTCHA verification failed",
-        codes: verify["error-codes"] || [],
-        detail: debug ? verify : undefined,
-      });
+  if (!recaptchaTokenFromHeader && fields.recaptchaToken) {
+    try {
+      const recaptchaError = await validateRecaptcha(fields.recaptchaToken);
+      if (recaptchaError) return;
+    } catch (err: any) {
+      return res
+        .status(400)
+        .json({ error: err?.message || "reCAPTCHA error" });
     }
-  } catch (err: any) {
-    return res
-      .status(400)
-      .json({ error: err?.message || "reCAPTCHA error" });
   }
 
   const bucket = getEnv("BUCKET_NAME");
@@ -212,16 +223,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         cv_key TEXT NOT NULL,
         delete_token TEXT NOT NULL,
         ip TEXT,
-        user_agent TEXT,
-        recaptcha_score REAL
+        user_agent TEXT
       )
     `);
 
     await db.query(
       `INSERT INTO job_applications
-        (name, email, phone, position, message, cv_url, cv_key, delete_token, ip, user_agent, recaptcha_score)
+        (name, email, phone, position, message, cv_url, cv_key, delete_token, ip, user_agent)
        VALUES
-        ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+        ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
       [
         fields.name,
         fields.email,
@@ -233,7 +243,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         deleteToken,
         req.headers["x-forwarded-for"]?.toString() || req.socket.remoteAddress,
         req.headers["user-agent"] || null,
-        recaptchaScore,
       ],
     );
   } catch (err: any) {
