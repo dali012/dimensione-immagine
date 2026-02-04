@@ -8,14 +8,9 @@ import {
 import { HelmetProvider } from "react-helmet-async";
 import { Toaster } from "sonner";
 import { Navbar } from "./components/Layout/Navbar";
-import { Footer } from "./components/Layout/Footer";
-import { BackToTop } from "./components/UI/BackToTop";
 import { PageTransition } from "./components/Layout/PageTransition";
 import { SEO } from "./components/SEO/SEO";
-import PurchaseRequest from "./pages/PurchaseRequest";
-import { AuthProvider, RequireAuth, useAuth } from "./contexts/AuthContext";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
+import { RequireAuth } from "./contexts/AuthContext";
 
 // Lazy load pages
 const Home = React.lazy(() =>
@@ -68,6 +63,27 @@ const LavoraConNoi = React.lazy(() =>
 const HrCvLink = React.lazy(() =>
   import("./pages/HrCvLink").then((module) => ({
     default: module.HrCvLink,
+  })),
+);
+const PurchaseRequest = React.lazy(() =>
+  import("./pages/PurchaseRequest").then((module) => ({
+    default: module.default,
+  })),
+);
+const Login = React.lazy(() =>
+  import("./pages/Login").then((module) => ({ default: module.Login })),
+);
+const Register = React.lazy(() =>
+  import("./pages/Register").then((module) => ({ default: module.Register })),
+);
+const Footer = React.lazy(() =>
+  import("./components/Layout/Footer").then((module) => ({
+    default: module.Footer,
+  })),
+);
+const BackToTop = React.lazy(() =>
+  import("./components/UI/BackToTop").then((module) => ({
+    default: module.BackToTop,
   })),
 );
 
@@ -326,8 +342,10 @@ const App: React.FC = () => {
           <main className="grow">
             <AnimatedRoutes />
           </main>
-          <Footer />
-          <BackToTop />
+          <Suspense fallback={null}>
+            <Footer />
+            <BackToTop />
+          </Suspense>
         </div>
       </Router>
     </HelmetProvider>

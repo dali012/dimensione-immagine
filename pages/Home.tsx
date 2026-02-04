@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
-import { Button } from "../components/UI/Button";
+import { Link, useLocation } from "react-router-dom";
 import { SEO } from "../components/SEO/SEO";
 
 const HERO_MEDIA = [
@@ -122,9 +121,13 @@ export const Home: React.FC = () => {
               grado di valorizzare ogni fisicita, ogni storia e ogni momento
               della vita.
             </p>
-            <Button to="/chi-siamo" variant="primary" ariaLabel="Chi Siamo">
+            <Link
+              to="/chi-siamo"
+              aria-label="Chi Siamo"
+              className="inline-flex items-center justify-center px-8 py-3 text-sm font-medium tracking-wide rounded-md transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-brand-accent focus:ring-offset-2 focus:ring-offset-white cursor-pointer bg-brand-accent text-white hover:opacity-90 border border-transparent"
+            >
               Scopri di piu
-            </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -172,9 +175,12 @@ export const Home: React.FC = () => {
               Siamo pronti a rendere unico il tuo guardaroba con professionalita
               e stile.
             </p>
-            <Button to="/contatti" variant="outline">
+            <Link
+              to="/contatti"
+              className="inline-flex items-center justify-center px-8 py-3 text-sm font-medium tracking-wide rounded-md transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-brand-accent focus:ring-offset-2 focus:ring-offset-white cursor-pointer bg-transparent text-brand-text-primary border border-brand-border hover:border-brand-text-primary"
+            >
               Contattaci
-            </Button>
+            </Link>
           </div>
         </div>
       </section>
