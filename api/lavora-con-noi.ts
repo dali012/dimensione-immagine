@@ -51,6 +51,8 @@ async function verifyRecaptcha(token: string) {
 
   return (await res.json()) as {
     success: boolean;
+    score?: number;
+    action?: string;
     hostname?: string;
     "error-codes"?: string[];
   };
@@ -80,7 +82,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const validateRecaptcha = async (token: string) => {
     const verify = await verifyRecaptcha(token);
-    if (!verify.success) {
+    const expectedAction = getEnv("RECAPTCHA_EXPECTED_ACTION") || "submit";
+    const minScore = Number(getEnv("RECAPTCHA_MIN_SCORE") || "0.0");
+    const actionOk = verify.action ? verify.action === expectedAction : true;
+    const scoreOk = typeof verify.score === "number"
+      ? verify.score >= minScore
+      : true;
+
+    if (!verify.success || !actionOk || !scoreOk) {
       return res.status(400).json({
         error: "reCAPTCHA verification failed",
         codes: verify["error-codes"] || [],

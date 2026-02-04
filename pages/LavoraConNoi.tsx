@@ -4,7 +4,6 @@ import { SEO } from "@/components/SEO/SEO";
 import { Reveal } from "@/components/UI/Reveal";
 import { useLocation } from "react-router-dom";
 import { getActiveJobPositions } from "../sanity/jobPositions";
-import ReCAPTCHA from "react-google-recaptcha";
 
 // Updated input classes with the new brand color on focus
 const inputClasses =
@@ -21,7 +20,6 @@ const LavoraConNoi: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
   const [message, setMessage] = useState("");
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
-  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
 
   // UI States
   const [status, setStatus] = useState<
@@ -33,10 +31,23 @@ const LavoraConNoi: React.FC = () => {
   >("idle");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const recaptchaRef = useRef<ReCAPTCHA | null>(null);
   const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY as
     | string
     | undefined;
+
+  useEffect(() => {
+    if (!siteKey) return;
+    const scriptId = "recaptcha-enterprise";
+    const existing = document.getElementById(scriptId);
+    if (existing) return;
+
+    const script = document.createElement("script");
+    script.id = scriptId;
+    script.src = `https://www.google.com/recaptcha/enterprise.js?render=${siteKey}`;
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+  }, [siteKey]);
 
   useEffect(() => {
     let mounted = true;
@@ -137,16 +148,21 @@ const LavoraConNoi: React.FC = () => {
       return;
     }
 
-    if (!recaptchaToken) {
-      setStatus("error");
-      setFeedbackMsg("Conferma di non essere un robot prima di inviare.");
-      return;
-    }
-
     setStatus("submitting");
     setFeedbackMsg("");
 
     try {
+      if (!window.grecaptcha?.enterprise) {
+        throw new Error("reCAPTCHA non disponibile. Riprova tra qualche secondo.");
+      }
+
+      await new Promise<void>((resolve) => {
+        window.grecaptcha?.enterprise?.ready(() => resolve());
+      });
+      const recaptchaToken = await window.grecaptcha.enterprise.execute(siteKey, {
+        action: "submit",
+      });
+
       const fd = new FormData();
       fd.append("name", name);
       fd.append("email", email);
@@ -167,11 +183,9 @@ const LavoraConNoi: React.FC = () => {
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         const codes: string[] = data?.codes || [];
-        recaptchaRef.current?.reset();
-        setRecaptchaToken(null);
         if (codes.includes("timeout-or-duplicate")) {
           throw new Error(
-            "reCAPTCHA scaduto. Spunta di nuovo la casella e riprova.",
+            "Token reCAPTCHA scaduto o gia usato. Riprova.",
           );
         }
         throw new Error(data?.error || "Invio non riuscito. Riprova.");
@@ -190,8 +204,6 @@ const LavoraConNoi: React.FC = () => {
       setFile(null);
       setMessage("");
       setPrivacyAccepted(false);
-      setRecaptchaToken(null);
-      recaptchaRef.current?.reset();
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (error: any) {
       setStatus("error");
@@ -441,15 +453,6 @@ const LavoraConNoi: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="pt-1">
-                  <ReCAPTCHA
-                    ref={recaptchaRef}
-                    sitekey={siteKey || ""}
-                    onChange={(token) => setRecaptchaToken(token)}
-                    onExpired={() => setRecaptchaToken(null)}
-                  />
-                </div>
-
                 {/* Feedback Messages */}
                 {feedbackMsg && (
                   <div
@@ -469,8 +472,7 @@ const LavoraConNoi: React.FC = () => {
                   disabled={
                     status === "submitting" ||
                     status === "success" ||
-                    showNoPositions ||
-                    !recaptchaToken
+                    showNoPositions
                   }
                   className={`w-full py-4 rounded-lg font-bold text-white uppercase tracking-wider transition-all transform hover:-translate-y-1 shadow-md hover:shadow-lg cursor-pointer ${
                     status === "submitting"

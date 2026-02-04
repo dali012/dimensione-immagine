@@ -1,7 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import React, { useState } from "react";
 import { Mail, MapPin, Phone, Clock, ArrowRight } from "lucide-react";
-import ReCAPTCHA from "react-google-recaptcha";
 import { SEO } from "../components/SEO/SEO";
 import { Reveal } from "../components/UI/Reveal";
 
@@ -24,7 +23,6 @@ export const Contact: React.FC = () => {
     message: "",
   });
 
-  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [marketingConsent, setMarketingConsent] = useState(false);
   const [status, setStatus] = useState<
@@ -41,10 +39,6 @@ export const Contact: React.FC = () => {
     if (errors[e.target.name as keyof typeof errors]) {
       setErrors({ ...errors, [e.target.name]: "" });
     }
-  };
-
-  const handleRecaptchaChange = (token: string | null) => {
-    setRecaptchaToken(token);
   };
 
   const validateForm = () => {
@@ -71,10 +65,6 @@ export const Contact: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
-    if (!recaptchaToken) {
-      alert("Conferma di non essere un robot.");
-      return;
-    }
     if (!termsAccepted) {
       alert("Accetta la Privacy Policy.");
       return;
@@ -376,15 +366,8 @@ export const Contact: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Recaptcha & Button Row */}
+                {/* Submit Row */}
                 <div className="flex flex-col md:flex-row gap-6 md:items-center justify-between">
-                  <div className="transform scale-90 origin-left">
-                    <ReCAPTCHA
-                      sitekey="6Ld1BEgsAAAAADaK7qe0T4ACh-PkF1gPpMnITtkX"
-                      onChange={handleRecaptchaChange}
-                    />
-                  </div>
-
                   <button
                     type="submit"
                     disabled={status === "submitting" || status === "success"}

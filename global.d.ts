@@ -8,4 +8,15 @@ declare global {
   interface ImportMeta {
     readonly env: ImportMetaEnv;
   }
+  interface Window {
+    grecaptcha?: {
+      enterprise?: {
+        ready: (cb: () => void) => void;
+        execute: (
+          siteKey: string,
+          options: { action: string },
+        ) => Promise<string>;
+      };
+    };
+  }
 }
