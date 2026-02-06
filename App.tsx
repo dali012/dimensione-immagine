@@ -11,6 +11,7 @@ import { Navbar } from "./components/Layout/Navbar";
 import { PageTransition } from "./components/Layout/PageTransition";
 import { SEO } from "./components/SEO/SEO";
 import { RequireAuth } from "./contexts/AuthContext";
+import { NewsletterPopup } from "./components/UI/NewsletterPopup";
 
 // Lazy load pages
 const Home = React.lazy(() =>
@@ -339,6 +340,7 @@ const App: React.FC = () => {
         <Toaster closeButton position="bottom-left" />
         <div className="flex flex-col min-h-screen bg-brand-bg text-brand-text-primary selection:bg-brand-accent selection:text-white">
           <ConditionalNavbar />
+          <NewsletterPopup />
           <main className="grow">
             <AnimatedRoutes />
           </main>
