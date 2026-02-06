@@ -24,7 +24,7 @@ const HERO_MEDIA = [
 export const Home: React.FC = () => {
   const location = useLocation();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [showVideo, setShowVideo] = useState(false);
+  const [showVideo, setShowVideo] = useState(true);
 
   useEffect(() => {
     if (HERO_MEDIA[currentIndex].type === "image") {
@@ -36,8 +36,8 @@ export const Home: React.FC = () => {
   }, [currentIndex]);
 
   useEffect(() => {
-    const mq = window.matchMedia("(min-width: 768px)");
-    const update = () => setShowVideo(mq.matches);
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setShowVideo(!mq.matches);
     update();
     if (mq.addEventListener) {
       mq.addEventListener("change", update);
