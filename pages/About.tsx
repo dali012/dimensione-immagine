@@ -1,6 +1,5 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
-import { Button } from "../components/UI/Button";
 import { SEO } from "../components/SEO/SEO";
 import { Reveal } from "../components/UI/Reveal";
 
@@ -18,21 +17,9 @@ const VALUES: ValueItem[] = [
     image: "/images/elementor-placeholder-image.png",
   },
   {
-    title: "Accessibilità & Prezzi Giusti",
-    description:
-      "Crediamo che la bellezza debba essere condivisa. La nostra moda resta accessibile senza rinunciare alla qualità.",
-    image: "/images/elementor-placeholder-image.png",
-  },
-  {
     title: "Stile & Tendenza ",
     description:
       "Collezioni dinamiche, ricercate e sempre aggiornate, create per accompagnare ogni stagione e stato d’animo.",
-    image: "/images/elementor-placeholder-image.png",
-  },
-  {
-    title: "Inclusività & Valorizzazione delle Fisicità",
-    description:
-      "Celebriamo la diversità. Le nostre linee sono pensate per vestire, valorizzare e rispettare ogni corpo.",
     image: "/images/elementor-placeholder-image.png",
   },
   {

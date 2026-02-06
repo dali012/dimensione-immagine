@@ -1,10 +1,10 @@
+import { Filter, MapPin, Phone, Store } from "lucide-react";
 import React, { useMemo, useState } from "react";
-import { MapPin, Filter, Store, Phone } from "lucide-react";
+import { useLocation } from "react-router-dom";
 import { SEO } from "../components/SEO/SEO";
 import { Button } from "../components/UI/Button";
 import { Reveal } from "../components/UI/Reveal";
 import { SectionHeader } from "../components/UI/SectionHeader";
-import { useLocation } from "react-router-dom";
 
 interface LocationData {
   name: string;
@@ -243,7 +243,7 @@ export const Locations: React.FC = () => {
                                       case "Boutique Uomo":
                                         return "Orari: Lun-Sab 9:00-20:00, Dom 9:00-13:00 / 16:00-20:00";
                                       case "Boutique Donna":
-                                        return "Orari: Lun-Dom 9:30-13:00 / 16:00-20:00";
+                                        return "Orari: Lun-Dom 9:00-13:00 / 16:00-20:00";
                                       case "Centro Commerciale Tremestieri":
                                         return "Orari: Lun-Sab 9:00-20:30, Dom e festivi: 9:30-20:30";
                                       case "Montesilvano Store":
