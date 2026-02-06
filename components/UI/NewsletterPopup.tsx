@@ -92,12 +92,12 @@ export const NewsletterPopup: React.FC = () => {
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/40 px-4 py-6 sm:p-6"
+      className="fixed inset-0 z-60 flex items-end sm:items-center justify-center bg-black/40 px-4 py-6 sm:p-6"
       role="dialog"
       aria-modal="true"
       aria-label="Iscrizione newsletter"
     >
-      <div className="relative w-full max-w-lg bg-white text-brand-text-primary shadow-xl rounded-t-2xl sm:rounded-none sm:rounded-lg max-h-[90svh] sm:max-h-none overflow-hidden">
+      <div className="relative w-full max-w-lg bg-white text-brand-text-primary shadow-xl rounded-t-2xl sm:rounded-lg max-h-[90svh] sm:max-h-none overflow-hidden">
         <button
           type="button"
           onClick={handleClose}
