@@ -1,6 +1,6 @@
+import { X } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { X } from "lucide-react";
 import { toast } from "sonner";
 
 const STORAGE_KEY = "di_newsletter_popup_v1";
@@ -12,7 +12,10 @@ const isDismissed = () => {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return false;
     const data = JSON.parse(raw) as { dismissedUntil?: number };
-    return typeof data.dismissedUntil === "number" && Date.now() < data.dismissedUntil;
+    return (
+      typeof data.dismissedUntil === "number" &&
+      Date.now() < data.dismissedUntil
+    );
   } catch {
     return false;
   }
@@ -72,7 +75,9 @@ export const NewsletterPopup: React.FC = () => {
         throw new Error(data?.error || "Subscription failed");
       }
 
-      toast.success("Iscrizione avvenuta! Controlla la tua email per il coupon.");
+      toast.success(
+        "Iscrizione avvenuta! Controlla la tua email per il coupon.",
+      );
       setEmail("");
       handleClose();
     } catch (err) {
@@ -87,22 +92,22 @@ export const NewsletterPopup: React.FC = () => {
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/40 px-4 py-6"
+      className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/40 px-4 py-6 sm:p-6"
       role="dialog"
       aria-modal="true"
       aria-label="Iscrizione newsletter"
     >
-      <div className="relative w-full max-w-lg bg-white text-brand-text-primary shadow-xl">
+      <div className="relative w-full max-w-lg bg-white text-brand-text-primary shadow-xl rounded-t-2xl sm:rounded-none sm:rounded-lg max-h-[90svh] sm:max-h-none overflow-hidden">
         <button
           type="button"
           onClick={handleClose}
-          className="absolute right-4 top-4 text-brand-text-secondary hover:text-brand-text-primary transition-colors"
+          className="absolute right-3 top-3 h-10 w-10 inline-flex items-center justify-center text-brand-text-secondary hover:text-brand-text-primary transition-colors"
           aria-label="Chiudi"
         >
-          <X size={18} />
+          <X size={18} className="cursor-pointer" />
         </button>
 
-        <div className="px-6 py-8 sm:px-10 sm:py-10">
+        <div className="px-6 py-8 sm:px-10 sm:py-10 overflow-y-auto max-h-[90svh] sm:max-h-none">
           <p className="text-xs uppercase tracking-widest text-brand-text-secondary mb-3">
             Benvenuto
           </p>
@@ -110,8 +115,8 @@ export const NewsletterPopup: React.FC = () => {
             -10% sul tuo primo acquisto
           </h2>
           <p className="text-sm sm:text-base text-brand-text-secondary leading-relaxed mb-6">
-            Iscriviti alla newsletter per ricevere il coupon e scoprire in anteprima
-            nuove collezioni e offerte esclusive.
+            Iscriviti alla newsletter per ricevere il coupon e scoprire in
+            anteprima nuove collezioni e offerte esclusive.
           </p>
 
           <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
@@ -140,8 +145,8 @@ export const NewsletterPopup: React.FC = () => {
             No grazie, magari dopo
           </button>
           <p className="mt-4 text-[11px] text-brand-text-secondary leading-relaxed">
-            Iscrivendoti accetti di ricevere comunicazioni e materiale marketing da
-            Dimensione Immagine.
+            Iscrivendoti accetti di ricevere comunicazioni e materiale marketing
+            da Dimensione Immagine.
           </p>
         </div>
       </div>
