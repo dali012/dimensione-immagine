@@ -6,44 +6,39 @@ import { Reveal } from "../components/UI/Reveal";
 interface ValueItem {
   title: string;
   description: string;
-  image: string;
 }
 
 const VALUES: ValueItem[] = [
   {
     title: "Famiglia & Accoglienza",
     description:
-      "Il nostro DNA è familiare: accogliere con calore, ascoltare con attenzione, rispettare con autenticità.",
-    image: "/images/elementor-placeholder-image.png",
+      "Il nostro DNA e familiare: accogliere con calore, ascoltare con attenzione, rispettare con autenticita.",
   },
   {
-    title: "Stile & Tendenza ",
+    title: "Stile & Tendenza",
     description:
-      "Collezioni dinamiche, ricercate e sempre aggiornate, create per accompagnare ogni stagione e stato d’animo.",
-    image: "/images/elementor-placeholder-image.png",
+      "Collezioni dinamiche, ricercate e sempre aggiornate, create per accompagnare ogni stagione e stato d'animo.",
   },
   {
-    title: "Qualità & Selezione Curata",
+    title: "Qualita & Selezione Curata",
     description:
-      "Ogni capo è scelto con attenzione ai materiali, alle finiture e al comfort, affinché duri e si indossi con piacere.",
-    image: "/images/elementor-placeholder-image.png",
+      "Ogni capo e scelto con attenzione ai materiali, alle finiture e al comfort, affinche duri e si indossi con piacere.",
   },
   {
     title: "Tradizione & Evoluzione",
     description:
-      "Preserviamo oltre quarant’anni di esperienza con uno sguardo rivolto al futuro, innovando senza mai tradire le nostre radici.",
-    image: "/images/elementor-placeholder-image.png",
+      "Preserviamo oltre quarant'anni di esperienza con uno sguardo rivolto al futuro, innovando senza tradire le nostre radici.",
   },
   {
     title: "Fiducia & Relazione con il Cliente",
     description:
-      "La fiducia si conquista con trasparenza, costanza e presenza. Per noi, ogni cliente è una relazione da coltivare.",
-    image: "/images/elementor-placeholder-image.png",
+      "La fiducia si conquista con trasparenza, costanza e presenza. Per noi, ogni cliente e una relazione da coltivare.",
   },
 ];
 
 export const About: React.FC = () => {
   const location = useLocation();
+
   return (
     <div className="pt-24 min-h-screen bg-brand-bg text-brand-text-primary">
       <SEO
@@ -53,144 +48,103 @@ export const About: React.FC = () => {
         image="/og-chi-siamo.jpg"
       />
 
-      {/* Editorial Header */}
-      <section className="container mx-auto px-4 sm:px-6 py-14 sm:py-16 lg:py-32">
+      <section className="container mx-auto px-4 sm:px-6 py-14 sm:py-16 lg:py-28">
         <Reveal width="100%">
-          <div className="max-w-4xl mx-auto text-center md:text-left">
-            <span className="block text-xs font-bold uppercase tracking-widest text-brand-text-secondary mb-6">
-              Dal 1984
-            </span>
-            <h1 className="font-serif text-4xl sm:text-5xl md:text-7xl lg:text-8xl mb-8 sm:mb-12 leading-[0.95]">
-              Chi Siamo
-            </h1>
-            <div className="pl-4 sm:pl-6 md:pl-24 lg:pl-32 border-l border-brand-accent/30">
-              <div className="space-y-6 text-brand-text-secondary text-base md:text-lg leading-relaxed font-light max-w-2xl">
+          <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+            <div className="lg:col-span-4">
+              <span className="block text-xs font-bold uppercase tracking-widest text-brand-text-secondary mb-5">
+                Dal 1984
+              </span>
+              <h1 className="font-serif text-4xl sm:text-5xl md:text-7xl leading-[0.95]">
+                Chi Siamo
+              </h1>
+            </div>
+
+            <div className="lg:col-span-8 border-l border-brand-accent/30 pl-4 sm:pl-8 lg:pl-10">
+              <div className="space-y-6 text-brand-text-secondary text-base md:text-lg leading-relaxed font-light">
                 <p>
-                  Un racconto di stile, autenticità e visione curato da{" "}
+                  Un racconto di stile, autenticita e visione curato da{" "}
                   <span className="font-bold">
-                    Débora Scabora, Diretricce di Marketing e Visual
-                    Merchandising.
+                    Debora Scabora, Direttrice Marketing e Visual Merchandising.
                   </span>
                 </p>
                 <p>
-                  Dal 1984 Dimensione Immagine Fondata da{" "}
+                  Dal 1984 Dimensione Immagine, fondata da{" "}
                   <span className="font-bold">Fortunato Oteri</span>, interpreta
-                  la moda come un gesto di accoglienza e identità. Nata in
-                  Sicilia come un’elegante realtà, la nostra storia affonda le
+                  la moda come un gesto di accoglienza e identita. Nata in
+                  Sicilia come realta elegante, la nostra storia affonda le
                   radici nella cura del dettaglio, nel rispetto delle persone e
-                  nella volontà di creare un’esperienza che unisce stile e
-                  umanità.
+                  nella volonta di creare un'esperienza che unisce stile e
+                  umanita.
                 </p>
                 <p>
-                  Nel corso dei decenni, quel primo negozio è diventato un
+                  Nel corso dei decenni, quel primo negozio e diventato un
                   riferimento per il mondo Donna e Uomo, grazie a collezioni
                   contemporanee, versatili e attentamente selezionate. La nostra
-                  crescita è stata guidata da una visione chiara: ampliare la
-                  nostra presenza senza mai smarrire l’essenza che ci ha resi
-                  riconoscibili la capacità di far sentire ogni cliente unico,
+                  crescita e stata guidata da una visione chiara: ampliare la
+                  nostra presenza senza smarrire l'essenza che ci ha resi
+                  riconoscibili, la capacita di far sentire ogni cliente unico,
                   compreso e valorizzato.
                 </p>
                 <p>
-                  Oggi Dimensione Immagine è una rete di store diretti e
-                  affiliati che combina tradizione, modernità e una cultura
-                  dell’accoglienza radicata e sincera. Un brand che evolve
-                  restando fedele alla propria anima.
+                  Oggi Dimensione Immagine e una rete di store diretti e
+                  affiliati che combina tradizione, modernita e cultura
+                  dell'accoglienza. Un brand che evolve restando fedele alla
+                  propria anima.
                 </p>
                 <p>
                   "Come custode della comunicazione istituzionale, mi impegno a
-                  tradurre questa essenza in ogni parola e immagine, preservando
-                  l'autenticità che ci accompagna da sempre."
+                  tradurre questa essenza in ogni parola, preservando
+                  l'autenticita che ci accompagna da sempre."
                 </p>
-                <p className="font-bold">– Débora Scabora</p>
-                <Reveal delay={0.2}>
-                  <h2 className="text-4xl font-serif my-6">
-                    La Nostra Mission
-                  </h2>
-                  <div>
-                    <p>
-                      Moda che parla alle persone, non alle taglie. La nostra
-                      mission è offrire una moda accessibile, inclusiva e in
-                      grado di valorizzare ogni fisicità, ogni storia, ogni
-                      momento della vita.
-                      <br />
-                      <br />
-                      Da oltre quarant’anni selezioniamo capi che uniscono
-                      qualità, estetica e convenienza, trasformando l’atto di
-                      vestirsi in un linguaggio personale, libero e sofisticato.
-                      <br />
-                      <br />
-                      Crediamo in una moda che vive nella quotidianità:
-                      contemporanea, confortevole, profondamente autentica.
-                      <br />
-                      <br />
-                      Per questo sviluppiamo collezioni{" "}
-                      <span className="font-bold">
-                        Uomo, Donna e Taglie Forti
-                      </span>{" "}
-                      che non vestono soltanto il corpo, ma interpretano la
-                      personalità di chi le sceglie.
-                    </p>
-                  </div>
-                </Reveal>
+                <p className="font-bold">- Debora Scabora</p>
               </div>
             </div>
           </div>
         </Reveal>
       </section>
 
-      {/* Main Image & Story */}
-      <section className="py-12 lg:py-24">
-        <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            {/* Image Span */}
-            {/* <div className="lg:col-span-7 h-[60vh] relative overflow-hidden bg-brand-surface rounded-sm">
-              <Reveal width="100%" className="h-full">
-                <img
-                  src="/images/la-nostra-mission.jpeg"
-                  alt="Il team di Dimensione Immagine"
-                  className="w-full h-full object-cover"
-                  loading="eager"
-                />
-              </Reveal>
-            </div> */}
+      <section className="container mx-auto px-4 sm:px-6 pb-16 sm:pb-20 lg:pb-24">
+        <Reveal width="100%">
+          <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+            <div className="lg:col-span-4">
+              <span className="block text-xs font-bold uppercase tracking-widest text-brand-text-secondary mb-5">
+                Valori in Azione
+              </span>
+              <h2 className="font-serif text-4xl sm:text-5xl md:text-7xl leading-[0.95]">
+                La Nostra Mission
+              </h2>
+            </div>
 
-            {/* Text Content */}
-            <div className="lg:col-span-1"></div>
-            {/* <div className="lg:col-span-4 space-y-8">
-              <Reveal delay={0.2}>
-                <h2 className="text-3xl font-serif mb-6">La Nostra Mission</h2>
-                <div className="space-y-6 text-brand-text-secondary text-sm leading-relaxed text-justify">
-                  <p>Moda che parla alle persone, non alle taglie.</p>
-                  <p>
-                    La nostra mission è offrire una moda accessibile, inclusiva
-                    e in grado di valorizzare ogni fisicità, ogni storia, ogni
-                    momento della vita.
-                  </p>
-                  <p>
-                    Da oltre quarant’anni selezioniamo capi che uniscono
-                    qualità, estetica e convenienza, trasformando l’atto di
-                    vestirsi in un linguaggio personale, libero e sofisticato.
-                  </p>
-                  <p>
-                    Crediamo in una moda che vive nella quotidianità:
-                    contemporanea, confortevole, profondamente autentica.
-                  </p>
-                  <p>
-                    Per questo sviluppiamo collezioni{" "}
-                    <span className="font-bold">
-                      Uomo, Donna e Taglie Forti
-                    </span>{" "}
-                    che non vestono soltanto il corpo, ma interpretano la
-                    personalità di chi le sceglie.
-                  </p>
-                </div>
-              </Reveal>
-            </div> */}
+            <div className="lg:col-span-8 border-l border-brand-accent/30 pl-4 sm:pl-8 lg:pl-10">
+              <div className="space-y-6 text-brand-text-secondary text-base md:text-lg leading-relaxed font-light">
+                <p>Moda che parla alle persone, non alle taglie.</p>
+                <p>
+                  La nostra mission e offrire una moda accessibile, inclusiva e
+                  in grado di valorizzare ogni fisicita, ogni storia, ogni
+                  momento della vita.
+                </p>
+                <p>
+                  Da oltre quarant'anni selezioniamo capi che uniscono qualita,
+                  estetica e convenienza, trasformando l'atto di vestirsi in un
+                  linguaggio personale, libero e sofisticato.
+                </p>
+                <p>
+                  Crediamo in una moda che vive nella quotidianita:
+                  contemporanea, confortevole, profondamente autentica.
+                </p>
+                <p>
+                  Per questo sviluppiamo collezioni{" "}
+                  <span className="font-bold">Uomo, Donna e Taglie Forti</span>{" "}
+                  che non vestono soltanto il corpo, ma interpretano la
+                  personalita di chi le sceglie.
+                </p>
+              </div>
+            </div>
           </div>
-        </div>
+        </Reveal>
       </section>
 
-      {/* Stats - Minimal */}
       <section className="py-16 sm:py-20 md:py-24 border-y border-brand-border bg-white">
         <div className="container mx-auto px-6">
           <Reveal width="100%">
@@ -224,53 +178,31 @@ export const About: React.FC = () => {
         </div>
       </section>
 
-      {/* Values List - Alternating Layout like Photo */}
-      <section className="py-16 sm:py-20 lg:py-32">
+      <section className="py-16 sm:py-20 lg:py-32 bg-brand-surface/40">
         <div className="container mx-auto px-4 sm:px-6">
-          <Reveal className="mb-24 mx-auto">
-            <h2 className="font-serif text-4xl lg:text-5xl mb-2">
+          <Reveal className="mb-14 sm:mb-16 lg:mb-20 mx-auto">
+            <h2 className="font-serif text-4xl lg:text-5xl mb-2 text-center">
               I Nostri Valori
             </h2>
-            <div className="h-px bg-brand-accent mx-auto"></div>
-            <p>I principi che definiscono la nostra identità.</p>
+            <div className="h-px bg-brand-accent/50 mx-auto max-w-md"></div>
+            <p className="mt-4 text-center text-brand-text-secondary">
+              I principi che definiscono la nostra identita.
+            </p>
           </Reveal>
 
-          <div className="space-y-16 sm:space-y-20 lg:space-y-32">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
             {VALUES.map((value, index) => (
-              <Reveal key={index} width="100%">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
-                  {/* Text Column */}
-                  <div
-                    className={`flex flex-col justify-center ${
-                      index % 2 === 0 ? "lg:order-1" : "lg:order-2"
-                    }`}
-                  >
-                    <div className="mb-8 h-px w-12 bg-brand-accent"></div>
-                    <h3 className="text-3xl lg:text-5xl font-serif uppercase mb-8 tracking-wide text-brand-text-primary leading-tight">
-                      {value.title}
-                    </h3>
-                    <p className="text-lg text-brand-text-secondary font-light leading-relaxed max-w-lg">
-                      {value.description}
-                    </p>
-                  </div>
-
-                  {/* Image Column */}
-                  <div
-                    className={`${
-                      index % 2 === 0 ? "lg:order-2" : "lg:order-1"
-                    }`}
-                  >
-                    <div className="relative aspect-video lg:aspect-3/2 overflow-hidden rounded-sm group">
-                      <img
-                        src={value.image}
-                        alt={value.title}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        loading="lazy"
-                        decoding="async"
-                        sizes="(min-width: 1024px) 50vw, 100vw"
-                      />
-                    </div>
-                  </div>
+              <Reveal key={value.title} width="100%">
+                <div className="h-full border border-brand-border bg-white p-8 sm:p-10 rounded-sm">
+                  <span className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-brand-accent/30 text-brand-accent text-sm font-semibold mb-6">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <h3 className="text-2xl lg:text-3xl font-serif uppercase mb-5 tracking-wide text-brand-text-primary leading-tight">
+                    {value.title}
+                  </h3>
+                  <p className="text-base sm:text-lg text-brand-text-secondary font-light leading-relaxed">
+                    {value.description}
+                  </p>
                 </div>
               </Reveal>
             ))}

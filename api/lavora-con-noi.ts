@@ -15,19 +15,19 @@ export const config = {
 
 type FormFields = {
   name?: string;
+  surname?: string;
+  age?: string;
+  city?: string;
   email?: string;
   phone?: string;
   position?: string;
   message?: string;
+  taskRatings?: string;
   recaptchaToken?: string;
 };
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
-const ALLOWED_MIME = new Set([
-  "application/pdf",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-]);
+const ALLOWED_MIME = new Set(["application/pdf"]);
 
 const getEnv = (key: string) => process.env[key] || "";
 let schemaEnsured = false;
@@ -58,6 +58,31 @@ async function verifyRecaptcha(token: string) {
 
 function sanitizeFilename(filename: string) {
   return filename.replace(/[^a-zA-Z0-9._-]/g, "_");
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function parseTaskRatings(raw: string | undefined) {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw) as Array<{ task?: string; level?: string }>;
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .map((item) => ({
+        task: (item?.task || "").trim(),
+        level: (item?.level || "").trim(),
+      }))
+      .filter((item) => item.task.length > 0 && item.level.length > 0);
+  } catch {
+    return [];
+  }
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -104,7 +129,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: err?.message || "Invalid form data" });
   }
 
-  if (!fields.name || !fields.email || !fields.phone || !fields.position) {
+  if (
+    !fields.name ||
+    !fields.surname ||
+    !fields.age ||
+    !fields.city ||
+    !fields.email ||
+    !fields.phone ||
+    !fields.position
+  ) {
     return res.status(400).json({ error: "Missing required fields" });
   }
   if (!fields.recaptchaToken) {
@@ -191,10 +224,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           id BIGSERIAL PRIMARY KEY,
           created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
           name TEXT NOT NULL,
+          surname TEXT,
+          age INTEGER,
+          city TEXT,
           email TEXT NOT NULL,
           phone TEXT NOT NULL,
           position TEXT NOT NULL,
           message TEXT,
+          task_ratings_json JSONB,
           cv_url TEXT,
           cv_key TEXT NOT NULL,
           delete_token TEXT NOT NULL,
@@ -206,7 +243,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // Backward-compatible migrations for existing tables created with older schemas.
       await db.query(`
         ALTER TABLE job_applications
+        ADD COLUMN IF NOT EXISTS surname TEXT,
+        ADD COLUMN IF NOT EXISTS age INTEGER,
+        ADD COLUMN IF NOT EXISTS city TEXT,
         ADD COLUMN IF NOT EXISTS position TEXT,
+        ADD COLUMN IF NOT EXISTS task_ratings_json JSONB,
         ADD COLUMN IF NOT EXISTS cv_key TEXT,
         ADD COLUMN IF NOT EXISTS delete_token TEXT,
         ADD COLUMN IF NOT EXISTS ip TEXT,
@@ -215,17 +256,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       schemaEnsured = true;
     }
 
+    const parsedTaskRatings = parseTaskRatings(fields.taskRatings);
     await db.query(
       `INSERT INTO job_applications
-        (name, email, phone, position, message, cv_url, cv_key, delete_token, ip, user_agent)
+        (name, surname, age, city, email, phone, position, message, task_ratings_json, cv_url, cv_key, delete_token, ip, user_agent)
        VALUES
-        ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+        ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`,
       [
         fields.name,
+        fields.surname,
+        Number(fields.age),
+        fields.city,
         fields.email,
         fields.phone,
         fields.position,
         fields.message || null,
+        parsedTaskRatings.length ? JSON.stringify(parsedTaskRatings) : null,
         null,
         key,
         deleteToken,
@@ -248,6 +294,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const resendFrom = getEnv("RESEND_FROM_EMAIL");
   const applicantFrom = getEnv("RESEND_APPLICANT_FROM_EMAIL") || resendFrom;
   const appUrl = (getEnv("APP_URL") || "").replace(/\/+$/, "");
+  const parsedTaskRatings = parseTaskRatings(fields.taskRatings);
+  const taskRatingsHtml = parsedTaskRatings.length
+    ? `<ul>${parsedTaskRatings
+        .map(
+          (item) =>
+            `<li><strong>${escapeHtml(item.task)}:</strong> ${escapeHtml(item.level)}</li>`,
+        )
+        .join("")}</ul>`
+    : "<p>-</p>";
 
   if (resendKey && resendTo && resendFrom) {
     try {
@@ -269,15 +324,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           subject: `Nuova candidatura - ${fields.position}`,
           html: `
             <h2>Nuova candidatura</h2>
-            <p><strong>Nome:</strong> ${fields.name}</p>
+            <p><strong>Nome:</strong> ${escapeHtml(fields.name)}</p>
+            <p><strong>Cognome:</strong> ${escapeHtml(fields.surname)}</p>
+            <p><strong>Eta:</strong> ${escapeHtml(fields.age)}</p>
+            <p><strong>Citta:</strong> ${escapeHtml(fields.city)}</p>
             <p><strong>Email:</strong> ${fields.email}</p>
             <p><strong>Telefono:</strong> ${fields.phone}</p>
             <p><strong>Posizione:</strong> ${fields.position}</p>
-            <p><strong>Messaggio:</strong> ${fields.message || "-"}</p>
+            <p><strong>Presentazione:</strong> ${escapeHtml(fields.message || "-")}</p>
+            <p><strong>Task e livello:</strong></p>
+            ${taskRatingsHtml}
             ${
               signedCvUrl
-                ? `<p><strong>CV (link valido 7 giorni):</strong> <a href="${signedCvUrl}">${signedCvUrl}</a></p>`
-                : "<p><strong>CV:</strong> Link temporaneo non disponibile. Richiedere un nuovo link.</p>"
+                ? `<p><strong>PDF candidatura (link valido 7 giorni):</strong> <a href="${signedCvUrl}">${signedCvUrl}</a></p>`
+                : "<p><strong>PDF candidatura:</strong> Link temporaneo non disponibile. Richiedere un nuovo link.</p>"
             }
             ${
               deleteLink
