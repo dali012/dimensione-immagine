@@ -290,7 +290,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const resendKey = getEnv("RESEND_API_KEY");
-  const resendTo = getEnv("RESEND_TO_EMAIL");
+  const resendTo =
+    getEnv("RESEND_HR_TO_EMAIL") ||
+    getEnv("RESEND_TO_EMAIL") ||
+    "hr@dimensioneimmagineabbigliamento.it";
   const resendFrom = getEnv("RESEND_FROM_EMAIL");
   const applicantFrom = getEnv("RESEND_APPLICANT_FROM_EMAIL") || resendFrom;
   const appUrl = (getEnv("APP_URL") || "").replace(/\/+$/, "");

@@ -188,7 +188,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const resendKey = getEnv("RESEND_API_KEY");
-  const resendTo = getEnv("RESEND_TO_EMAIL");
+  const resendTo =
+    getEnv("RESEND_CONTACT_TO_EMAIL") ||
+    getEnv("RESEND_TO_EMAIL") ||
+    "contact@dimensioneimmagineabbigliamento.it";
   const resendFrom = getEnv("RESEND_FROM_EMAIL");
   const resendReplyTo = getEnv("CONTACT_REPLY_TO_EMAIL") || email;
 
