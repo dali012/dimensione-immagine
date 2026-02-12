@@ -13,6 +13,43 @@ const inputClasses =
   "w-full bg-white border border-gray-200 rounded-lg px-4 py-3 text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#b89b5e] focus:ring-1 focus:ring-[#b89b5e] transition-all";
 
 type SkillLevel = "none" | "basic" | "intermediate" | "advanced" | "expert";
+type InterestArea =
+  | "commerciale-vendite"
+  | "amministrativo"
+  | "operativo-produzione"
+  | "tecnologia-it"
+  | "marketing"
+  | "autista"
+  | "magazzino";
+type ExperienceLevel = "stage" | "junior" | "mid-level" | "senior";
+type NoticePeriod = "immediata" | "15-giorni" | "30-giorni";
+type EducationLevel =
+  | "diploma"
+  | "laurea-triennale"
+  | "laurea-magistrale"
+  | "master-dottorato";
+type LanguageLevel = "base" | "intermedio" | "avanzato-madrelingua";
+
+type TaskRatingItem = {
+  task: string;
+  level: SkillLevel;
+};
+
+type LanguageItem = {
+  id: string;
+  language: string;
+  level: LanguageLevel;
+};
+
+type ExperienceItem = {
+  id: string;
+  company: string;
+  role: string;
+  startDate: string;
+  endDate: string;
+  isCurrent: boolean;
+  responsibilities: string;
+};
 
 const SKILL_LEVELS: { value: SkillLevel; label: string }[] = [
   { value: "none", label: "Nessuna conoscenza" },
@@ -22,103 +59,59 @@ const SKILL_LEVELS: { value: SkillLevel; label: string }[] = [
   { value: "expert", label: "Esperto" },
 ];
 
-const FALLBACK_POSITIONS: JobPositionOffer[] = [
-  {
-    id: "fallback-commessa",
-    title: "Commessa / Commesso",
-    tasks: [
-      {
-        id: "accoglienza",
-        label: "Accoglienza cliente in negozio",
-        required: true,
-        order: 1,
-      },
-      {
-        id: "vendita",
-        label: "Assistenza alla vendita",
-        required: true,
-        order: 2,
-      },
-      {
-        id: "cassa",
-        label: "Gestione cassa e pagamenti",
-        required: true,
-        order: 3,
-      },
-      {
-        id: "riordino",
-        label: "Riordino e presentazione reparto",
-        required: false,
-        order: 4,
-      },
-    ],
-  },
-  {
-    id: "fallback-responsabile",
-    title: "Responsabile di Negozio",
-    tasks: [
-      {
-        id: "coordinamento",
-        label: "Coordinamento team vendita",
-        required: true,
-        order: 1,
-      },
-      {
-        id: "kpi",
-        label: "Gestione KPI e obiettivi",
-        required: true,
-        order: 2,
-      },
-      {
-        id: "turni",
-        label: "Organizzazione turni",
-        required: true,
-        order: 3,
-      },
-      {
-        id: "criticita",
-        label: "Gestione criticita clienti",
-        required: false,
-        order: 4,
-      },
-    ],
-  },
-  {
-    id: "fallback-spontanea",
-    title: "Candidatura Spontanea",
-    tasks: [
-      {
-        id: "relazione",
-        label: "Relazione con il cliente",
-        required: true,
-        order: 1,
-      },
-      {
-        id: "organizzazione",
-        label: "Organizzazione e precisione",
-        required: true,
-        order: 2,
-      },
-      {
-        id: "problem-solving",
-        label: "Problem solving",
-        required: false,
-        order: 3,
-      },
-      {
-        id: "team",
-        label: "Lavoro in team",
-        required: true,
-        order: 4,
-      },
-    ],
-  },
+const INTEREST_AREA_OPTIONS: { value: InterestArea; label: string }[] = [
+  { value: "commerciale-vendite", label: "Commerciale/Vendite" },
+  { value: "amministrativo", label: "Amministrativo" },
+  { value: "operativo-produzione", label: "Operativo/Produzione" },
+  { value: "tecnologia-it", label: "Tecnologia/IT" },
+  { value: "marketing", label: "Marketing" },
+  { value: "autista", label: "Autista" },
+  { value: "magazzino", label: "Magazzino" },
 ];
 
-type TaskRatingItem = {
-  task: string;
-  level: SkillLevel;
+const EXPERIENCE_LEVEL_OPTIONS: { value: ExperienceLevel; label: string }[] = [
+  { value: "stage", label: "Stage" },
+  { value: "junior", label: "Junior" },
+  { value: "mid-level", label: "Mid-level" },
+  { value: "senior", label: "Senior" },
+];
+
+const NOTICE_PERIOD_OPTIONS: { value: NoticePeriod; label: string }[] = [
+  { value: "immediata", label: "Immediata" },
+  { value: "15-giorni", label: "15 giorni" },
+  { value: "30-giorni", label: "30 giorni" },
+];
+
+const EDUCATION_OPTIONS: { value: EducationLevel; label: string }[] = [
+  { value: "diploma", label: "Diploma" },
+  { value: "laurea-triennale", label: "Laurea Triennale" },
+  { value: "laurea-magistrale", label: "Laurea Magistrale" },
+  { value: "master-dottorato", label: "Master/Dottorato" },
+];
+
+const LANGUAGE_LEVEL_OPTIONS: { value: LanguageLevel; label: string }[] = [
+  { value: "base", label: "Base" },
+  { value: "intermedio", label: "Intermedio" },
+  { value: "avanzato-madrelingua", label: "Avanzato/Madrelingua" },
+];
+
+const MAX_EXPERIENCES = 3;
+let experienceCounter = 0;
+
+const createEmptyExperience = (): ExperienceItem => {
+  experienceCounter += 1;
+  return {
+    id: `exp-${experienceCounter}`,
+    company: "",
+    role: "",
+    startDate: "",
+    endDate: "",
+    isCurrent: false,
+    responsibilities: "",
+  };
 };
+
+const getInitialExperiences = (): ExperienceItem[] => [createEmptyExperience()];
 
 const levelToLabel = (value: SkillLevel) =>
   SKILL_LEVELS.find((level) => level.value === value)?.label || value;
@@ -130,15 +123,29 @@ const sanitizeFileNamePart = (value: string) =>
     .replace(/\s+/g, "-")
     .replace(/[^a-z0-9-]/g, "");
 
+function formatMonthYear(value: string) {
+  if (!value) return "-";
+  const [year, month] = value.split("-");
+  if (!year || !month) return value;
+  return `${month}/${year}`;
+}
+
 function buildApplicationPdf(data: {
-  firstName: string;
-  lastName: string;
-  age: string;
-  city: string;
+  fullName: string;
   email: string;
   phone: string;
+  city: string;
+  linkedin: string;
   position: string;
-  presentation: string;
+  interestAreas: string[];
+  experienceLevel: string;
+  salaryExpectation: string;
+  noticePeriod: string;
+  educationLevel: string;
+  languages: LanguageItem[];
+  hardSkills: string;
+  experiences: ExperienceItem[];
+  professionalSummary: string;
   taskRatings: TaskRatingItem[];
 }) {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
@@ -178,51 +185,119 @@ function buildApplicationPdf(data: {
   };
 
   const addLabeledLine = (label: string, value: string) => {
-    const line = `${label}: ${value}`;
-    addParagraph(line);
+    addParagraph(`${label}: ${value}`);
   };
 
   addTitle("Candidatura - Dimensione Immagine");
   addParagraph(`Data invio: ${new Date().toLocaleString("it-IT")}`);
   y += 6;
 
-  addTitle("Dati Anagrafici");
-  addLabeledLine("Nome", data.firstName);
-  addLabeledLine("Cognome", data.lastName);
-  addLabeledLine("Eta", data.age);
-  addLabeledLine("Citta", data.city);
-  addLabeledLine("Email", data.email);
-  addLabeledLine("Telefono", data.phone);
-  addLabeledLine("Posizione desiderata", data.position);
+  addTitle("1. Dati Personali");
+  addLabeledLine("Nome e Cognome", data.fullName);
+  addLabeledLine("Email", data.email || "-");
+  addLabeledLine("Telefono/WhatsApp", data.phone);
+  addLabeledLine("Citta/Provincia", data.city);
+  addLabeledLine("LinkedIn/Portfolio", data.linkedin || "-");
+  addLabeledLine("Posizione", data.position);
   y += 6;
 
-  addTitle("Autovalutazione Competenze");
+  addTitle("2. Screening Strategico");
+  addLabeledLine(
+    "Aree di interesse",
+    data.interestAreas.length ? data.interestAreas.join(", ") : "-",
+  );
+  addLabeledLine("Livello esperienza", data.experienceLevel);
+  addLabeledLine(
+    "Aspettativa salariale",
+    data.salaryExpectation ? `${data.salaryExpectation} EUR` : "-",
+  );
+  addLabeledLine("Disponibilita preavviso", data.noticePeriod);
+  y += 6;
+
+  addTitle("3. Formazione e Competenze");
+  addLabeledLine("Titolo di studio", data.educationLevel);
+  addLabeledLine(
+    "Lingue straniere",
+    data.languages
+      .map((item) => `${item.language} (${item.level})`)
+      .join(", ") || "-",
+  );
+  addLabeledLine("Competenze tecniche", data.hardSkills || "-");
+  y += 6;
+
+  addTitle("4. Competenze posizione");
   data.taskRatings.forEach((entry, index) => {
     addLabeledLine(`${index + 1}. ${entry.task}`, levelToLabel(entry.level));
   });
   y += 6;
 
-  addTitle("Presentazione");
-  addParagraph(data.presentation || "Nessuna presentazione inserita.");
+  addTitle("5. Esperienze Professionali");
+  const experiencesToPrint = data.experiences.filter(
+    (item) =>
+      item.company.trim() ||
+      item.role.trim() ||
+      item.startDate.trim() ||
+      item.endDate.trim() ||
+      item.responsibilities.trim(),
+  );
+
+  if (experiencesToPrint.length === 0) {
+    addParagraph("Nessuna esperienza professionale inserita.");
+  } else {
+    experiencesToPrint.forEach((item, index) => {
+      addLabeledLine(`Esperienza ${index + 1} - Azienda`, item.company || "-");
+      addLabeledLine("Ruolo", item.role || "-");
+      addLabeledLine("Data inizio", formatMonthYear(item.startDate));
+      addLabeledLine(
+        "Data fine",
+        item.isCurrent ? "Attualmente occupato" : formatMonthYear(item.endDate),
+      );
+      addLabeledLine("Principali responsabilita", item.responsibilities || "-");
+      y += 4;
+    });
+  }
+
+  y += 6;
+  addTitle("6. Riepilogo Professionale");
+  addParagraph(data.professionalSummary || "-");
 
   return doc.output("blob");
 }
 
 const LavoraConNoi: React.FC = () => {
   const location = useLocation();
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [age, setAge] = useState("");
-  const [city, setCity] = useState("");
+
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [city, setCity] = useState("");
+  const [linkedin, setLinkedin] = useState("");
+
   const [position, setPosition] = useState("");
   const [positions, setPositions] = useState<JobPositionOffer[]>([]);
   const [positionsLoaded, setPositionsLoaded] = useState(false);
-  const [presentation, setPresentation] = useState("");
-  const [taskRatings, setTaskRatings] = useState<Record<string, SkillLevel>>(
-    {},
+
+  const [interestAreas, setInterestAreas] = useState<InterestArea[]>([]);
+  const [experienceLevel, setExperienceLevel] = useState<ExperienceLevel | null>(
+    null,
   );
+  const [salaryExpectation, setSalaryExpectation] = useState("");
+  const [noticePeriod, setNoticePeriod] = useState<NoticePeriod | null>(null);
+
+  const [educationLevel, setEducationLevel] = useState<EducationLevel | null>(
+    null,
+  );
+  const [languages, setLanguages] = useState<LanguageItem[]>([
+    { id: "lang-1", language: "", level: "base" },
+  ]);
+  const [hardSkills, setHardSkills] = useState("");
+
+  const [experiences, setExperiences] = useState<ExperienceItem[]>(
+    () => getInitialExperiences(),
+  );
+  const [professionalSummary, setProfessionalSummary] = useState("");
+
+  const [taskRatings, setTaskRatings] = useState<Record<string, SkillLevel>>({});
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
 
@@ -318,15 +393,14 @@ const LavoraConNoi: React.FC = () => {
       .then((items) => {
         if (!mounted) return;
         setPositionsLoaded(true);
-        const source = items.length > 0 ? items : FALLBACK_POSITIONS;
-        setPositions(source);
-        setPosition(source[0]?.title || "");
+        setPositions(items);
+        setPosition(items[0]?.title || "");
       })
       .catch(() => {
         if (!mounted) return;
         setPositionsLoaded(true);
-        setPositions(FALLBACK_POSITIONS);
-        setPosition(FALLBACK_POSITIONS[0].title);
+        setPositions([]);
+        setPosition("");
       });
 
     return () => {
@@ -374,39 +448,203 @@ const LavoraConNoi: React.FC = () => {
     });
   }, [selectedPosition]);
 
+  const showNoPositions = positionsLoaded && positions.length === 0;
+
   const handleTaskLevelChange = (taskId: string, level: SkillLevel) => {
     setTaskRatings((previous) => ({ ...previous, [taskId]: level }));
   };
+
+  const toggleInterestArea = (value: InterestArea) => {
+    setInterestAreas((previous) =>
+      previous.includes(value)
+        ? previous.filter((item) => item !== value)
+        : [...previous, value],
+    );
+  };
+
+  const addLanguage = () => {
+    setLanguages((previous) => [
+      ...previous,
+      { id: `lang-${Date.now()}`, language: "", level: "base" },
+    ]);
+  };
+
+  const removeLanguage = (id: string) => {
+    setLanguages((previous) => {
+      if (previous.length <= 1) return previous;
+      return previous.filter((item) => item.id !== id);
+    });
+  };
+
+  const updateLanguage = (
+    id: string,
+    field: "language" | "level",
+    value: string,
+  ) => {
+    setLanguages((previous) =>
+      previous.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              [field]: value,
+            }
+          : item,
+      ),
+    );
+  };
+
+  const updateExperience = (
+    id: string,
+    field: keyof ExperienceItem,
+    value: string | boolean,
+  ) => {
+    setExperiences((previous) =>
+      previous.map((item) => {
+        if (item.id !== id) return item;
+        if (field === "isCurrent") {
+          return {
+            ...item,
+            isCurrent: Boolean(value),
+            endDate: value ? "" : item.endDate,
+          };
+        }
+        return {
+          ...item,
+          [field]: value,
+        };
+      }),
+    );
+  };
+
+  const addExperience = () => {
+    setExperiences((previous) => {
+      if (previous.length >= MAX_EXPERIENCES) return previous;
+      return [...previous, createEmptyExperience()];
+    });
+  };
+
+  const removeExperience = (id: string) => {
+    setExperiences((previous) => {
+      if (previous.length <= 1) return previous;
+      return previous.filter((item) => item.id !== id);
+    });
+  };
+
+  const summaryChars = professionalSummary.length;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (status === "submitting") return;
 
-    if (
-      !firstName.trim() ||
-      !lastName.trim() ||
-      !age.trim() ||
-      !city.trim() ||
-      !email.trim() ||
-      !phone.trim() ||
-      !position.trim()
-    ) {
+    if (!fullName.trim() || !phone.trim() || !city.trim() || !position.trim()) {
       setStatus("error");
-      setFeedbackMsg("Compila tutti i campi obbligatori.");
+      setFeedbackMsg("Compila tutti i campi obbligatori dei dati personali.");
       return;
     }
 
-    const ageValue = Number(age);
-    if (!Number.isFinite(ageValue) || ageValue < 16 || ageValue > 100) {
+    const normalizedEmail = email.trim();
+
+    if (interestAreas.length === 0 || !experienceLevel || !noticePeriod) {
       setStatus("error");
-      setFeedbackMsg("Inserisci un'eta valida (16-100).");
+      setFeedbackMsg("Completa la sezione di screening strategico.");
+      return;
+    }
+
+    if (!salaryExpectation.trim() || Number(salaryExpectation) <= 0) {
+      setStatus("error");
+      setFeedbackMsg("Inserisci un'aspettativa salariale valida.");
+      return;
+    }
+
+    if (!educationLevel) {
+      setStatus("error");
+      setFeedbackMsg("Seleziona il titolo di studio.");
+      return;
+    }
+
+    const normalizedLanguages = languages
+      .map((item) => ({
+        ...item,
+        language: item.language.trim(),
+      }))
+      .filter((item) => item.language.length > 0);
+
+    if (normalizedLanguages.length === 0) {
+      setStatus("error");
+      setFeedbackMsg("Inserisci almeno una lingua straniera.");
+      return;
+    }
+
+    if (!hardSkills.trim()) {
+      setStatus("error");
+      setFeedbackMsg("Inserisci le competenze tecniche principali.");
+      return;
+    }
+
+    const normalizedExperiences = experiences.map((item) => ({
+      ...item,
+      company: item.company.trim(),
+      role: item.role.trim(),
+      startDate: item.startDate.trim(),
+      endDate: item.endDate.trim(),
+      responsibilities: item.responsibilities.trim(),
+    }));
+
+    const hasAtLeastOneExperience = normalizedExperiences.some(
+      (item) =>
+        item.company ||
+        item.role ||
+        item.startDate ||
+        item.endDate ||
+        item.responsibilities,
+    );
+
+    if (!hasAtLeastOneExperience) {
+      setStatus("error");
+      setFeedbackMsg("Compila almeno una esperienza professionale.");
+      return;
+    }
+
+    const invalidExperience = normalizedExperiences.find((item) => {
+      const hasAnyField =
+        item.company ||
+        item.role ||
+        item.startDate ||
+        item.endDate ||
+        item.responsibilities;
+      if (!hasAnyField) return false;
+
+      if (!item.company || !item.role || !item.startDate || !item.responsibilities) {
+        return true;
+      }
+
+      if (!item.isCurrent && !item.endDate) {
+        return true;
+      }
+
+      return false;
+    });
+
+    if (invalidExperience) {
+      setStatus("error");
+      setFeedbackMsg(
+        "Ogni esperienza compilata deve includere azienda, ruolo, data inizio, responsabilita e data fine (o Attualmente occupato).",
+      );
+      return;
+    }
+
+    if (!professionalSummary.trim() || professionalSummary.trim().length > 500) {
+      setStatus("error");
+      setFeedbackMsg(
+        "Il riepilogo professionale e obbligatorio e deve essere massimo 500 caratteri.",
+      );
       return;
     }
 
     if (!selectedPosition || selectedPosition.tasks.length === 0) {
       setStatus("error");
       setFeedbackMsg(
-        "Nessun task disponibile per questa posizione. Contattaci per assistenza.",
+        "Nessuna competenza disponibile per questa posizione. Aggiorna la posizione in Sanity.",
       );
       return;
     }
@@ -417,7 +655,7 @@ const LavoraConNoi: React.FC = () => {
     if (missingRequiredTask) {
       setStatus("error");
       setFeedbackMsg(
-        `Seleziona almeno un livello Base per il task obbligatorio: "${missingRequiredTask.label}".`,
+        `Seleziona almeno un livello Base per la competenza obbligatoria: "${missingRequiredTask.label}".`,
       );
       return;
     }
@@ -453,32 +691,71 @@ const LavoraConNoi: React.FC = () => {
         }),
       );
 
+      const normalizedInterestAreas = INTEREST_AREA_OPTIONS.filter((opt) =>
+        interestAreas.includes(opt.value),
+      ).map((opt) => opt.label);
+
       const pdfBlob = buildApplicationPdf({
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
-        age: age.trim(),
-        city: city.trim(),
-        email: email.trim(),
+        fullName: fullName.trim(),
+        email: normalizedEmail,
         phone: phone.trim(),
+        city: city.trim(),
+        linkedin: linkedin.trim(),
         position: position.trim(),
-        presentation: presentation.trim(),
+        interestAreas: normalizedInterestAreas,
+        experienceLevel:
+          EXPERIENCE_LEVEL_OPTIONS.find((opt) => opt.value === experienceLevel)
+            ?.label || "-",
+        salaryExpectation: salaryExpectation.trim(),
+        noticePeriod:
+          NOTICE_PERIOD_OPTIONS.find((opt) => opt.value === noticePeriod)?.label ||
+          "-",
+        educationLevel:
+          EDUCATION_OPTIONS.find((opt) => opt.value === educationLevel)?.label ||
+          "-",
+        languages: normalizedLanguages,
+        hardSkills: hardSkills.trim(),
+        experiences: normalizedExperiences,
+        professionalSummary: professionalSummary.trim(),
         taskRatings: taskRatingsPayload,
       });
 
-      const pdfFileName = `candidatura-${sanitizeFileNamePart(firstName)}-${sanitizeFileNamePart(lastName)}.pdf`;
+      const fileSafeName = sanitizeFileNamePart(fullName) || "candidato";
+      const pdfFileName = `candidatura-${fileSafeName}.pdf`;
       const generatedPdf = new File([pdfBlob], pdfFileName, {
         type: "application/pdf",
       });
 
       const fd = new FormData();
-      fd.append("name", firstName.trim());
-      fd.append("surname", lastName.trim());
-      fd.append("age", age.trim());
+      fd.append("name", fullName.trim());
+      fd.append("fullName", fullName.trim());
+      fd.append("surname", "");
+      fd.append("age", "");
       fd.append("city", city.trim());
-      fd.append("email", email.trim());
+      fd.append("email", normalizedEmail);
       fd.append("phone", phone.trim());
       fd.append("position", position.trim());
-      fd.append("message", presentation.trim());
+      fd.append(
+        "experience",
+        `${
+          EXPERIENCE_LEVEL_OPTIONS.find((opt) => opt.value === experienceLevel)
+            ?.label || ""
+        } | Preavviso: ${
+          NOTICE_PERIOD_OPTIONS.find((opt) => opt.value === noticePeriod)?.label ||
+          ""
+        }`,
+      );
+      fd.append("linkedin", linkedin.trim());
+      fd.append("interestAreas", JSON.stringify(normalizedInterestAreas));
+      fd.append("experienceLevel", experienceLevel || "");
+      fd.append("salaryExpectation", salaryExpectation.trim());
+      fd.append("noticePeriod", noticePeriod || "");
+      fd.append("educationLevel", educationLevel || "");
+      fd.append("languages", JSON.stringify(normalizedLanguages));
+      fd.append("hardSkills", hardSkills.trim());
+      fd.append("experiences", JSON.stringify(normalizedExperiences));
+      fd.append("professionalSummary", professionalSummary.trim());
+      fd.append("message", professionalSummary.trim());
       fd.append("taskRatings", JSON.stringify(taskRatingsPayload));
       fd.append("recaptchaToken", recaptchaToken);
       fd.append("cv", generatedPdf);
@@ -498,17 +775,22 @@ const LavoraConNoi: React.FC = () => {
       }
 
       setStatus("success");
-      setFeedbackMsg(
-        "Grazie! La tua candidatura e stata inviata con successo.",
-      );
+      setFeedbackMsg("Grazie! La tua candidatura e stata inviata con successo.");
 
-      setFirstName("");
-      setLastName("");
-      setAge("");
-      setCity("");
+      setFullName("");
       setEmail("");
       setPhone("");
-      setPresentation("");
+      setCity("");
+      setLinkedin("");
+      setInterestAreas([]);
+      setExperienceLevel(null);
+      setSalaryExpectation("");
+      setNoticePeriod(null);
+      setEducationLevel(null);
+      setLanguages([{ id: "lang-1", language: "", level: "base" }]);
+      setHardSkills("");
+      setExperiences(getInitialExperiences());
+      setProfessionalSummary("");
       setPrivacyAccepted(false);
       if (window.grecaptcha && recaptchaWidgetIdRef.current !== null) {
         window.grecaptcha.reset(recaptchaWidgetIdRef.current);
@@ -520,14 +802,12 @@ const LavoraConNoi: React.FC = () => {
     }
   };
 
-  const showNoPositions = positionsLoaded && positions.length === 0;
-
   return (
     <PageTransition>
       <div className="pt-24 min-h-screen bg-gray-50 text-gray-900">
         <SEO
           title="Lavora con Noi | Dimensione Immagine"
-          description="Scegli una posizione, completa le competenze richieste e invia la candidatura."
+          description="Compila il form di candidatura e autovaluta le competenze richieste per la posizione."
           url={`https://www.dimensioneimmagineabbigliamento.it/lavora-con-noi`}
           image="/og-sedi.jpg"
         />
@@ -542,9 +822,8 @@ const LavoraConNoi: React.FC = () => {
                 Lavora con Dimensione Immagine
               </h1>
               <p className="text-gray-600 max-w-3xl mx-auto">
-                Scegli la posizione, autovaluta le competenze richieste e invia
-                la candidatura. Il sistema genera automaticamente un PDF
-                riepilogativo che sostituisce il caricamento CV.
+                Compila il modulo di candidatura e seleziona il tuo livello per
+                le competenze richieste dalla posizione.
               </p>
               {deleteStatus !== "idle" && (
                 <div
@@ -567,121 +846,66 @@ const LavoraConNoi: React.FC = () => {
           </Reveal>
 
           <Reveal width="100%">
-            <div className="max-w-4xl mx-auto bg-white p-8 md:p-10 rounded-2xl shadow-xl border-t-4 border-brand-gold">
-              <div className="mb-8">
-                <p className="text-xs tracking-widest uppercase text-brand-gold font-semibold mb-2">
-                  Step 1
-                </p>
-                <label
-                  htmlFor="position"
-                  className="block text-sm font-semibold text-gray-700 mb-2"
-                >
-                  Scegli il tipo di posizione *
-                </label>
-                <div className="relative">
-                  <select
-                    id="position"
-                    value={position}
-                    onChange={(e) => setPosition(e.target.value)}
-                    className={`${inputClasses} appearance-none cursor-pointer pr-10 h-12 leading-[1.2]`}
-                    disabled={status === "submitting" || showNoPositions}
-                  >
-                    {positions.map((p) => (
-                      <option key={p.id} value={p.title}>
-                        {p.title}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-brand-gold">
-                    <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20">
-                      <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                    </svg>
-                  </div>
-                </div>
-                {showNoPositions && (
-                  <p className="mt-2 text-xs text-red-600">
-                    Al momento non ci sono posizioni aperte.
+            <div className="max-w-5xl mx-auto bg-white p-8 md:p-10 rounded-2xl shadow-xl border-t-4 border-brand-gold">
+              {showNoPositions ? (
+                <div className="text-center py-8">
+                  <h2 className="text-xl md:text-2xl font-serif mb-2">
+                    Nessuna posizione disponibile
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    Non sono presenti offerte attive in Sanity. Aggiungi una
+                    posizione e almeno una competenza per abilitare il form.
                   </p>
-                )}
-              </div>
-
-              {!!selectedPosition && (
+                </div>
+              ) : (
                 <form onSubmit={handleSubmit} className="space-y-8">
+                  <div>
+                    <p className="text-xs tracking-widest uppercase text-brand-gold font-semibold mb-2">
+                      Step 1
+                    </p>
+                    <label
+                      htmlFor="position"
+                      className="block text-sm font-semibold text-gray-700 mb-2"
+                    >
+                      Posizione aperta *
+                    </label>
+                    <select
+                      id="position"
+                      value={position}
+                      onChange={(e) => setPosition(e.target.value)}
+                      className={`${inputClasses} h-12`}
+                      disabled={status === "submitting"}
+                    >
+                      {positions.map((p) => (
+                        <option key={p.id} value={p.title}>
+                          {p.title}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
                   <div className="border-t border-gray-100 pt-8">
                     <p className="text-xs tracking-widest uppercase text-brand-gold font-semibold mb-2">
                       Step 2
                     </p>
                     <h2 className="text-xl md:text-2xl font-serif mb-5">
-                      Dati Candidato
+                      1. Dati Personali
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <label
-                          htmlFor="firstName"
+                          htmlFor="fullName"
                           className="block text-sm font-semibold text-gray-700 mb-2"
                         >
-                          Nome *
+                          Nome e Cognome *
                         </label>
                         <input
-                          id="firstName"
+                          id="fullName"
                           type="text"
-                          value={firstName}
-                          onChange={(e) => setFirstName(e.target.value)}
+                          value={fullName}
+                          onChange={(e) => setFullName(e.target.value)}
                           className={inputClasses}
-                          placeholder="Mario"
-                          disabled={status === "submitting"}
-                        />
-                      </div>
-                      <div>
-                        <label
-                          htmlFor="lastName"
-                          className="block text-sm font-semibold text-gray-700 mb-2"
-                        >
-                          Cognome *
-                        </label>
-                        <input
-                          id="lastName"
-                          type="text"
-                          value={lastName}
-                          onChange={(e) => setLastName(e.target.value)}
-                          className={inputClasses}
-                          placeholder="Rossi"
-                          disabled={status === "submitting"}
-                        />
-                      </div>
-                      <div>
-                        <label
-                          htmlFor="age"
-                          className="block text-sm font-semibold text-gray-700 mb-2"
-                        >
-                          Eta *
-                        </label>
-                        <input
-                          id="age"
-                          type="number"
-                          min={16}
-                          max={100}
-                          value={age}
-                          onChange={(e) => setAge(e.target.value)}
-                          className={inputClasses}
-                          placeholder="30"
-                          disabled={status === "submitting"}
-                        />
-                      </div>
-                      <div>
-                        <label
-                          htmlFor="city"
-                          className="block text-sm font-semibold text-gray-700 mb-2"
-                        >
-                          Citta *
-                        </label>
-                        <input
-                          id="city"
-                          type="text"
-                          value={city}
-                          onChange={(e) => setCity(e.target.value)}
-                          className={inputClasses}
-                          placeholder="Messina"
+                          placeholder="Mario Rossi"
                           disabled={status === "submitting"}
                         />
                       </div>
@@ -690,7 +914,7 @@ const LavoraConNoi: React.FC = () => {
                           htmlFor="email"
                           className="block text-sm font-semibold text-gray-700 mb-2"
                         >
-                          Email *
+                          E-mail (opzionale)
                         </label>
                         <input
                           id="email"
@@ -707,7 +931,7 @@ const LavoraConNoi: React.FC = () => {
                           htmlFor="phone"
                           className="block text-sm font-semibold text-gray-700 mb-2"
                         >
-                          Telefono *
+                          Telefono/WhatsApp *
                         </label>
                         <input
                           id="phone"
@@ -719,6 +943,40 @@ const LavoraConNoi: React.FC = () => {
                           disabled={status === "submitting"}
                         />
                       </div>
+                      <div>
+                        <label
+                          htmlFor="city"
+                          className="block text-sm font-semibold text-gray-700 mb-2"
+                        >
+                          Citta/Provincia *
+                        </label>
+                        <input
+                          id="city"
+                          type="text"
+                          value={city}
+                          onChange={(e) => setCity(e.target.value)}
+                          className={inputClasses}
+                          placeholder="Messina"
+                          disabled={status === "submitting"}
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label
+                          htmlFor="linkedin"
+                          className="block text-sm font-semibold text-gray-700 mb-2"
+                        >
+                          Link LinkedIn/Portfolio
+                        </label>
+                        <input
+                          id="linkedin"
+                          type="url"
+                          value={linkedin}
+                          onChange={(e) => setLinkedin(e.target.value)}
+                          className={inputClasses}
+                          placeholder="https://linkedin.com/in/..."
+                          disabled={status === "submitting"}
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -726,46 +984,102 @@ const LavoraConNoi: React.FC = () => {
                     <p className="text-xs tracking-widest uppercase text-brand-gold font-semibold mb-2">
                       Step 3
                     </p>
-                    <h2 className="text-xl md:text-2xl font-serif mb-2">
-                      Competenze per {selectedPosition.title}
+                    <h2 className="text-xl md:text-2xl font-serif mb-5">
+                      2. Screening Strategico
                     </h2>
-                    <p className="text-sm text-gray-600 mb-6">
-                      Seleziona il tuo livello per ogni task, da Nessuna
-                      conoscenza a Esperto.
-                    </p>
-                    <div className="space-y-4">
-                      {selectedPosition.tasks.map((task) => (
-                        <div
-                          key={task.id}
-                          className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6 p-4 border border-gray-200 rounded-lg"
-                        >
-                          <div className="my-auto">
-                            <p className="text-sm text-gray-700 font-medium">
-                              {task.label}
-                            </p>
-                            <p className="text-xs text-gray-500 mt-1">
-                              {task.required ? "Obbligatorio" : "Opzionale"}
-                            </p>
-                          </div>
-                          <select
-                            value={taskRatings[task.id] || "none"}
-                            onChange={(e) =>
-                              handleTaskLevelChange(
-                                task.id,
-                                e.target.value as SkillLevel,
-                              )
-                            }
-                            className={`${inputClasses} h-11`}
-                            disabled={status === "submitting"}
+
+                    <div className="mb-6">
+                      <p className="block text-sm font-semibold text-gray-700 mb-2">
+                        Area di Interesse *
+                      </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                        {INTEREST_AREA_OPTIONS.map((option) => (
+                          <label
+                            key={option.value}
+                            className="flex items-center gap-2 text-sm text-gray-700 border border-gray-200 rounded-lg px-3 py-2"
                           >
-                            {SKILL_LEVELS.map((level) => (
-                              <option key={level.value} value={level.value}>
-                                {level.label}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      ))}
+                            <input
+                              type="checkbox"
+                              checked={interestAreas.includes(option.value)}
+                              onChange={() => toggleInterestArea(option.value)}
+                              disabled={status === "submitting"}
+                              className="h-4 w-4 rounded border-gray-300 text-brand-gold focus:ring-brand-gold"
+                            />
+                            {option.label}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div>
+                        <label
+                          htmlFor="experienceLevel"
+                          className="block text-sm font-semibold text-gray-700 mb-2"
+                        >
+                          Livello di Esperienza *
+                        </label>
+                        <select
+                          id="experienceLevel"
+                          value={experienceLevel || ""}
+                          onChange={(e) =>
+                            setExperienceLevel(e.target.value as ExperienceLevel)
+                          }
+                          className={inputClasses}
+                          disabled={status === "submitting"}
+                        >
+                          <option value="">Seleziona</option>
+                          {EXPERIENCE_LEVEL_OPTIONS.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label
+                          htmlFor="salaryExpectation"
+                          className="block text-sm font-semibold text-gray-700 mb-2"
+                        >
+                          Aspettativa Salariale (EUR) *
+                        </label>
+                        <input
+                          id="salaryExpectation"
+                          type="number"
+                          min={1}
+                          value={salaryExpectation}
+                          onChange={(e) => setSalaryExpectation(e.target.value)}
+                          className={inputClasses}
+                          placeholder="28000"
+                          disabled={status === "submitting"}
+                        />
+                      </div>
+
+                      <div>
+                        <label
+                          htmlFor="noticePeriod"
+                          className="block text-sm font-semibold text-gray-700 mb-2"
+                        >
+                          Disponibilita al preavviso *
+                        </label>
+                        <select
+                          id="noticePeriod"
+                          value={noticePeriod || ""}
+                          onChange={(e) =>
+                            setNoticePeriod(e.target.value as NoticePeriod)
+                          }
+                          className={inputClasses}
+                          disabled={status === "submitting"}
+                        >
+                          <option value="">Seleziona</option>
+                          {NOTICE_PERIOD_OPTIONS.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
                   </div>
 
@@ -773,54 +1087,364 @@ const LavoraConNoi: React.FC = () => {
                     <p className="text-xs tracking-widest uppercase text-brand-gold font-semibold mb-2">
                       Step 4
                     </p>
+                    <h2 className="text-xl md:text-2xl font-serif mb-5">
+                      3. Formazione e Competenze
+                    </h2>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label
+                          htmlFor="education"
+                          className="block text-sm font-semibold text-gray-700 mb-2"
+                        >
+                          Titolo di Studio *
+                        </label>
+                        <select
+                          id="education"
+                          value={educationLevel || ""}
+                          onChange={(e) =>
+                            setEducationLevel(e.target.value as EducationLevel)
+                          }
+                          className={inputClasses}
+                          disabled={status === "submitting"}
+                        >
+                          <option value="">Seleziona</option>
+                          {EDUCATION_OPTIONS.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="md:col-span-2">
+                        <p className="block text-sm font-semibold text-gray-700 mb-2">
+                          Lingue Straniere *
+                        </p>
+                        <div className="space-y-3">
+                          {languages.map((item, index) => (
+                            <div
+                              key={item.id}
+                              className="grid grid-cols-1 md:grid-cols-[1fr_220px_auto] gap-3"
+                            >
+                              <input
+                                type="text"
+                                value={item.language}
+                                onChange={(e) =>
+                                  updateLanguage(item.id, "language", e.target.value)
+                                }
+                                className={inputClasses}
+                                placeholder={`Lingua ${index + 1} (es. Inglese)`}
+                                disabled={status === "submitting"}
+                              />
+                              <select
+                                value={item.level}
+                                onChange={(e) =>
+                                  updateLanguage(item.id, "level", e.target.value)
+                                }
+                                className={inputClasses}
+                                disabled={status === "submitting"}
+                              >
+                                {LANGUAGE_LEVEL_OPTIONS.map((level) => (
+                                  <option key={level.value} value={level.value}>
+                                    {level.label}
+                                  </option>
+                                ))}
+                              </select>
+                              <button
+                                type="button"
+                                onClick={() => removeLanguage(item.id)}
+                                disabled={status === "submitting" || languages.length <= 1}
+                                className="px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-700 disabled:opacity-50"
+                              >
+                                Rimuovi
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={addLanguage}
+                          disabled={status === "submitting"}
+                          className="mt-3 text-sm text-brand-gold font-semibold hover:underline"
+                        >
+                          + Aggiungi lingua
+                        </button>
+                      </div>
+
+                      <div className="md:col-span-2">
+                        <label
+                          htmlFor="hardSkills"
+                          className="block text-sm font-semibold text-gray-700 mb-2"
+                        >
+                          Competenze Tecniche (Hard Skills) *
+                        </label>
+                        <input
+                          id="hardSkills"
+                          type="text"
+                          value={hardSkills}
+                          onChange={(e) => setHardSkills(e.target.value)}
+                          className={inputClasses}
+                          placeholder="Excel Avanzato, Gestione Team, Python"
+                          disabled={status === "submitting"}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {!!selectedPosition && (
+                    <div className="border-t border-gray-100 pt-8">
+                      <p className="text-xs tracking-widest uppercase text-brand-gold font-semibold mb-2">
+                        Step 5
+                      </p>
+                      <h2 className="text-xl md:text-2xl font-serif mb-2">
+                        Competenze per {selectedPosition.title}
+                      </h2>
+                      <p className="text-sm text-gray-600 mb-6">
+                        Queste competenze arrivano dalla posizione configurata in
+                        Sanity.
+                      </p>
+                      <div className="space-y-4">
+                        {selectedPosition.tasks.map((task) => (
+                          <div
+                            key={task.id}
+                            className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6 p-4 border border-gray-200 rounded-lg"
+                          >
+                            <div className="my-auto">
+                              <p className="text-sm text-gray-700 font-medium">
+                                {task.label}
+                              </p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                {task.required ? "Obbligatoria" : "Opzionale"}
+                              </p>
+                            </div>
+                            <select
+                              value={taskRatings[task.id] || "none"}
+                              onChange={(e) =>
+                                handleTaskLevelChange(
+                                  task.id,
+                                  e.target.value as SkillLevel,
+                                )
+                              }
+                              className={`${inputClasses} h-11`}
+                              disabled={status === "submitting"}
+                            >
+                              {SKILL_LEVELS.map((level) => (
+                                <option key={level.value} value={level.value}>
+                                  {level.label}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="border-t border-gray-100 pt-8">
+                    <p className="text-xs tracking-widest uppercase text-brand-gold font-semibold mb-2">
+                      Step 6
+                    </p>
+                    <h2 className="text-xl md:text-2xl font-serif mb-5">
+                      4. Esperienze Professionali
+                    </h2>
+                    <p className="text-sm text-gray-600 mb-6">
+                      Aggiungi fino a {MAX_EXPERIENCES} esperienze professionali
+                      (almeno una obbligatoria).
+                    </p>
+
+                    <div className="space-y-6">
+                      {experiences.map((exp, index) => (
+                        <div
+                          key={exp.id}
+                          className="border border-gray-200 rounded-xl p-4 md:p-5"
+                        >
+                          <div className="mb-4 flex items-center justify-between gap-4">
+                            <p className="text-sm font-semibold text-gray-700">
+                              Esperienza {index + 1}
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => removeExperience(exp.id)}
+                              disabled={status === "submitting" || experiences.length <= 1}
+                              className="px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-700 disabled:opacity-50"
+                            >
+                              Rimuovi
+                            </button>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-xs font-semibold text-gray-600 mb-2">
+                                Azienda
+                              </label>
+                              <input
+                                type="text"
+                                value={exp.company}
+                                onChange={(e) =>
+                                  updateExperience(exp.id, "company", e.target.value)
+                                }
+                                className={inputClasses}
+                                disabled={status === "submitting"}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold text-gray-600 mb-2">
+                                Ruolo/Posizione
+                              </label>
+                              <input
+                                type="text"
+                                value={exp.role}
+                                onChange={(e) =>
+                                  updateExperience(exp.id, "role", e.target.value)
+                                }
+                                className={inputClasses}
+                                disabled={status === "submitting"}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold text-gray-600 mb-2">
+                                Data di Inizio (Mese/Anno)
+                              </label>
+                              <input
+                                type="month"
+                                value={exp.startDate}
+                                onChange={(e) =>
+                                  updateExperience(exp.id, "startDate", e.target.value)
+                                }
+                                className={inputClasses}
+                                disabled={status === "submitting"}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold text-gray-600 mb-2">
+                                Data di Fine (Mese/Anno)
+                              </label>
+                              <input
+                                type="month"
+                                value={exp.endDate}
+                                onChange={(e) =>
+                                  updateExperience(exp.id, "endDate", e.target.value)
+                                }
+                                className={inputClasses}
+                                disabled={status === "submitting" || exp.isCurrent}
+                              />
+                              <label className="mt-2 inline-flex items-center gap-2 text-xs text-gray-600">
+                                <input
+                                  type="checkbox"
+                                  checked={exp.isCurrent}
+                                  onChange={(e) =>
+                                    updateExperience(
+                                      exp.id,
+                                      "isCurrent",
+                                      e.target.checked,
+                                    )
+                                  }
+                                  className="h-4 w-4 rounded border-gray-300 text-brand-gold focus:ring-brand-gold"
+                                  disabled={status === "submitting"}
+                                />
+                                Attualmente occupato
+                              </label>
+                            </div>
+                            <div className="md:col-span-2">
+                              <label className="block text-xs font-semibold text-gray-600 mb-2">
+                                Principali Responsabilita
+                              </label>
+                              <textarea
+                                rows={3}
+                                value={exp.responsibilities}
+                                onChange={(e) =>
+                                  updateExperience(
+                                    exp.id,
+                                    "responsibilities",
+                                    e.target.value,
+                                  )
+                                }
+                                className={inputClasses}
+                                disabled={status === "submitting"}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={addExperience}
+                      disabled={
+                        status === "submitting" ||
+                        experiences.length >= MAX_EXPERIENCES
+                      }
+                      className="mt-4 text-sm text-brand-gold font-semibold hover:underline disabled:opacity-50 disabled:no-underline"
+                    >
+                      + Aggiungi esperienza
+                    </button>
+                  </div>
+
+                  <div className="border-t border-gray-100 pt-8">
+                    <p className="text-xs tracking-widest uppercase text-brand-gold font-semibold mb-2">
+                      Step 7
+                    </p>
+                    <h2 className="text-xl md:text-2xl font-serif mb-3">
+                      5. Riepilogo Professionale
+                    </h2>
                     <label
-                      htmlFor="presentation"
+                      htmlFor="professionalSummary"
                       className="block text-sm font-semibold text-gray-700 mb-2"
                     >
-                      Presentazione personale *
+                      Riassuma la sua carriera e perche vorrebbe lavorare con noi *
                     </label>
                     <textarea
-                      id="presentation"
+                      id="professionalSummary"
                       rows={6}
-                      value={presentation}
-                      onChange={(e) => setPresentation(e.target.value)}
+                      value={professionalSummary}
+                      onChange={(e) => setProfessionalSummary(e.target.value)}
                       className={inputClasses}
-                      placeholder="Raccontaci chi sei, le tue motivazioni e cosa puoi portare nel team..."
+                      maxLength={500}
+                      placeholder="Max 500 caratteri"
                       disabled={status === "submitting"}
                     />
                     <p className="text-xs text-gray-500 mt-2">
-                      Questo testo verra incluso nel PDF finale della tua
-                      candidatura.
+                      {summaryChars}/500 caratteri
                     </p>
                   </div>
 
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-6 items-center">
-                      <input
-                        id="privacy"
-                        name="privacy"
-                        type="checkbox"
-                        checked={privacyAccepted}
-                        onChange={(e) => setPrivacyAccepted(e.target.checked)}
-                        className="h-4 w-4 rounded border-gray-300 text-brand-gold focus:ring-brand-gold cursor-pointer"
-                      />
-                    </div>
-                    <div className="text-sm leading-6">
-                      <label htmlFor="privacy" className="text-gray-600">
-                        Acconsento al trattamento dei dati personali secondo la{" "}
-                        <a
-                          href="/privacy-policy"
-                          className="text-brand-gold hover:underline font-medium"
-                        >
-                          Privacy Policy
-                        </a>
-                        .
-                      </label>
-                    </div>
-                  </div>
+                  <div className="border-t border-gray-100 pt-8">
+                    <p className="text-xs tracking-widest uppercase text-brand-gold font-semibold mb-2">
+                      Step 8
+                    </p>
+                    <h2 className="text-xl md:text-2xl font-serif mb-3">
+                      6. Allegati e Privacy
+                    </h2>
 
-                  <div className="pt-1">
-                    <div ref={recaptchaContainerRef} />
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-6 items-center">
+                        <input
+                          id="privacy"
+                          name="privacy"
+                          type="checkbox"
+                          checked={privacyAccepted}
+                          onChange={(e) => setPrivacyAccepted(e.target.checked)}
+                          className="h-4 w-4 rounded border-gray-300 text-brand-gold focus:ring-brand-gold cursor-pointer"
+                        />
+                      </div>
+                      <div className="text-sm leading-6">
+                        <label htmlFor="privacy" className="text-gray-600">
+                          Autorizzo il trattamento dei miei dati personali ai fini
+                          del reclutamento secondo la{" "}
+                          <a
+                            href="/privacy-policy"
+                            className="text-brand-gold hover:underline font-medium"
+                          >
+                            Privacy Policy
+                          </a>
+                          .
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="pt-5">
+                      <div ref={recaptchaContainerRef} />
+                    </div>
                   </div>
 
                   {feedbackMsg && (
@@ -838,11 +1462,7 @@ const LavoraConNoi: React.FC = () => {
                   <button
                     type="submit"
                     disabled={
-                      status === "submitting" ||
-                      status === "success" ||
-                      showNoPositions ||
-                      !selectedPosition ||
-                      !recaptchaToken
+                      status === "submitting" || status === "success" || !recaptchaToken
                     }
                     className={`w-full py-4 rounded-lg font-bold text-white uppercase tracking-wider transition-all transform hover:-translate-y-1 shadow-md hover:shadow-lg cursor-pointer ${
                       status === "submitting"
@@ -850,33 +1470,7 @@ const LavoraConNoi: React.FC = () => {
                         : "bg-brand-gold hover:bg-[#a38a53]"
                     }`}
                   >
-                    {status === "submitting" ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <svg
-                          className="animate-spin h-5 w-5 text-white"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          ></path>
-                        </svg>
-                        Generazione PDF e invio...
-                      </span>
-                    ) : (
-                      "Invia Candidatura"
-                    )}
+                    {status === "submitting" ? "Generazione PDF e invio..." : "Invia Candidatura"}
                   </button>
                 </form>
               )}

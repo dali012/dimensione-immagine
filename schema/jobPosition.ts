@@ -2,12 +2,14 @@ import { defineField, defineType } from "sanity";
 
 export const jobPositionType = defineType({
   name: "jobPosition",
-  title: "Posizioni Lavorative",
+  title: "Posizioni aperte (Lavora con noi)",
   type: "document",
   fields: [
     defineField({
       name: "title",
-      title: "Titolo",
+      title: "Posizione aperta",
+      description:
+        "Questo testo appare nel menu 'Posizione aperta' della pagina Lavora con noi.",
       type: "string",
       validation: (Rule) => Rule.required(),
     }),
@@ -16,39 +18,42 @@ export const jobPositionType = defineType({
       title: "Attiva",
       type: "boolean",
       initialValue: true,
+      description: "Mostra o nasconde questa posizione nel form candidatura.",
     }),
     defineField({
       name: "tasks",
-      title: "Task per Candidatura",
+      title: "Competenze per la posizione",
       description:
-        "Elenco ordinabile dei task/competenze che il candidato deve autovalutare.",
+        "Queste voci compaiono nello step 'Competenze per [posizione]' e vengono autovalutate dal candidato.",
       type: "array",
       of: [
         defineField({
           name: "task",
-          title: "Task",
+          title: "Competenza",
           type: "object",
           fields: [
             defineField({
               name: "label",
-              title: "Nome Task",
+              title: "Nome competenza",
+              description:
+                "Esempio: Vendita assistita, Gestione cassa, Visual merchandising.",
               type: "string",
               validation: (Rule) => Rule.required().min(2).max(120),
             }),
             defineField({
               name: "required",
-              title: "Obbligatorio",
+              title: "Obbligatoria per il candidato",
               type: "boolean",
               initialValue: true,
               description:
-                "Se attivo, il candidato non puo lasciare 'Nessuna conoscenza' su questo task.",
+                "Se attiva, il candidato deve selezionare almeno 'Base' (non puo lasciare 'Nessuna conoscenza').",
             }),
             defineField({
               name: "order",
-              title: "Ordine",
+              title: "Ordine visualizzazione",
               type: "number",
               description:
-                "Ordine manuale opzionale (i valori piu piccoli appaiono prima).",
+                "Ordine manuale opzionale: i valori piu piccoli compaiono prima.",
             }),
           ],
           preview: {
@@ -58,13 +63,13 @@ export const jobPositionType = defineType({
               order: "order",
             },
             prepare(selection) {
-              const suffix = selection.required ? "Obbligatorio" : "Opzionale";
+              const suffix = selection.required ? "Obbligatoria" : "Opzionale";
               const orderPrefix =
                 typeof selection.order === "number"
                   ? `${selection.order}. `
                   : "";
               return {
-                title: `${orderPrefix}${selection.title || "Task senza titolo"}`,
+                title: `${orderPrefix}${selection.title || "Competenza senza titolo"}`,
                 subtitle: suffix,
               };
             },

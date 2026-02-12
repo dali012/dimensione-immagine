@@ -15,15 +15,46 @@ export const config = {
 
 type FormFields = {
   name?: string;
+  fullName?: string;
   surname?: string;
   age?: string;
   city?: string;
   email?: string;
   phone?: string;
+  experience?: string;
   position?: string;
   message?: string;
+  professionalSummary?: string;
+  linkedin?: string;
+  interestAreas?: string;
+  experienceLevel?: string;
+  salaryExpectation?: string;
+  noticePeriod?: string;
+  educationLevel?: string;
+  languages?: string;
+  hardSkills?: string;
+  experiences?: string;
   taskRatings?: string;
   recaptchaToken?: string;
+};
+
+type TaskRating = {
+  task: string;
+  level: string;
+};
+
+type LanguageItem = {
+  language: string;
+  level: string;
+};
+
+type ExperienceItem = {
+  company: string;
+  role: string;
+  startDate: string;
+  endDate: string;
+  isCurrent: boolean;
+  responsibilities: string;
 };
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -69,7 +100,7 @@ function escapeHtml(value: string) {
     .replace(/'/g, "&#39;");
 }
 
-function parseTaskRatings(raw: string | undefined) {
+function parseTaskRatings(raw: string | undefined): TaskRating[] {
   if (!raw) return [];
   try {
     const parsed = JSON.parse(raw) as Array<{ task?: string; level?: string }>;
@@ -85,6 +116,72 @@ function parseTaskRatings(raw: string | undefined) {
   }
 }
 
+function parseStringArray(raw: string | undefined): string[] {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .map((item) => (typeof item === "string" ? item.trim() : ""))
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+function parseLanguages(raw: string | undefined): LanguageItem[] {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw) as Array<{
+      language?: string;
+      level?: string;
+    }>;
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .map((item) => ({
+        language: (item?.language || "").trim(),
+        level: (item?.level || "").trim(),
+      }))
+      .filter((item) => item.language.length > 0);
+  } catch {
+    return [];
+  }
+}
+
+function parseExperiences(raw: string | undefined): ExperienceItem[] {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw) as Array<{
+      company?: string;
+      role?: string;
+      startDate?: string;
+      endDate?: string;
+      isCurrent?: boolean;
+      responsibilities?: string;
+    }>;
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .map((item) => ({
+        company: (item?.company || "").trim(),
+        role: (item?.role || "").trim(),
+        startDate: (item?.startDate || "").trim(),
+        endDate: (item?.endDate || "").trim(),
+        isCurrent: Boolean(item?.isCurrent),
+        responsibilities: (item?.responsibilities || "").trim(),
+      }))
+      .filter(
+        (item) =>
+          item.company ||
+          item.role ||
+          item.startDate ||
+          item.endDate ||
+          item.responsibilities,
+      );
+  } catch {
+    return [];
+  }
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader("Cache-Control", "no-store");
 
@@ -92,6 +189,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.setHeader("Allow", "POST");
     return res.status(405).json({ error: "Method not allowed" });
   }
+
   const fields: FormFields = {};
   let fileBuffer: Buffer | null = null;
   let fileName = "";
@@ -129,15 +227,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: err?.message || "Invalid form data" });
   }
 
-  if (
-    !fields.name ||
-    !fields.surname ||
-    !fields.age ||
-    !fields.city ||
-    !fields.email ||
-    !fields.phone ||
-    !fields.position
-  ) {
+  const candidateName = (fields.fullName || fields.name || "").trim();
+  const city = (fields.city || "").trim();
+  const email = (fields.email || "").trim();
+  const phone = (fields.phone || "").trim();
+  const position = (fields.position || "").trim();
+
+  if (!candidateName || !city || !phone || !position) {
     return res.status(400).json({ error: "Missing required fields" });
   }
   if (!fields.recaptchaToken) {
@@ -187,7 +283,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         ContentType: fileType,
       }),
     );
-  } catch (err: any) {
+  } catch {
     return res.status(500).json({ error: "Failed to upload CV" });
   }
 
@@ -204,6 +300,44 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } catch {
     // continue without signed URL if signing fails
   }
+
+  const taskRatings = parseTaskRatings(fields.taskRatings);
+  const interestAreas = parseStringArray(fields.interestAreas);
+  const languages = parseLanguages(fields.languages);
+  const experiences = parseExperiences(fields.experiences);
+  const professionalSummary = (
+    fields.professionalSummary ||
+    fields.message ||
+    ""
+  ).trim();
+  const linkedin = (fields.linkedin || "").trim();
+  const hardSkills = (fields.hardSkills || "").trim();
+
+  const ageNumber = Number(fields.age);
+  const age = Number.isFinite(ageNumber) ? ageNumber : null;
+  const experienceSummary =
+    (fields.experience || "").trim() ||
+    [
+      (fields.experienceLevel || "").trim(),
+      (fields.noticePeriod || "").trim(),
+    ]
+      .filter(Boolean)
+      .join(" | ");
+
+  const metadata = {
+    fullName: candidateName,
+    linkedin,
+    interestAreas,
+    experienceLevel: (fields.experienceLevel || "").trim(),
+    salaryExpectation: (fields.salaryExpectation || "").trim(),
+    noticePeriod: (fields.noticePeriod || "").trim(),
+    educationLevel: (fields.educationLevel || "").trim(),
+    languages,
+    hardSkills,
+    experiences,
+    professionalSummary,
+    taskRatings,
+  };
 
   const dbUrl = getEnv("DATABASE_URL");
   if (!dbUrl) {
@@ -227,11 +361,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           surname TEXT,
           age INTEGER,
           city TEXT,
-          email TEXT NOT NULL,
+          email TEXT,
           phone TEXT NOT NULL,
+          experience TEXT,
           position TEXT NOT NULL,
           message TEXT,
           task_ratings_json JSONB,
+          metadata_json JSONB,
           cv_url TEXT,
           cv_key TEXT NOT NULL,
           delete_token TEXT NOT NULL,
@@ -240,38 +376,46 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         )
       `);
 
-      // Backward-compatible migrations for existing tables created with older schemas.
       await db.query(`
         ALTER TABLE job_applications
+        ADD COLUMN IF NOT EXISTS email TEXT,
         ADD COLUMN IF NOT EXISTS surname TEXT,
         ADD COLUMN IF NOT EXISTS age INTEGER,
         ADD COLUMN IF NOT EXISTS city TEXT,
+        ADD COLUMN IF NOT EXISTS experience TEXT,
         ADD COLUMN IF NOT EXISTS position TEXT,
         ADD COLUMN IF NOT EXISTS task_ratings_json JSONB,
+        ADD COLUMN IF NOT EXISTS metadata_json JSONB,
         ADD COLUMN IF NOT EXISTS cv_key TEXT,
         ADD COLUMN IF NOT EXISTS delete_token TEXT,
         ADD COLUMN IF NOT EXISTS ip TEXT,
         ADD COLUMN IF NOT EXISTS user_agent TEXT
       `);
+
+      await db.query(`
+        ALTER TABLE job_applications
+        ALTER COLUMN email DROP NOT NULL
+      `);
       schemaEnsured = true;
     }
 
-    const parsedTaskRatings = parseTaskRatings(fields.taskRatings);
     await db.query(
       `INSERT INTO job_applications
-        (name, surname, age, city, email, phone, position, message, task_ratings_json, cv_url, cv_key, delete_token, ip, user_agent)
+        (name, surname, age, city, email, phone, experience, position, message, task_ratings_json, metadata_json, cv_url, cv_key, delete_token, ip, user_agent)
        VALUES
-        ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`,
+        ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)`,
       [
-        fields.name,
-        fields.surname,
-        Number(fields.age),
-        fields.city,
-        fields.email,
-        fields.phone,
-        fields.position,
-        fields.message || null,
-        parsedTaskRatings.length ? JSON.stringify(parsedTaskRatings) : null,
+        candidateName,
+        (fields.surname || "").trim() || null,
+        age,
+        city,
+        email || null,
+        phone,
+        experienceSummary || null,
+        position,
+        professionalSummary || null,
+        taskRatings.length ? JSON.stringify(taskRatings) : null,
+        JSON.stringify(metadata),
         null,
         key,
         deleteToken,
@@ -297,9 +441,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const resendFrom = getEnv("RESEND_FROM_EMAIL");
   const applicantFrom = getEnv("RESEND_APPLICANT_FROM_EMAIL") || resendFrom;
   const appUrl = (getEnv("APP_URL") || "").replace(/\/+$/, "");
-  const parsedTaskRatings = parseTaskRatings(fields.taskRatings);
-  const taskRatingsHtml = parsedTaskRatings.length
-    ? `<ul>${parsedTaskRatings
+
+  const taskRatingsHtml = taskRatings.length
+    ? `<ul>${taskRatings
         .map(
           (item) =>
             `<li><strong>${escapeHtml(item.task)}:</strong> ${escapeHtml(item.level)}</li>`,
@@ -307,14 +451,46 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         .join("")}</ul>`
     : "<p>-</p>";
 
+  const interestAreasHtml = interestAreas.length
+    ? `<ul>${interestAreas
+        .map((item) => `<li>${escapeHtml(item)}</li>`)
+        .join("")}</ul>`
+    : "<p>-</p>";
+
+  const languagesHtml = languages.length
+    ? `<ul>${languages
+        .map(
+          (item) =>
+            `<li>${escapeHtml(item.language)}${item.level ? ` - ${escapeHtml(item.level)}` : ""}</li>`,
+        )
+        .join("")}</ul>`
+    : "<p>-</p>";
+
+  const experiencesHtml = experiences.length
+    ? `<ol>${experiences
+        .map(
+          (item) => `
+            <li>
+              <strong>${escapeHtml(item.company || "-")}</strong> - ${escapeHtml(item.role || "-")}<br/>
+              ${escapeHtml(item.startDate || "-")} / ${escapeHtml(
+                item.isCurrent ? "Attualmente occupato" : item.endDate || "-",
+              )}<br/>
+              ${escapeHtml(item.responsibilities || "-")}
+            </li>
+          `,
+        )
+        .join("")}</ol>`
+    : "<p>-</p>";
+
   if (resendKey && resendTo && resendFrom) {
     try {
       const deleteLink =
-        appUrl && fields.email
+        appUrl && email
           ? `${appUrl}/lavora-con-noi?deleteToken=${encodeURIComponent(
               deleteToken,
-            )}&email=${encodeURIComponent(fields.email)}`
+            )}&email=${encodeURIComponent(email)}`
           : "";
+
       await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
@@ -324,19 +500,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         body: JSON.stringify({
           from: resendFrom,
           to: resendTo,
-          subject: `Nuova candidatura - ${fields.position}`,
+          subject: `Nuova candidatura - ${position}`,
           html: `
             <h2>Nuova candidatura</h2>
-            <p><strong>Nome:</strong> ${escapeHtml(fields.name)}</p>
-            <p><strong>Cognome:</strong> ${escapeHtml(fields.surname)}</p>
-            <p><strong>Eta:</strong> ${escapeHtml(fields.age)}</p>
-            <p><strong>Citta:</strong> ${escapeHtml(fields.city)}</p>
-            <p><strong>Email:</strong> ${fields.email}</p>
-            <p><strong>Telefono:</strong> ${fields.phone}</p>
-            <p><strong>Posizione:</strong> ${fields.position}</p>
-            <p><strong>Presentazione:</strong> ${escapeHtml(fields.message || "-")}</p>
-            <p><strong>Task e livello:</strong></p>
+            <p><strong>Nome:</strong> ${escapeHtml(candidateName)}</p>
+            <p><strong>Citta:</strong> ${escapeHtml(city)}</p>
+            <p><strong>Email:</strong> ${escapeHtml(email || "-")}</p>
+            <p><strong>Telefono:</strong> ${escapeHtml(phone)}</p>
+            <p><strong>Posizione:</strong> ${escapeHtml(position)}</p>
+            <p><strong>LinkedIn/Portfolio:</strong> ${escapeHtml(linkedin || "-")}</p>
+            <p><strong>Livello esperienza:</strong> ${escapeHtml(fields.experienceLevel || "-")}</p>
+            <p><strong>Aspettativa salariale:</strong> ${escapeHtml(fields.salaryExpectation || "-")}</p>
+            <p><strong>Disponibilita preavviso:</strong> ${escapeHtml(fields.noticePeriod || "-")}</p>
+            <p><strong>Titolo di studio:</strong> ${escapeHtml(fields.educationLevel || "-")}</p>
+            <p><strong>Hard skills:</strong> ${escapeHtml(hardSkills || "-")}</p>
+            <p><strong>Aree di interesse:</strong></p>
+            ${interestAreasHtml}
+            <p><strong>Lingue:</strong></p>
+            ${languagesHtml}
+            <p><strong>Competenze posizione:</strong></p>
             ${taskRatingsHtml}
+            <p><strong>Esperienze professionali:</strong></p>
+            ${experiencesHtml}
+            <p><strong>Riepilogo professionale:</strong> ${escapeHtml(professionalSummary || "-")}</p>
             ${
               signedCvUrl
                 ? `<p><strong>PDF candidatura (link valido 7 giorni):</strong> <a href="${signedCvUrl}">${signedCvUrl}</a></p>`
@@ -350,7 +536,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           `,
         }),
       });
-      if (fields.email) {
+
+      if (email) {
         await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: {
@@ -359,7 +546,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           },
           body: JSON.stringify({
             from: applicantFrom,
-            to: fields.email,
+            to: email,
             subject: "Conferma candidatura - Dimensione Immagine",
             html: `
               <p>Grazie per la tua candidatura.</p>
