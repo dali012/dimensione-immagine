@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { jsPDF } from "jspdf";
-import { useLocation } from "react-router-dom";
-import { PageTransition } from "../components/Layout/PageTransition";
 import { SEO } from "@/components/SEO/SEO";
 import { Reveal } from "@/components/UI/Reveal";
+import { jsPDF } from "jspdf";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
+import { PageTransition } from "../components/Layout/PageTransition";
 import {
   getActiveJobPositions,
   type JobPositionOffer,
@@ -13,17 +13,11 @@ const inputClasses =
   "w-full bg-white border border-gray-200 rounded-lg px-4 py-3 text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#b89b5e] focus:ring-1 focus:ring-[#b89b5e] transition-all";
 
 type SkillLevel = "none" | "basic" | "intermediate" | "advanced" | "expert";
-type InterestArea =
-  | "commerciale-vendite"
-  | "amministrativo"
-  | "operativo-produzione"
-  | "tecnologia-it"
-  | "marketing"
-  | "autista"
-  | "magazzino";
 type ExperienceLevel = "stage" | "junior" | "mid-level" | "senior";
 type NoticePeriod = "immediata" | "15-giorni" | "30-giorni";
 type EducationLevel =
+  | "scuola"
+  | "formazione-professionale"
   | "diploma"
   | "laurea-triennale"
   | "laurea-magistrale"
@@ -59,20 +53,10 @@ const SKILL_LEVELS: { value: SkillLevel; label: string }[] = [
   { value: "expert", label: "Esperto" },
 ];
 
-const INTEREST_AREA_OPTIONS: { value: InterestArea; label: string }[] = [
-  { value: "commerciale-vendite", label: "Commerciale/Vendite" },
-  { value: "amministrativo", label: "Amministrativo" },
-  { value: "operativo-produzione", label: "Operativo/Produzione" },
-  { value: "tecnologia-it", label: "Tecnologia/IT" },
-  { value: "marketing", label: "Marketing" },
-  { value: "autista", label: "Autista" },
-  { value: "magazzino", label: "Magazzino" },
-];
-
 const EXPERIENCE_LEVEL_OPTIONS: { value: ExperienceLevel; label: string }[] = [
-  { value: "stage", label: "Stage" },
+  { value: "stage", label: "Tirocinio/Stage" },
   { value: "junior", label: "Junior" },
-  { value: "mid-level", label: "Mid-level" },
+  { value: "mid-level", label: "Intermedio" },
   { value: "senior", label: "Senior" },
 ];
 
@@ -83,10 +67,23 @@ const NOTICE_PERIOD_OPTIONS: { value: NoticePeriod; label: string }[] = [
 ];
 
 const EDUCATION_OPTIONS: { value: EducationLevel; label: string }[] = [
+  { value: "scuola", label: "Scuola" },
+  { value: "formazione-professionale", label: "Formazione professionale" },
   { value: "diploma", label: "Diploma" },
   { value: "laurea-triennale", label: "Laurea Triennale" },
   { value: "laurea-magistrale", label: "Laurea Magistrale" },
   { value: "master-dottorato", label: "Master/Dottorato" },
+];
+
+const LANGUAGE_OPTIONS = [
+  "Inglese",
+  "Francese",
+  "Spagnolo",
+  "Tedesco",
+  "Portoghese",
+  "Arabo",
+  "Cinese",
+  "Russo",
 ];
 
 const LANGUAGE_LEVEL_OPTIONS: { value: LanguageLevel; label: string }[] = [
@@ -138,9 +135,7 @@ function buildApplicationPdf(data: {
   city: string;
   linkedin: string;
   position: string;
-  interestAreas: string[];
   experienceLevel: string;
-  salaryExpectation: string;
   noticePeriod: string;
   educationLevel: string;
   languages: LanguageItem[];
@@ -203,21 +198,10 @@ function buildApplicationPdf(data: {
   addLabeledLine("Posizione", data.position);
   y += 6;
 
-  addTitle("2. Screening Strategico");
-  addLabeledLine(
-    "Aree di interesse",
-    data.interestAreas.length ? data.interestAreas.join(", ") : "-",
-  );
-  addLabeledLine("Livello esperienza", data.experienceLevel);
-  addLabeledLine(
-    "Aspettativa salariale",
-    data.salaryExpectation ? `${data.salaryExpectation} EUR` : "-",
-  );
-  addLabeledLine("Disponibilita preavviso", data.noticePeriod);
-  y += 6;
-
-  addTitle("3. Formazione e Competenze");
+  addTitle("2. Formazione e Competenze");
   addLabeledLine("Titolo di studio", data.educationLevel);
+  addLabeledLine("Livello di esperienza", data.experienceLevel);
+  addLabeledLine("Disponibilita al preavviso", data.noticePeriod);
   addLabeledLine(
     "Lingue straniere",
     data.languages
@@ -230,15 +214,17 @@ function buildApplicationPdf(data: {
   );
   y += 6;
 
-  addTitle("4. Competenze posizione");
+  addTitle("3. Competenze posizione");
   data.taskRatings.forEach((entry, index) => {
     addLabeledLine(`${index + 1}. ${entry.task}`, levelToLabel(entry.level));
   });
   y += 6;
 
-  addTitle("5. Esperienze Professionali");
+  addTitle("4. Esperienze Professionali");
   if (data.firstExperience) {
-    addParagraph("Il candidato ha indicato che si tratta della prima esperienza lavorativa.");
+    addParagraph(
+      "Il candidato ha indicato che si tratta della prima esperienza lavorativa.",
+    );
   } else {
     const experiencesToPrint = data.experiences.filter(
       (item) =>
@@ -253,21 +239,29 @@ function buildApplicationPdf(data: {
       addParagraph("Nessuna esperienza professionale inserita.");
     } else {
       experiencesToPrint.forEach((item, index) => {
-        addLabeledLine(`Esperienza ${index + 1} - Azienda`, item.company || "-");
+        addLabeledLine(
+          `Esperienza ${index + 1} - Azienda`,
+          item.company || "-",
+        );
         addLabeledLine("Ruolo", item.role || "-");
         addLabeledLine("Data inizio", formatMonthYear(item.startDate));
         addLabeledLine(
           "Data fine",
-          item.isCurrent ? "Attualmente occupato" : formatMonthYear(item.endDate),
+          item.isCurrent
+            ? "Attualmente occupato"
+            : formatMonthYear(item.endDate),
         );
-        addLabeledLine("Principali responsabilita", item.responsibilities || "-");
+        addLabeledLine(
+          "Principali responsabilita",
+          item.responsibilities || "-",
+        );
         y += 4;
       });
     }
   }
 
   y += 6;
-  addTitle("6. Riepilogo Professionale");
+  addTitle("5. Riepilogo Professionale");
   addParagraph(data.professionalSummary || "-");
 
   return doc.output("blob");
@@ -286,11 +280,8 @@ const LavoraConNoi: React.FC = () => {
   const [positions, setPositions] = useState<JobPositionOffer[]>([]);
   const [positionsLoaded, setPositionsLoaded] = useState(false);
 
-  const [interestAreas, setInterestAreas] = useState<InterestArea[]>([]);
-  const [experienceLevel, setExperienceLevel] = useState<ExperienceLevel | null>(
-    null,
-  );
-  const [salaryExpectation, setSalaryExpectation] = useState("");
+  const [experienceLevel, setExperienceLevel] =
+    useState<ExperienceLevel | null>(null);
   const [noticePeriod, setNoticePeriod] = useState<NoticePeriod | null>(null);
 
   const [educationLevel, setEducationLevel] = useState<EducationLevel | null>(
@@ -303,12 +294,14 @@ const LavoraConNoi: React.FC = () => {
   const [hardSkillsInput, setHardSkillsInput] = useState("");
   const [isFirstExperience, setIsFirstExperience] = useState(false);
 
-  const [experiences, setExperiences] = useState<ExperienceItem[]>(
-    () => getInitialExperiences(),
+  const [experiences, setExperiences] = useState<ExperienceItem[]>(() =>
+    getInitialExperiences(),
   );
   const [professionalSummary, setProfessionalSummary] = useState("");
 
-  const [taskRatings, setTaskRatings] = useState<Record<string, SkillLevel>>({});
+  const [taskRatings, setTaskRatings] = useState<Record<string, SkillLevel>>(
+    {},
+  );
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
 
@@ -322,9 +315,7 @@ const LavoraConNoi: React.FC = () => {
 
   const recaptchaContainerRef = useRef<HTMLDivElement>(null);
   const recaptchaWidgetIdRef = useRef<number | null>(null);
-  const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY as
-    | string
-    | undefined;
+  const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY as string | undefined;
 
   useEffect(() => {
     if (!siteKey) return;
@@ -394,7 +385,9 @@ const LavoraConNoi: React.FC = () => {
         recaptchaContainerRef.current.innerHTML = "";
       }
       document.getElementById(scriptId)?.remove();
-      document.querySelectorAll(".grecaptcha-badge").forEach((el) => el.remove());
+      document
+        .querySelectorAll(".grecaptcha-badge")
+        .forEach((el) => el.remove());
     };
   }, [siteKey]);
 
@@ -405,7 +398,7 @@ const LavoraConNoi: React.FC = () => {
         if (!mounted) return;
         setPositionsLoaded(true);
         setPositions(items);
-        setPosition(items[0]?.title || "");
+        setPosition("");
       })
       .catch(() => {
         if (!mounted) return;
@@ -460,17 +453,10 @@ const LavoraConNoi: React.FC = () => {
   }, [selectedPosition]);
 
   const showNoPositions = positionsLoaded && positions.length === 0;
+  const hasSelectedPosition = Boolean(selectedPosition);
 
   const handleTaskLevelChange = (taskId: string, level: SkillLevel) => {
     setTaskRatings((previous) => ({ ...previous, [taskId]: level }));
-  };
-
-  const toggleInterestArea = (value: InterestArea) => {
-    setInterestAreas((previous) =>
-      previous.includes(value)
-        ? previous.filter((item) => item !== value)
-        : [...previous, value],
-    );
   };
 
   const addLanguage = () => {
@@ -522,7 +508,9 @@ const LavoraConNoi: React.FC = () => {
     setHardSkills((previous) => previous.filter((item) => item !== skill));
   };
 
-  const handleHardSkillsKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleHardSkillsKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
     if (e.key !== "Enter") return;
     e.preventDefault();
     addHardSkill();
@@ -584,15 +572,11 @@ const LavoraConNoi: React.FC = () => {
 
     const normalizedEmail = email.trim();
 
-    if (interestAreas.length === 0 || !experienceLevel || !noticePeriod) {
+    if (!experienceLevel || !noticePeriod) {
       setStatus("error");
-      setFeedbackMsg("Completa la sezione di screening strategico.");
-      return;
-    }
-
-    if (!salaryExpectation.trim() || Number(salaryExpectation) <= 0) {
-      setStatus("error");
-      setFeedbackMsg("Inserisci un'aspettativa salariale valida.");
+      setFeedbackMsg(
+        "Seleziona livello di esperienza e disponibilita al preavviso.",
+      );
       return;
     }
 
@@ -687,7 +671,10 @@ const LavoraConNoi: React.FC = () => {
       }
     }
 
-    if (!professionalSummary.trim() || professionalSummary.trim().length > 500) {
+    if (
+      !professionalSummary.trim() ||
+      professionalSummary.trim().length > 500
+    ) {
       setStatus("error");
       setFeedbackMsg(
         "Il riepilogo professionale e obbligatorio e deve essere massimo 500 caratteri.",
@@ -745,9 +732,15 @@ const LavoraConNoi: React.FC = () => {
         }),
       );
 
-      const normalizedInterestAreas = INTEREST_AREA_OPTIONS.filter((opt) =>
-        interestAreas.includes(opt.value),
-      ).map((opt) => opt.label);
+      const experienceLevelLabel =
+        EXPERIENCE_LEVEL_OPTIONS.find((opt) => opt.value === experienceLevel)
+          ?.label || "";
+      const noticePeriodLabel =
+        NOTICE_PERIOD_OPTIONS.find((opt) => opt.value === noticePeriod)
+          ?.label || "";
+      const educationLevelLabel =
+        EDUCATION_OPTIONS.find((opt) => opt.value === educationLevel)?.label ||
+        "";
       const experiencesPayload = isFirstExperience ? [] : normalizedExperiences;
       const hardSkillsText = normalizedHardSkills.join(", ");
 
@@ -758,17 +751,9 @@ const LavoraConNoi: React.FC = () => {
         city: city.trim(),
         linkedin: linkedin.trim(),
         position: position.trim(),
-        interestAreas: normalizedInterestAreas,
-        experienceLevel:
-          EXPERIENCE_LEVEL_OPTIONS.find((opt) => opt.value === experienceLevel)
-            ?.label || "-",
-        salaryExpectation: salaryExpectation.trim(),
-        noticePeriod:
-          NOTICE_PERIOD_OPTIONS.find((opt) => opt.value === noticePeriod)?.label ||
-          "-",
-        educationLevel:
-          EDUCATION_OPTIONS.find((opt) => opt.value === educationLevel)?.label ||
-          "-",
+        experienceLevel: experienceLevelLabel || "-",
+        noticePeriod: noticePeriodLabel || "-",
+        educationLevel: educationLevelLabel || "-",
         languages: normalizedLanguages,
         hardSkills: normalizedHardSkills,
         firstExperience: isFirstExperience,
@@ -794,20 +779,12 @@ const LavoraConNoi: React.FC = () => {
       fd.append("position", position.trim());
       fd.append(
         "experience",
-        `${
-          EXPERIENCE_LEVEL_OPTIONS.find((opt) => opt.value === experienceLevel)
-            ?.label || ""
-        } | Preavviso: ${
-          NOTICE_PERIOD_OPTIONS.find((opt) => opt.value === noticePeriod)?.label ||
-          ""
-        }`,
+        `${experienceLevelLabel} | Preavviso: ${noticePeriodLabel}`,
       );
       fd.append("linkedin", linkedin.trim());
-      fd.append("interestAreas", JSON.stringify(normalizedInterestAreas));
-      fd.append("experienceLevel", experienceLevel || "");
-      fd.append("salaryExpectation", salaryExpectation.trim());
-      fd.append("noticePeriod", noticePeriod || "");
-      fd.append("educationLevel", educationLevel || "");
+      fd.append("experienceLevel", experienceLevelLabel);
+      fd.append("noticePeriod", noticePeriodLabel);
+      fd.append("educationLevel", educationLevelLabel);
       fd.append("languages", JSON.stringify(normalizedLanguages));
       fd.append("hardSkills", hardSkillsText);
       fd.append("experiences", JSON.stringify(experiencesPayload));
@@ -833,16 +810,17 @@ const LavoraConNoi: React.FC = () => {
       }
 
       setStatus("success");
-      setFeedbackMsg("Grazie! La tua candidatura e stata inviata con successo.");
+      setFeedbackMsg(
+        "Grazie! La tua candidatura e stata inviata con successo.",
+      );
 
       setFullName("");
       setEmail("");
       setPhone("");
       setCity("");
       setLinkedin("");
-      setInterestAreas([]);
+      setPosition("");
       setExperienceLevel(null);
-      setSalaryExpectation("");
       setNoticePeriod(null);
       setEducationLevel(null);
       setLanguages([{ id: "lang-1", language: "", level: "base" }]);
@@ -896,8 +874,7 @@ const LavoraConNoi: React.FC = () => {
                   }`}
                 >
                   {deleteStatus === "deleting" && "Rimozione in corso..."}
-                  {deleteStatus === "deleted" &&
-                    "Dati rimossi correttamente."}
+                  {deleteStatus === "deleted" && "Dati rimossi correttamente."}
                   {deleteStatus === "error" &&
                     "Impossibile rimuovere i dati. Contattaci per assistenza."}
                 </div>
@@ -927,7 +904,7 @@ const LavoraConNoi: React.FC = () => {
                       htmlFor="position"
                       className="block text-sm font-semibold text-gray-700 mb-2"
                     >
-                      Posizione aperta *
+                      Posizioni aperte *
                     </label>
                     <select
                       id="position"
@@ -936,6 +913,7 @@ const LavoraConNoi: React.FC = () => {
                       className={`${inputClasses} h-12`}
                       disabled={status === "submitting"}
                     >
+                      <option value="">Clicca qui</option>
                       {positions.map((p) => (
                         <option key={p.id} value={p.title}>
                           {p.title}
@@ -1045,45 +1023,49 @@ const LavoraConNoi: React.FC = () => {
                       Step 3
                     </p>
                     <h2 className="text-xl md:text-2xl font-serif mb-5">
-                      2. Screening Strategico
+                      2. Formazione e Competenze
                     </h2>
 
-                    <div className="mb-6">
-                      <p className="block text-sm font-semibold text-gray-700 mb-2">
-                        Area di Interesse *
-                      </p>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                        {INTEREST_AREA_OPTIONS.map((option) => (
-                          <label
-                            key={option.value}
-                            className="flex items-center gap-2 text-sm text-gray-700 border border-gray-200 rounded-lg px-3 py-2"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={interestAreas.includes(option.value)}
-                              onChange={() => toggleInterestArea(option.value)}
-                              disabled={status === "submitting"}
-                              className="h-4 w-4 rounded border-gray-300 text-brand-gold focus:ring-brand-gold"
-                            />
-                            {option.label}
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div>
+                        <label
+                          htmlFor="education"
+                          className="block text-sm font-semibold text-gray-700 mb-2"
+                        >
+                          Titolo di Studio *
+                        </label>
+                        <select
+                          id="education"
+                          value={educationLevel || ""}
+                          onChange={(e) =>
+                            setEducationLevel(e.target.value as EducationLevel)
+                          }
+                          className={inputClasses}
+                          disabled={status === "submitting"}
+                        >
+                          <option value="">Seleziona</option>
+                          {EDUCATION_OPTIONS.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
                       <div>
                         <label
                           htmlFor="experienceLevel"
                           className="block text-sm font-semibold text-gray-700 mb-2"
                         >
-                          Livello di Esperienza *
+                          Livello di esperienza *
                         </label>
                         <select
                           id="experienceLevel"
                           value={experienceLevel || ""}
                           onChange={(e) =>
-                            setExperienceLevel(e.target.value as ExperienceLevel)
+                            setExperienceLevel(
+                              e.target.value as ExperienceLevel,
+                            )
                           }
                           className={inputClasses}
                           disabled={status === "submitting"}
@@ -1095,25 +1077,6 @@ const LavoraConNoi: React.FC = () => {
                             </option>
                           ))}
                         </select>
-                      </div>
-
-                      <div>
-                        <label
-                          htmlFor="salaryExpectation"
-                          className="block text-sm font-semibold text-gray-700 mb-2"
-                        >
-                          Aspettativa Salariale (EUR) *
-                        </label>
-                        <input
-                          id="salaryExpectation"
-                          type="number"
-                          min={1}
-                          value={salaryExpectation}
-                          onChange={(e) => setSalaryExpectation(e.target.value)}
-                          className={inputClasses}
-                          placeholder="28000"
-                          disabled={status === "submitting"}
-                        />
                       </div>
 
                       <div>
@@ -1140,67 +1103,44 @@ const LavoraConNoi: React.FC = () => {
                           ))}
                         </select>
                       </div>
-                    </div>
-                  </div>
 
-                  <div className="border-t border-gray-100 pt-8">
-                    <p className="text-xs tracking-widest uppercase text-brand-gold font-semibold mb-2">
-                      Step 4
-                    </p>
-                    <h2 className="text-xl md:text-2xl font-serif mb-5">
-                      3. Formazione e Competenze
-                    </h2>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label
-                          htmlFor="education"
-                          className="block text-sm font-semibold text-gray-700 mb-2"
-                        >
-                          Titolo di Studio *
-                        </label>
-                        <select
-                          id="education"
-                          value={educationLevel || ""}
-                          onChange={(e) =>
-                            setEducationLevel(e.target.value as EducationLevel)
-                          }
-                          className={inputClasses}
-                          disabled={status === "submitting"}
-                        >
-                          <option value="">Seleziona</option>
-                          {EDUCATION_OPTIONS.map((option) => (
-                            <option key={option.value} value={option.value}>
-                              {option.label}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="md:col-span-2">
+                      <div className="md:col-span-3">
                         <p className="block text-sm font-semibold text-gray-700 mb-2">
                           Lingue Straniere *
                         </p>
                         <div className="space-y-3">
-                          {languages.map((item, index) => (
+                          {languages.map((item) => (
                             <div
                               key={item.id}
                               className="grid grid-cols-1 md:grid-cols-[1fr_220px_auto] gap-3"
                             >
-                              <input
-                                type="text"
+                              <select
                                 value={item.language}
                                 onChange={(e) =>
-                                  updateLanguage(item.id, "language", e.target.value)
+                                  updateLanguage(
+                                    item.id,
+                                    "language",
+                                    e.target.value,
+                                  )
                                 }
                                 className={inputClasses}
-                                placeholder={`Lingua ${index + 1} (es. Inglese)`}
                                 disabled={status === "submitting"}
-                              />
+                              >
+                                <option value="">Seleziona lingua</option>
+                                {LANGUAGE_OPTIONS.map((language) => (
+                                  <option key={language} value={language}>
+                                    {language}
+                                  </option>
+                                ))}
+                              </select>
                               <select
                                 value={item.level}
                                 onChange={(e) =>
-                                  updateLanguage(item.id, "level", e.target.value)
+                                  updateLanguage(
+                                    item.id,
+                                    "level",
+                                    e.target.value,
+                                  )
                                 }
                                 className={inputClasses}
                                 disabled={status === "submitting"}
@@ -1214,7 +1154,10 @@ const LavoraConNoi: React.FC = () => {
                               <button
                                 type="button"
                                 onClick={() => removeLanguage(item.id)}
-                                disabled={status === "submitting" || languages.length <= 1}
+                                disabled={
+                                  status === "submitting" ||
+                                  languages.length <= 1
+                                }
                                 className="px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-700 disabled:opacity-50"
                               >
                                 Rimuovi
@@ -1232,7 +1175,7 @@ const LavoraConNoi: React.FC = () => {
                         </button>
                       </div>
 
-                      <div className="md:col-span-2">
+                      <div className="md:col-span-3">
                         <label
                           htmlFor="hardSkills"
                           className="block text-sm font-semibold text-gray-700 mb-2"
@@ -1245,7 +1188,9 @@ const LavoraConNoi: React.FC = () => {
                               id="hardSkills"
                               type="text"
                               value={hardSkillsInput}
-                              onChange={(e) => setHardSkillsInput(e.target.value)}
+                              onChange={(e) =>
+                                setHardSkillsInput(e.target.value)
+                              }
                               onKeyDown={handleHardSkillsKeyDown}
                               className={inputClasses}
                               placeholder="Scrivi una skill e premi Invio"
@@ -1267,7 +1212,8 @@ const LavoraConNoi: React.FC = () => {
                             </button>
                           </div>
                           <p className="text-xs text-gray-500">
-                            Premi Invio per aggiungere una competenza. Massimo {MAX_HARD_SKILLS}.
+                            Premi Invio per aggiungere una competenza. Massimo{" "}
+                            {MAX_HARD_SKILLS}.
                           </p>
                           {hardSkills.length > 0 && (
                             <div className="flex flex-wrap gap-2">
@@ -1298,14 +1244,14 @@ const LavoraConNoi: React.FC = () => {
                   {!!selectedPosition && (
                     <div className="border-t border-gray-100 pt-8">
                       <p className="text-xs tracking-widest uppercase text-brand-gold font-semibold mb-2">
-                        Step 5
+                        Step 4
                       </p>
                       <h2 className="text-xl md:text-2xl font-serif mb-2">
                         Competenze per {selectedPosition.title}
                       </h2>
                       <p className="text-sm text-gray-600 mb-6">
-                        Queste competenze arrivano dalla posizione configurata in
-                        Sanity.
+                        Queste competenze arrivano dalla posizione configurata
+                        in Sanity.
                       </p>
                       <div className="space-y-4">
                         {selectedPosition.tasks.map((task) => (
@@ -1346,14 +1292,15 @@ const LavoraConNoi: React.FC = () => {
 
                   <div className="border-t border-gray-100 pt-8">
                     <p className="text-xs tracking-widest uppercase text-brand-gold font-semibold mb-2">
-                      Step 6
+                      {hasSelectedPosition ? "Step 5" : "Step 4"}
                     </p>
                     <h2 className="text-xl md:text-2xl font-serif mb-5">
-                      4. Esperienze Professionali
+                      3. Esperienze Professionali
                     </h2>
                     <p className="text-sm text-gray-600 mb-6">
-                      Aggiungi fino a {MAX_EXPERIENCES} esperienze professionali,
-                      oppure indica che questa e la tua prima esperienza lavorativa.
+                      Aggiungi fino a {MAX_EXPERIENCES} esperienze
+                      professionali, oppure indica che questa e la tua prima
+                      esperienza lavorativa.
                     </p>
 
                     <button
@@ -1371,8 +1318,8 @@ const LavoraConNoi: React.FC = () => {
 
                     {isFirstExperience ? (
                       <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
-                        Hai selezionato prima esperienza. Non e necessario compilare le
-                        esperienze professionali.
+                        Hai selezionato prima esperienza. Non e necessario
+                        compilare le esperienze professionali.
                       </div>
                     ) : (
                       <>
@@ -1390,7 +1337,8 @@ const LavoraConNoi: React.FC = () => {
                                   type="button"
                                   onClick={() => removeExperience(exp.id)}
                                   disabled={
-                                    status === "submitting" || experiences.length <= 1
+                                    status === "submitting" ||
+                                    experiences.length <= 1
                                   }
                                   className="px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-700 disabled:opacity-50"
                                 >
@@ -1406,7 +1354,11 @@ const LavoraConNoi: React.FC = () => {
                                     type="text"
                                     value={exp.company}
                                     onChange={(e) =>
-                                      updateExperience(exp.id, "company", e.target.value)
+                                      updateExperience(
+                                        exp.id,
+                                        "company",
+                                        e.target.value,
+                                      )
                                     }
                                     className={inputClasses}
                                     disabled={status === "submitting"}
@@ -1420,7 +1372,11 @@ const LavoraConNoi: React.FC = () => {
                                     type="text"
                                     value={exp.role}
                                     onChange={(e) =>
-                                      updateExperience(exp.id, "role", e.target.value)
+                                      updateExperience(
+                                        exp.id,
+                                        "role",
+                                        e.target.value,
+                                      )
                                     }
                                     className={inputClasses}
                                     disabled={status === "submitting"}
@@ -1434,7 +1390,11 @@ const LavoraConNoi: React.FC = () => {
                                     type="month"
                                     value={exp.startDate}
                                     onChange={(e) =>
-                                      updateExperience(exp.id, "startDate", e.target.value)
+                                      updateExperience(
+                                        exp.id,
+                                        "startDate",
+                                        e.target.value,
+                                      )
                                     }
                                     className={inputClasses}
                                     disabled={status === "submitting"}
@@ -1448,10 +1408,16 @@ const LavoraConNoi: React.FC = () => {
                                     type="month"
                                     value={exp.endDate}
                                     onChange={(e) =>
-                                      updateExperience(exp.id, "endDate", e.target.value)
+                                      updateExperience(
+                                        exp.id,
+                                        "endDate",
+                                        e.target.value,
+                                      )
                                     }
                                     className={inputClasses}
-                                    disabled={status === "submitting" || exp.isCurrent}
+                                    disabled={
+                                      status === "submitting" || exp.isCurrent
+                                    }
                                   />
                                   <label className="mt-2 inline-flex items-center gap-2 text-xs text-gray-600">
                                     <input
@@ -1509,16 +1475,17 @@ const LavoraConNoi: React.FC = () => {
 
                   <div className="border-t border-gray-100 pt-8">
                     <p className="text-xs tracking-widest uppercase text-brand-gold font-semibold mb-2">
-                      Step 7
+                      {hasSelectedPosition ? "Step 6" : "Step 5"}
                     </p>
                     <h2 className="text-xl md:text-2xl font-serif mb-3">
-                      5. Riepilogo Professionale
+                      4. Riepilogo Professionale
                     </h2>
                     <label
                       htmlFor="professionalSummary"
                       className="block text-sm font-semibold text-gray-700 mb-2"
                     >
-                      Riassuma la sua carriera e perche vorrebbe lavorare con noi *
+                      Riassuma la sua carriera e perche vorrebbe lavorare con
+                      noi *
                     </label>
                     <textarea
                       id="professionalSummary"
@@ -1537,10 +1504,10 @@ const LavoraConNoi: React.FC = () => {
 
                   <div className="border-t border-gray-100 pt-8">
                     <p className="text-xs tracking-widest uppercase text-brand-gold font-semibold mb-2">
-                      Step 8
+                      {hasSelectedPosition ? "Step 7" : "Step 6"}
                     </p>
                     <h2 className="text-xl md:text-2xl font-serif mb-3">
-                      6. Allegati e Privacy
+                      5. Allegati e Privacy
                     </h2>
 
                     <div className="flex items-start gap-3">
@@ -1556,8 +1523,8 @@ const LavoraConNoi: React.FC = () => {
                       </div>
                       <div className="text-sm leading-6">
                         <label htmlFor="privacy" className="text-gray-600">
-                          Autorizzo il trattamento dei miei dati personali ai fini
-                          del reclutamento secondo la{" "}
+                          Autorizzo il trattamento dei miei dati personali ai
+                          fini del reclutamento secondo la{" "}
                           <a
                             href="/privacy-policy"
                             className="text-brand-gold hover:underline font-medium"
@@ -1589,7 +1556,9 @@ const LavoraConNoi: React.FC = () => {
                   <button
                     type="submit"
                     disabled={
-                      status === "submitting" || status === "success" || !recaptchaToken
+                      status === "submitting" ||
+                      status === "success" ||
+                      !recaptchaToken
                     }
                     className={`w-full py-4 rounded-lg font-bold text-white uppercase tracking-wider transition-all transform hover:-translate-y-1 shadow-md hover:shadow-lg cursor-pointer ${
                       status === "submitting"
@@ -1597,7 +1566,9 @@ const LavoraConNoi: React.FC = () => {
                         : "bg-brand-gold hover:bg-[#a38a53]"
                     }`}
                   >
-                    {status === "submitting" ? "Generazione PDF e invio..." : "Invia Candidatura"}
+                    {status === "submitting"
+                      ? "Generazione PDF e invio..."
+                      : "Invia Candidatura"}
                   </button>
                 </form>
               )}

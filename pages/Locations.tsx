@@ -19,14 +19,14 @@ const LOCATIONS: LocationData[] = [
   {
     name: "Vulcano Buono (Victor Benjamin)",
     region: "Campania",
-    address: "Via Boscofangone, 80035 Nola NA",
+    address: "https://maps.app.goo.gl/SgrSD6mEyAUuzmhz8",
     isFranchise: true,
     image: "/images/victor-benjamin.jpeg",
   },
   {
     name: "Dimensione immagine",
     region: "Sicilia",
-    address: "Via Nicola Fabrizi 89, 98123 Messina (ME)",
+    address: "https://maps.app.goo.gl/GKpBfNFA3L9iZLSD6",
     isFranchise: false,
     image: "/images/dimensione-immagine.jpeg",
     phone: "0902141746",
@@ -34,22 +34,21 @@ const LOCATIONS: LocationData[] = [
   {
     name: "Vittoria Company",
     region: "Puglia",
-    address: "Via braccio martello 41/49, 73100 Lecce (LE)",
+    address: "https://maps.app.goo.gl/kpAaPAKXJ3YAGzSU7",
     isFranchise: true,
     image: "/images/vittoria-company.jpeg",
   },
   {
     name: "Le Porte Del Savuto (Aquino abbigliamento)",
     region: "Calabria",
-    address:
-      "Via A. Guarasci C/da Vallegiannó SNC, 87056 Santo Stefano di Rogliano CS",
+    address: "https://maps.app.goo.gl/7vLK9Mf9nwBFTmyL7",
     isFranchise: true,
     image: "/images/calabria.jpeg",
   },
   {
     name: "Montesilvano Store",
     region: "Abruzzo",
-    address: "Corso Umberto Primo, 610 (PE)",
+    address: "https://maps.app.goo.gl/ok2jt8DpLFYcjMFz5",
     isFranchise: false,
     image: "/images/montesilvano.jpeg",
     phone: "0852034097",
@@ -57,7 +56,7 @@ const LOCATIONS: LocationData[] = [
   {
     name: "Boutique Donna",
     region: "Sicilia",
-    address: "Via Maddalena, 74, 98122 angolo Via dei Mille (ME)",
+    address: "https://maps.app.goo.gl/53LA8JTywzaJV5RGA",
     isFranchise: false,
     image: "/images/boutique-donna.jpeg",
     phone: "0902131218",
@@ -65,7 +64,7 @@ const LOCATIONS: LocationData[] = [
   {
     name: "Torre Faro",
     region: "Sicilia",
-    address: "Via Circuito, 177, 98164 Ex Lumachina (ME)",
+    address: "https://maps.app.goo.gl/R2nNhbPdUjb9dMbQ6",
     isFranchise: false,
     image: "/images/torre-faro.jpeg",
     phone: "090326785",
@@ -73,7 +72,7 @@ const LOCATIONS: LocationData[] = [
   {
     name: "Boutique Uomo",
     region: "Sicilia",
-    address: "Via Giordano Bruno, 38/D, angolo Via Maddalena (ME)",
+    address: "https://maps.app.goo.gl/2WrCVJGFWRrpueMf9",
     isFranchise: false,
     image: "/images/boutique-uomo.jpeg",
     phone: "0909074525",
@@ -81,7 +80,7 @@ const LOCATIONS: LocationData[] = [
   {
     name: "Centro Commerciale Tremestieri",
     region: "Sicilia",
-    address: "2.Piano accanto al cinema, Tremestieri (ME)",
+    address: "https://maps.app.goo.gl/RnTKwHm7rg97mDng8",
     isFranchise: false,
     image: "/images/tremestieri.jpeg",
     phone: "0902406782",
@@ -165,13 +164,7 @@ export const Locations: React.FC = () => {
                 delay={index * 0.1}
                 fullHeight
               >
-                <a
-                  href={`https://maps.google.com/?q=${encodeURIComponent(
-                    loc.address,
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <a href={loc.address} target="_blank" rel="noopener noreferrer">
                   <div className="group flex flex-col h-full bg-white rounded-sm pb-6 transition-shadow duration-300 hover:shadow-sm border border-brand-border">
                     <div className="aspect-video relative overflow-hidden mb-6 bg-brand-surface">
                       <img
