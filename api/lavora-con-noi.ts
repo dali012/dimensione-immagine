@@ -34,6 +34,7 @@ type FormFields = {
   languages?: string;
   hardSkills?: string;
   experiences?: string;
+  firstExperience?: string;
   taskRatings?: string;
   recaptchaToken?: string;
 };
@@ -305,6 +306,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const interestAreas = parseStringArray(fields.interestAreas);
   const languages = parseLanguages(fields.languages);
   const experiences = parseExperiences(fields.experiences);
+  const firstExperience = fields.firstExperience === "true";
   const professionalSummary = (
     fields.professionalSummary ||
     fields.message ||
@@ -334,6 +336,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     educationLevel: (fields.educationLevel || "").trim(),
     languages,
     hardSkills,
+    firstExperience,
     experiences,
     professionalSummary,
     taskRatings,
@@ -466,21 +469,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         .join("")}</ul>`
     : "<p>-</p>";
 
-  const experiencesHtml = experiences.length
-    ? `<ol>${experiences
-        .map(
-          (item) => `
-            <li>
-              <strong>${escapeHtml(item.company || "-")}</strong> - ${escapeHtml(item.role || "-")}<br/>
-              ${escapeHtml(item.startDate || "-")} / ${escapeHtml(
-                item.isCurrent ? "Attualmente occupato" : item.endDate || "-",
-              )}<br/>
-              ${escapeHtml(item.responsibilities || "-")}
-            </li>
-          `,
-        )
-        .join("")}</ol>`
-    : "<p>-</p>";
+  const experiencesHtml = firstExperience
+    ? "<p>Candidato alla prima esperienza lavorativa.</p>"
+    : experiences.length
+      ? `<ol>${experiences
+          .map(
+            (item) => `
+              <li>
+                <strong>${escapeHtml(item.company || "-")}</strong> - ${escapeHtml(item.role || "-")}<br/>
+                ${escapeHtml(item.startDate || "-")} / ${escapeHtml(
+                  item.isCurrent ? "Attualmente occupato" : item.endDate || "-",
+                )}<br/>
+                ${escapeHtml(item.responsibilities || "-")}
+              </li>
+            `,
+          )
+          .join("")}</ol>`
+      : "<p>-</p>";
 
   if (resendKey && resendTo && resendFrom) {
     try {
@@ -514,6 +519,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             <p><strong>Disponibilita preavviso:</strong> ${escapeHtml(fields.noticePeriod || "-")}</p>
             <p><strong>Titolo di studio:</strong> ${escapeHtml(fields.educationLevel || "-")}</p>
             <p><strong>Hard skills:</strong> ${escapeHtml(hardSkills || "-")}</p>
+            <p><strong>Prima esperienza lavorativa:</strong> ${firstExperience ? "Si" : "No"}</p>
             <p><strong>Aree di interesse:</strong></p>
             ${interestAreasHtml}
             <p><strong>Lingue:</strong></p>

@@ -96,6 +96,7 @@ const LANGUAGE_LEVEL_OPTIONS: { value: LanguageLevel; label: string }[] = [
 ];
 
 const MAX_EXPERIENCES = 3;
+const MAX_HARD_SKILLS = 5;
 let experienceCounter = 0;
 
 const createEmptyExperience = (): ExperienceItem => {
@@ -143,7 +144,8 @@ function buildApplicationPdf(data: {
   noticePeriod: string;
   educationLevel: string;
   languages: LanguageItem[];
-  hardSkills: string;
+  hardSkills: string[];
+  firstExperience: boolean;
   experiences: ExperienceItem[];
   professionalSummary: string;
   taskRatings: TaskRatingItem[];
@@ -222,7 +224,10 @@ function buildApplicationPdf(data: {
       .map((item) => `${item.language} (${item.level})`)
       .join(", ") || "-",
   );
-  addLabeledLine("Competenze tecniche", data.hardSkills || "-");
+  addLabeledLine(
+    "Competenze tecniche",
+    data.hardSkills.length ? data.hardSkills.join(", ") : "-",
+  );
   y += 6;
 
   addTitle("4. Competenze posizione");
@@ -232,29 +237,33 @@ function buildApplicationPdf(data: {
   y += 6;
 
   addTitle("5. Esperienze Professionali");
-  const experiencesToPrint = data.experiences.filter(
-    (item) =>
-      item.company.trim() ||
-      item.role.trim() ||
-      item.startDate.trim() ||
-      item.endDate.trim() ||
-      item.responsibilities.trim(),
-  );
-
-  if (experiencesToPrint.length === 0) {
-    addParagraph("Nessuna esperienza professionale inserita.");
+  if (data.firstExperience) {
+    addParagraph("Il candidato ha indicato che si tratta della prima esperienza lavorativa.");
   } else {
-    experiencesToPrint.forEach((item, index) => {
-      addLabeledLine(`Esperienza ${index + 1} - Azienda`, item.company || "-");
-      addLabeledLine("Ruolo", item.role || "-");
-      addLabeledLine("Data inizio", formatMonthYear(item.startDate));
-      addLabeledLine(
-        "Data fine",
-        item.isCurrent ? "Attualmente occupato" : formatMonthYear(item.endDate),
-      );
-      addLabeledLine("Principali responsabilita", item.responsibilities || "-");
-      y += 4;
-    });
+    const experiencesToPrint = data.experiences.filter(
+      (item) =>
+        item.company.trim() ||
+        item.role.trim() ||
+        item.startDate.trim() ||
+        item.endDate.trim() ||
+        item.responsibilities.trim(),
+    );
+
+    if (experiencesToPrint.length === 0) {
+      addParagraph("Nessuna esperienza professionale inserita.");
+    } else {
+      experiencesToPrint.forEach((item, index) => {
+        addLabeledLine(`Esperienza ${index + 1} - Azienda`, item.company || "-");
+        addLabeledLine("Ruolo", item.role || "-");
+        addLabeledLine("Data inizio", formatMonthYear(item.startDate));
+        addLabeledLine(
+          "Data fine",
+          item.isCurrent ? "Attualmente occupato" : formatMonthYear(item.endDate),
+        );
+        addLabeledLine("Principali responsabilita", item.responsibilities || "-");
+        y += 4;
+      });
+    }
   }
 
   y += 6;
@@ -290,7 +299,9 @@ const LavoraConNoi: React.FC = () => {
   const [languages, setLanguages] = useState<LanguageItem[]>([
     { id: "lang-1", language: "", level: "base" },
   ]);
-  const [hardSkills, setHardSkills] = useState("");
+  const [hardSkills, setHardSkills] = useState<string[]>([]);
+  const [hardSkillsInput, setHardSkillsInput] = useState("");
+  const [isFirstExperience, setIsFirstExperience] = useState(false);
 
   const [experiences, setExperiences] = useState<ExperienceItem[]>(
     () => getInitialExperiences(),
@@ -493,6 +504,30 @@ const LavoraConNoi: React.FC = () => {
     );
   };
 
+  const addHardSkill = () => {
+    const value = hardSkillsInput.trim();
+    if (!value) return;
+    setHardSkills((previous) => {
+      if (previous.length >= MAX_HARD_SKILLS) return previous;
+      const exists = previous.some(
+        (item) => item.toLowerCase() === value.toLowerCase(),
+      );
+      if (exists) return previous;
+      return [...previous, value];
+    });
+    setHardSkillsInput("");
+  };
+
+  const removeHardSkill = (skill: string) => {
+    setHardSkills((previous) => previous.filter((item) => item !== skill));
+  };
+
+  const handleHardSkillsKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    addHardSkill();
+  };
+
   const updateExperience = (
     id: string,
     field: keyof ExperienceItem,
@@ -517,6 +552,7 @@ const LavoraConNoi: React.FC = () => {
   };
 
   const addExperience = () => {
+    setIsFirstExperience(false);
     setExperiences((previous) => {
       if (previous.length >= MAX_EXPERIENCES) return previous;
       return [...previous, createEmptyExperience()];
@@ -528,6 +564,10 @@ const LavoraConNoi: React.FC = () => {
       if (previous.length <= 1) return previous;
       return previous.filter((item) => item.id !== id);
     });
+  };
+
+  const toggleFirstExperience = () => {
+    setIsFirstExperience((previous) => !previous);
   };
 
   const summaryChars = professionalSummary.length;
@@ -575,7 +615,12 @@ const LavoraConNoi: React.FC = () => {
       return;
     }
 
-    if (!hardSkills.trim()) {
+    const normalizedHardSkills = hardSkills
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0)
+      .slice(0, MAX_HARD_SKILLS);
+
+    if (normalizedHardSkills.length === 0) {
       setStatus("error");
       setFeedbackMsg("Inserisci le competenze tecniche principali.");
       return;
@@ -590,47 +635,56 @@ const LavoraConNoi: React.FC = () => {
       responsibilities: item.responsibilities.trim(),
     }));
 
-    const hasAtLeastOneExperience = normalizedExperiences.some(
-      (item) =>
-        item.company ||
-        item.role ||
-        item.startDate ||
-        item.endDate ||
-        item.responsibilities,
-    );
-
-    if (!hasAtLeastOneExperience) {
-      setStatus("error");
-      setFeedbackMsg("Compila almeno una esperienza professionale.");
-      return;
-    }
-
-    const invalidExperience = normalizedExperiences.find((item) => {
-      const hasAnyField =
-        item.company ||
-        item.role ||
-        item.startDate ||
-        item.endDate ||
-        item.responsibilities;
-      if (!hasAnyField) return false;
-
-      if (!item.company || !item.role || !item.startDate || !item.responsibilities) {
-        return true;
-      }
-
-      if (!item.isCurrent && !item.endDate) {
-        return true;
-      }
-
-      return false;
-    });
-
-    if (invalidExperience) {
-      setStatus("error");
-      setFeedbackMsg(
-        "Ogni esperienza compilata deve includere azienda, ruolo, data inizio, responsabilita e data fine (o Attualmente occupato).",
+    if (!isFirstExperience) {
+      const hasAtLeastOneExperience = normalizedExperiences.some(
+        (item) =>
+          item.company ||
+          item.role ||
+          item.startDate ||
+          item.endDate ||
+          item.responsibilities,
       );
-      return;
+
+      if (!hasAtLeastOneExperience) {
+        setStatus("error");
+        setFeedbackMsg(
+          "Compila almeno una esperienza professionale oppure seleziona 'E la mia prima esperienza lavorativa'.",
+        );
+        return;
+      }
+
+      const invalidExperience = normalizedExperiences.find((item) => {
+        const hasAnyField =
+          item.company ||
+          item.role ||
+          item.startDate ||
+          item.endDate ||
+          item.responsibilities;
+        if (!hasAnyField) return false;
+
+        if (
+          !item.company ||
+          !item.role ||
+          !item.startDate ||
+          !item.responsibilities
+        ) {
+          return true;
+        }
+
+        if (!item.isCurrent && !item.endDate) {
+          return true;
+        }
+
+        return false;
+      });
+
+      if (invalidExperience) {
+        setStatus("error");
+        setFeedbackMsg(
+          "Ogni esperienza compilata deve includere azienda, ruolo, data inizio, responsabilita e data fine (o Attualmente occupato).",
+        );
+        return;
+      }
     }
 
     if (!professionalSummary.trim() || professionalSummary.trim().length > 500) {
@@ -694,6 +748,8 @@ const LavoraConNoi: React.FC = () => {
       const normalizedInterestAreas = INTEREST_AREA_OPTIONS.filter((opt) =>
         interestAreas.includes(opt.value),
       ).map((opt) => opt.label);
+      const experiencesPayload = isFirstExperience ? [] : normalizedExperiences;
+      const hardSkillsText = normalizedHardSkills.join(", ");
 
       const pdfBlob = buildApplicationPdf({
         fullName: fullName.trim(),
@@ -714,8 +770,9 @@ const LavoraConNoi: React.FC = () => {
           EDUCATION_OPTIONS.find((opt) => opt.value === educationLevel)?.label ||
           "-",
         languages: normalizedLanguages,
-        hardSkills: hardSkills.trim(),
-        experiences: normalizedExperiences,
+        hardSkills: normalizedHardSkills,
+        firstExperience: isFirstExperience,
+        experiences: experiencesPayload,
         professionalSummary: professionalSummary.trim(),
         taskRatings: taskRatingsPayload,
       });
@@ -752,8 +809,9 @@ const LavoraConNoi: React.FC = () => {
       fd.append("noticePeriod", noticePeriod || "");
       fd.append("educationLevel", educationLevel || "");
       fd.append("languages", JSON.stringify(normalizedLanguages));
-      fd.append("hardSkills", hardSkills.trim());
-      fd.append("experiences", JSON.stringify(normalizedExperiences));
+      fd.append("hardSkills", hardSkillsText);
+      fd.append("experiences", JSON.stringify(experiencesPayload));
+      fd.append("firstExperience", isFirstExperience ? "true" : "false");
       fd.append("professionalSummary", professionalSummary.trim());
       fd.append("message", professionalSummary.trim());
       fd.append("taskRatings", JSON.stringify(taskRatingsPayload));
@@ -788,7 +846,9 @@ const LavoraConNoi: React.FC = () => {
       setNoticePeriod(null);
       setEducationLevel(null);
       setLanguages([{ id: "lang-1", language: "", level: "base" }]);
-      setHardSkills("");
+      setHardSkills([]);
+      setHardSkillsInput("");
+      setIsFirstExperience(false);
       setExperiences(getInitialExperiences());
       setProfessionalSummary("");
       setPrivacyAccepted(false);
@@ -1179,15 +1239,58 @@ const LavoraConNoi: React.FC = () => {
                         >
                           Competenze Tecniche (Hard Skills) *
                         </label>
-                        <input
-                          id="hardSkills"
-                          type="text"
-                          value={hardSkills}
-                          onChange={(e) => setHardSkills(e.target.value)}
-                          className={inputClasses}
-                          placeholder="Excel Avanzato, Gestione Team, Python"
-                          disabled={status === "submitting"}
-                        />
+                        <div className="space-y-3">
+                          <div className="flex flex-col sm:flex-row gap-3">
+                            <input
+                              id="hardSkills"
+                              type="text"
+                              value={hardSkillsInput}
+                              onChange={(e) => setHardSkillsInput(e.target.value)}
+                              onKeyDown={handleHardSkillsKeyDown}
+                              className={inputClasses}
+                              placeholder="Scrivi una skill e premi Invio"
+                              disabled={
+                                status === "submitting" ||
+                                hardSkills.length >= MAX_HARD_SKILLS
+                              }
+                            />
+                            <button
+                              type="button"
+                              onClick={addHardSkill}
+                              disabled={
+                                status === "submitting" ||
+                                hardSkills.length >= MAX_HARD_SKILLS
+                              }
+                              className="px-4 py-3 rounded-lg border border-gray-200 text-sm text-gray-700 disabled:opacity-50"
+                            >
+                              Aggiungi
+                            </button>
+                          </div>
+                          <p className="text-xs text-gray-500">
+                            Premi Invio per aggiungere una competenza. Massimo {MAX_HARD_SKILLS}.
+                          </p>
+                          {hardSkills.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                              {hardSkills.map((skill) => (
+                                <span
+                                  key={skill}
+                                  className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 text-sm text-gray-700"
+                                >
+                                  {skill}
+                                  <button
+                                    type="button"
+                                    onClick={() => removeHardSkill(skill)}
+                                    disabled={status === "submitting"}
+                                    className="text-gray-500 hover:text-gray-700 disabled:opacity-50"
+                                    aria-label={`Rimuovi ${skill}`}
+                                  >
+                                    x
+                                  </button>
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1249,135 +1352,159 @@ const LavoraConNoi: React.FC = () => {
                       4. Esperienze Professionali
                     </h2>
                     <p className="text-sm text-gray-600 mb-6">
-                      Aggiungi fino a {MAX_EXPERIENCES} esperienze professionali
-                      (almeno una obbligatoria).
+                      Aggiungi fino a {MAX_EXPERIENCES} esperienze professionali,
+                      oppure indica che questa e la tua prima esperienza lavorativa.
                     </p>
 
-                    <div className="space-y-6">
-                      {experiences.map((exp, index) => (
-                        <div
-                          key={exp.id}
-                          className="border border-gray-200 rounded-xl p-4 md:p-5"
-                        >
-                          <div className="mb-4 flex items-center justify-between gap-4">
-                            <p className="text-sm font-semibold text-gray-700">
-                              Esperienza {index + 1}
-                            </p>
-                            <button
-                              type="button"
-                              onClick={() => removeExperience(exp.id)}
-                              disabled={status === "submitting" || experiences.length <= 1}
-                              className="px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-700 disabled:opacity-50"
-                            >
-                              Rimuovi
-                            </button>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-xs font-semibold text-gray-600 mb-2">
-                                Azienda
-                              </label>
-                              <input
-                                type="text"
-                                value={exp.company}
-                                onChange={(e) =>
-                                  updateExperience(exp.id, "company", e.target.value)
-                                }
-                                className={inputClasses}
-                                disabled={status === "submitting"}
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-xs font-semibold text-gray-600 mb-2">
-                                Ruolo/Posizione
-                              </label>
-                              <input
-                                type="text"
-                                value={exp.role}
-                                onChange={(e) =>
-                                  updateExperience(exp.id, "role", e.target.value)
-                                }
-                                className={inputClasses}
-                                disabled={status === "submitting"}
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-xs font-semibold text-gray-600 mb-2">
-                                Data di Inizio (Mese/Anno)
-                              </label>
-                              <input
-                                type="month"
-                                value={exp.startDate}
-                                onChange={(e) =>
-                                  updateExperience(exp.id, "startDate", e.target.value)
-                                }
-                                className={inputClasses}
-                                disabled={status === "submitting"}
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-xs font-semibold text-gray-600 mb-2">
-                                Data di Fine (Mese/Anno)
-                              </label>
-                              <input
-                                type="month"
-                                value={exp.endDate}
-                                onChange={(e) =>
-                                  updateExperience(exp.id, "endDate", e.target.value)
-                                }
-                                className={inputClasses}
-                                disabled={status === "submitting" || exp.isCurrent}
-                              />
-                              <label className="mt-2 inline-flex items-center gap-2 text-xs text-gray-600">
-                                <input
-                                  type="checkbox"
-                                  checked={exp.isCurrent}
-                                  onChange={(e) =>
-                                    updateExperience(
-                                      exp.id,
-                                      "isCurrent",
-                                      e.target.checked,
-                                    )
-                                  }
-                                  className="h-4 w-4 rounded border-gray-300 text-brand-gold focus:ring-brand-gold"
-                                  disabled={status === "submitting"}
-                                />
-                                Attualmente occupato
-                              </label>
-                            </div>
-                            <div className="md:col-span-2">
-                              <label className="block text-xs font-semibold text-gray-600 mb-2">
-                                Principali Responsabilita
-                              </label>
-                              <textarea
-                                rows={3}
-                                value={exp.responsibilities}
-                                onChange={(e) =>
-                                  updateExperience(
-                                    exp.id,
-                                    "responsibilities",
-                                    e.target.value,
-                                  )
-                                }
-                                className={inputClasses}
-                                disabled={status === "submitting"}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
                     <button
                       type="button"
-                      onClick={addExperience}
-                      disabled={
-                        status === "submitting" ||
-                        experiences.length >= MAX_EXPERIENCES
-                      }
-                      className="mt-4 text-sm text-brand-gold font-semibold hover:underline disabled:opacity-50 disabled:no-underline"
+                      onClick={toggleFirstExperience}
+                      disabled={status === "submitting"}
+                      className={`mb-4 px-4 py-2 rounded-lg border text-sm font-semibold ${
+                        isFirstExperience
+                          ? "border-brand-gold text-brand-gold bg-[#f8f4ea]"
+                          : "border-gray-200 text-gray-700"
+                      }`}
                     >
-                      + Aggiungi esperienza
+                      E la mia prima esperienza lavorativa
                     </button>
+
+                    {isFirstExperience ? (
+                      <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+                        Hai selezionato prima esperienza. Non e necessario compilare le
+                        esperienze professionali.
+                      </div>
+                    ) : (
+                      <>
+                        <div className="space-y-6">
+                          {experiences.map((exp, index) => (
+                            <div
+                              key={exp.id}
+                              className="border border-gray-200 rounded-xl p-4 md:p-5"
+                            >
+                              <div className="mb-4 flex items-center justify-between gap-4">
+                                <p className="text-sm font-semibold text-gray-700">
+                                  Esperienza {index + 1}
+                                </p>
+                                <button
+                                  type="button"
+                                  onClick={() => removeExperience(exp.id)}
+                                  disabled={
+                                    status === "submitting" || experiences.length <= 1
+                                  }
+                                  className="px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-700 disabled:opacity-50"
+                                >
+                                  Rimuovi
+                                </button>
+                              </div>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <label className="block text-xs font-semibold text-gray-600 mb-2">
+                                    Azienda
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={exp.company}
+                                    onChange={(e) =>
+                                      updateExperience(exp.id, "company", e.target.value)
+                                    }
+                                    className={inputClasses}
+                                    disabled={status === "submitting"}
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-semibold text-gray-600 mb-2">
+                                    Ruolo/Posizione
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={exp.role}
+                                    onChange={(e) =>
+                                      updateExperience(exp.id, "role", e.target.value)
+                                    }
+                                    className={inputClasses}
+                                    disabled={status === "submitting"}
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-semibold text-gray-600 mb-2">
+                                    Data di Inizio (Mese/Anno)
+                                  </label>
+                                  <input
+                                    type="month"
+                                    value={exp.startDate}
+                                    onChange={(e) =>
+                                      updateExperience(exp.id, "startDate", e.target.value)
+                                    }
+                                    className={inputClasses}
+                                    disabled={status === "submitting"}
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-semibold text-gray-600 mb-2">
+                                    Data di Fine (Mese/Anno)
+                                  </label>
+                                  <input
+                                    type="month"
+                                    value={exp.endDate}
+                                    onChange={(e) =>
+                                      updateExperience(exp.id, "endDate", e.target.value)
+                                    }
+                                    className={inputClasses}
+                                    disabled={status === "submitting" || exp.isCurrent}
+                                  />
+                                  <label className="mt-2 inline-flex items-center gap-2 text-xs text-gray-600">
+                                    <input
+                                      type="checkbox"
+                                      checked={exp.isCurrent}
+                                      onChange={(e) =>
+                                        updateExperience(
+                                          exp.id,
+                                          "isCurrent",
+                                          e.target.checked,
+                                        )
+                                      }
+                                      className="h-4 w-4 rounded border-gray-300 text-brand-gold focus:ring-brand-gold"
+                                      disabled={status === "submitting"}
+                                    />
+                                    Attualmente occupato
+                                  </label>
+                                </div>
+                                <div className="md:col-span-2">
+                                  <label className="block text-xs font-semibold text-gray-600 mb-2">
+                                    Principali Responsabilita
+                                  </label>
+                                  <textarea
+                                    rows={3}
+                                    value={exp.responsibilities}
+                                    onChange={(e) =>
+                                      updateExperience(
+                                        exp.id,
+                                        "responsibilities",
+                                        e.target.value,
+                                      )
+                                    }
+                                    className={inputClasses}
+                                    disabled={status === "submitting"}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={addExperience}
+                          disabled={
+                            status === "submitting" ||
+                            experiences.length >= MAX_EXPERIENCES
+                          }
+                          className="mt-4 text-sm text-brand-gold font-semibold hover:underline disabled:opacity-50 disabled:no-underline"
+                        >
+                          + Aggiungi esperienza
+                        </button>
+                      </>
+                    )}
                   </div>
 
                   <div className="border-t border-gray-100 pt-8">
