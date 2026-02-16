@@ -25,7 +25,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const db = createDbClient();
   if (!db) {
     clearSessionCookie(res);
-    return res.status(500).json({ error: "Missing DATABASE_URL" });
+    return res.status(500).json({ error: "Missing database connection env (DATABASE_URL/POSTGRES_URL)" });
   }
 
   try {

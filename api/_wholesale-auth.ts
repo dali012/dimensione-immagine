@@ -27,6 +27,22 @@ let schemaEnsured = false;
 
 export const getEnv = (key: string) => process.env[key] || "";
 
+export function getDatabaseConnectionString() {
+  const candidates = [
+    "DATABASE_URL",
+    "POSTGRES_URL_NON_POOLING",
+    "POSTGRES_URL",
+    "POSTGRES_PRISMA_URL",
+  ];
+
+  for (const key of candidates) {
+    const value = cleanText(getEnv(key));
+    if (value) return value;
+  }
+
+  return "";
+}
+
 export function cleanText(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
 }
@@ -57,7 +73,7 @@ export function getAccountStatus(
 }
 
 export function createDbClient() {
-  const connectionString = getEnv("DATABASE_URL");
+  const connectionString = getDatabaseConnectionString();
   if (!connectionString) {
     return null;
   }
