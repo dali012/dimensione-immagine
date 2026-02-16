@@ -1,6 +1,6 @@
-import { Link, useLocation } from "react-router-dom";
+import { ArrowRight, Clock, Mail, MapPin, Phone } from "lucide-react";
 import React, { useState } from "react";
-import { Mail, MapPin, Phone, Clock, ArrowRight } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 import { SEO } from "../components/SEO/SEO";
 import { Reveal } from "../components/UI/Reveal";
 
@@ -105,11 +105,15 @@ export const Contact: React.FC = () => {
 
       const data = await response.json().catch(() => ({}));
       if (!response.ok || !data.success) {
-        throw new Error(data?.error || "Invio non riuscito. Riprova piu tardi.");
+        throw new Error(
+          data?.error || "Invio non riuscito. Riprova piu tardi.",
+        );
       }
 
       setStatus("success");
-      setSubmitMessage("Grazie! La tua richiesta e stata inviata con successo.");
+      setSubmitMessage(
+        "Grazie! La tua richiesta e stata inviata con successo.",
+      );
       setFormData({ name: "", email: "", phone: "", message: "" });
       setTermsAccepted(false);
       setMarketingConsent(false);
@@ -121,7 +125,9 @@ export const Contact: React.FC = () => {
       }, 5000);
     } catch (err: any) {
       setStatus("error");
-      setSubmitMessage(err?.message || "Invio non riuscito. Riprova piu tardi.");
+      setSubmitMessage(
+        err?.message || "Invio non riuscito. Riprova piu tardi.",
+      );
     }
   };
 
@@ -154,7 +160,7 @@ export const Contact: React.FC = () => {
           <Reveal>
             <h2 className="text-5xl xl:text-6xl font-serif text-white mb-6 leading-tight">
               Vieni a trovarci in <br />
-              <span className="text-[#b89b5e] italic font-light">Negozio</span>
+              <span className="text-brand-gold italic font-light">Negozio</span>
             </h2>
           </Reveal>
           <Reveal delay={0.1} className="mx-auto">
@@ -195,7 +201,7 @@ export const Contact: React.FC = () => {
         <div className="flex-1 px-6 md:px-12 lg:px-16 py-10 lg:py-20 w-full max-w-2xl mx-auto">
           <Reveal width="100%">
             <div className="mb-10 lg:mb-12">
-              <span className="text-[#b89b5e] font-bold tracking-[0.2em] text-[10px] uppercase mb-3 block">
+              <span className="text-brand-gold font-bold tracking-[0.2em] text-[10px] uppercase mb-3 block">
                 Assistenza Clienti
               </span>
               <h2 className="text-3xl md:text-4xl font-serif text-gray-900 leading-tight">
@@ -207,7 +213,7 @@ export const Contact: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-y-8 gap-x-12 mb-12 border-b border-gray-100 pb-12">
             <Reveal delay={0.1}>
               <div className="flex items-start gap-4">
-                <div className="mt-1 p-2 bg-[#b89b5e]/10 rounded-full text-[#b89b5e] shrink-0">
+                <div className="mt-1 p-2 bg-brand-gold/10 rounded-full text-brand-gold shrink-0">
                   <MapPin size={18} />
                 </div>
                 <div>
@@ -220,10 +226,10 @@ export const Contact: React.FC = () => {
                     98122 Messina (ME)
                   </p>
                   <a
-                    href="https://goo.gl/maps/xyz"
+                    href="https://maps.app.goo.gl/rr5evPBvFgyBMhd68"
                     target="_blank"
                     rel="noreferrer"
-                    className="text-[10px] text-[#b89b5e] font-bold uppercase mt-2 inline-block border-b border-[#b89b5e]/30 hover:border-[#b89b5e]"
+                    className="text-[10px] text-brand-gold font-bold uppercase mt-2 inline-block border-b border-brand-gold/30 hover:border-brand-gold"
                   >
                     Vedi su mappa
                   </a>
@@ -233,7 +239,7 @@ export const Contact: React.FC = () => {
 
             <Reveal delay={0.15}>
               <div className="flex items-start gap-4">
-                <div className="mt-1 p-2 bg-[#b89b5e]/10 rounded-full text-[#b89b5e] shrink-0">
+                <div className="mt-1 p-2 bg-brand-gold/10 rounded-full text-brand-gold shrink-0">
                   <Phone size={18} />
                 </div>
                 <div>
@@ -242,13 +248,13 @@ export const Contact: React.FC = () => {
                   </h3>
                   <a
                     href="tel:+390902400474"
-                    className="block text-gray-600 text-sm hover:text-[#b89b5e] transition-colors mb-1"
+                    className="block text-gray-600 text-sm hover:text-brand-gold transition-colors mb-1"
                   >
                     +39 090 240 0474
                   </a>
                   <a
                     href="https://wa.me/390902400474"
-                    className="text-[10px] font-bold text-[#b89b5e] uppercase tracking-wide flex items-center gap-1 hover:underline"
+                    className="text-[10px] font-bold text-brand-gold uppercase tracking-wide flex items-center gap-1 hover:underline"
                   >
                     Chatta su WhatsApp
                   </a>
@@ -258,7 +264,7 @@ export const Contact: React.FC = () => {
 
             <Reveal delay={0.2}>
               <div className="flex items-start gap-4">
-                <div className="mt-1 p-2 bg-[#b89b5e]/10 rounded-full text-[#b89b5e] shrink-0">
+                <div className="mt-1 p-2 bg-brand-gold/10 rounded-full text-brand-gold shrink-0">
                   <Mail size={18} />
                 </div>
                 <div>
@@ -267,7 +273,7 @@ export const Contact: React.FC = () => {
                   </h3>
                   <a
                     href="mailto:contact@dimensione.it"
-                    className="text-gray-600 text-sm hover:text-[#b89b5e] transition-colors break-all"
+                    className="text-gray-600 text-sm hover:text-brand-gold transition-colors break-all"
                   >
                     contact@dimensioneimmagineabbigliamento.it
                   </a>
@@ -277,7 +283,7 @@ export const Contact: React.FC = () => {
 
             <Reveal delay={0.25}>
               <div className="flex items-start gap-4">
-                <div className="mt-1 p-2 bg-[#b89b5e]/10 rounded-full text-[#b89b5e] shrink-0">
+                <div className="mt-1 p-2 bg-brand-gold/10 rounded-full text-brand-gold shrink-0">
                   <Clock size={18} />
                 </div>
                 <div>
@@ -325,7 +331,9 @@ export const Contact: React.FC = () => {
                     placeholder="Mario Rossi"
                   />
                   {errors.name && (
-                    <p className="text-red-500 text-[10px] mt-1 absolute">{errors.name}</p>
+                    <p className="text-red-500 text-[10px] mt-1 absolute">
+                      {errors.name}
+                    </p>
                   )}
                 </div>
 
@@ -359,7 +367,9 @@ export const Contact: React.FC = () => {
                   placeholder="mario@example.com"
                 />
                 {errors.email && (
-                  <p className="text-red-500 text-[10px] mt-1 absolute">{errors.email}</p>
+                  <p className="text-red-500 text-[10px] mt-1 absolute">
+                    {errors.email}
+                  </p>
                 )}
               </div>
 
@@ -377,7 +387,9 @@ export const Contact: React.FC = () => {
                   placeholder="Scrivi qui la tua richiesta..."
                 ></textarea>
                 {errors.message && (
-                  <p className="text-red-500 text-[10px] mt-1 absolute">{errors.message}</p>
+                  <p className="text-red-500 text-[10px] mt-1 absolute">
+                    {errors.message}
+                  </p>
                 )}
               </div>
 
@@ -389,7 +401,7 @@ export const Contact: React.FC = () => {
                       type="checkbox"
                       checked={termsAccepted}
                       onChange={(e) => setTermsAccepted(e.target.checked)}
-                      className="h-4 w-4 rounded border-gray-300 text-[#b89b5e] focus:ring-[#b89b5e] cursor-pointer"
+                      className="h-4 w-4 rounded border-gray-300 text-brand-gold focus:ring-brand-gold cursor-pointer"
                     />
                   </div>
                   <div className="ml-3 text-xs leading-5">
@@ -397,7 +409,7 @@ export const Contact: React.FC = () => {
                       Ho letto e accetto la{" "}
                       <Link
                         to="/privacy-policy"
-                        className="font-medium text-gray-900 hover:text-[#b89b5e] underline transition-colors"
+                        className="font-medium text-gray-900 hover:text-brand-gold underline transition-colors"
                       >
                         Privacy Policy
                       </Link>
@@ -413,12 +425,13 @@ export const Contact: React.FC = () => {
                       type="checkbox"
                       checked={marketingConsent}
                       onChange={(e) => setMarketingConsent(e.target.checked)}
-                      className="h-4 w-4 rounded border-gray-300 text-[#b89b5e] focus:ring-[#b89b5e] cursor-pointer"
+                      className="h-4 w-4 rounded border-gray-300 text-brand-gold focus:ring-brand-gold cursor-pointer"
                     />
                   </div>
                   <div className="ml-3 text-xs leading-5">
                     <label htmlFor="marketing" className="text-gray-500">
-                      Acconsento a ricevere aggiornamenti commerciali (opzionale).
+                      Acconsento a ricevere aggiornamenti commerciali
+                      (opzionale).
                     </label>
                   </div>
                 </div>
@@ -430,7 +443,7 @@ export const Contact: React.FC = () => {
                     className={`w-full md:w-auto px-8 py-4 text-white uppercase tracking-[0.15em] font-bold text-xs transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 cursor-pointer ${
                       status === "submitting"
                         ? "bg-gray-400 cursor-not-allowed"
-                        : "bg-[#b89b5e] hover:bg-[#a38a53]"
+                        : "bg-brand-gold hover:bg-brand-gold-dark"
                     }`}
                   >
                     {status === "submitting" ? "Invio..." : "Invia Messaggio"}
