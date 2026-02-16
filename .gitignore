@@ -27,3 +27,5 @@ dist-ssr
 .sanity
 
 .env
+.vercel
+.env*.local

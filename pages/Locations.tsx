@@ -200,7 +200,6 @@ export const Locations: React.FC = () => {
                           </span>
                         ) : (
                           <span className="text-brand-text-secondary uppercase font-bold">
-                            Store Proprietario <br />
                             {isOpenNow() ? (
                               <span className="text-green-500">Aperto ora</span>
                             ) : (

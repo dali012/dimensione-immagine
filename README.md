@@ -57,3 +57,46 @@ Il form contatti usa `POST /api/contact` (Vercel serverless), con:
 - notifica email opzionale via Resend (`RESEND_API_KEY`, `RESEND_TO_EMAIL`, `RESEND_FROM_EMAIL`)
 
 Imposta anche `CONTACT_IP_SALT` in produzione per hashare gli IP nei log DB.
+
+## Auth Distribuzione Ingrosso (B2B)
+
+La pagina `/distribuzione-in-grosso` usa ora autenticazione reale lato server (PostgreSQL + cookie `HttpOnly`), separata dal resto del sito.
+
+### Flusso utente
+
+1. Registrazione con campi obbligatori:
+- `name`
+- `surname`
+- `phone`
+- `email`
+2. Profilo in stato `pending_approval`.
+3. Dopo approvazione, l'utente imposta la password tramite link/token di setup.
+4. Solo dopo approvazione + password impostata, il login e l'accesso B2B sono consentiti.
+
+### API principali
+
+- `POST /api/wholesale-auth-register`
+- `POST /api/wholesale-auth-status`
+- `POST /api/wholesale-auth-request-password-setup`
+- `POST /api/wholesale-auth-complete-password-setup`
+- `POST /api/wholesale-auth-login`
+- `GET /api/wholesale-auth-me`
+- `POST /api/wholesale-auth-logout`
+- `POST /api/wholesale-auth-approve` (admin, richiede `WHOLESALE_AUTH_ADMIN_TOKEN`)
+
+### Variabili env aggiuntive
+
+Vedi `.env.example`:
+- `WHOLESALE_AUTH_COOKIE_NAME`
+- `WHOLESALE_AUTH_SESSION_DAYS`
+- `WHOLESALE_AUTH_SETUP_TOKEN_MINUTES`
+- `WHOLESALE_AUTH_ADMIN_TOKEN`
+- `RESEND_WHOLESALE_REVIEW_TO_EMAIL` (opzionale)
+
+Nota: il setup password via email richiede `RESEND_API_KEY` e `RESEND_FROM_EMAIL`.
+
+### Comandi con Bun
+
+- install: `bun install`
+- dev: `bun run dev`
+- build: `bun run build`

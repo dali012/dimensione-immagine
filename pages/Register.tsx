@@ -1,24 +1,44 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { Eye, EyeOff } from "lucide-react";
 
 export const Register: React.FC = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [surname, setSurname] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [showPassword, setShowPassword] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    const ok = await register({ email: email.trim(), password, name });
-    if (ok) navigate("/distribuzione-in-grosso", { replace: true });
-    else setError("Utente già registrato con questa email.");
+    setSubmitting(true);
+
+    const result = await register({
+      name: name.trim(),
+      surname: surname.trim(),
+      phone: phone.trim(),
+      email: email.trim(),
+    });
+
+    setSubmitting(false);
+
+    if (!result.ok) {
+      setError(result.error || "Impossibile completare la registrazione.");
+      return;
+    }
+
+    navigate("/login", {
+      replace: true,
+      state: {
+        registeredEmail: email.trim(),
+        justRegistered: true,
+      },
+    });
   };
 
   return (
@@ -43,24 +63,51 @@ export const Register: React.FC = () => {
                   height="48"
                 />
               </picture>
-              <h1 className="text-2xl font-serif font-bold">
-                Registrati
-              </h1>
+              <h1 className="text-2xl font-serif font-bold">Registrazione B2B</h1>
               <p className="text-sm text-brand-text-secondary mt-2">
-                Registrati per richiedere preventivi e accesso B2B
+                Compila i dati richiesti. La password verra impostata dopo
+                l&apos;approvazione del profilo.
               </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs uppercase tracking-wide text-brand-text-secondary mb-2">
-                  Nome completo
+                  Nome
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Nome e cognome"
+                  placeholder="Nome"
+                  required
+                  className="w-full p-3 border border-brand-border rounded"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase tracking-wide text-brand-text-secondary mb-2">
+                  Cognome
+                </label>
+                <input
+                  type="text"
+                  value={surname}
+                  onChange={(e) => setSurname(e.target.value)}
+                  placeholder="Cognome"
+                  required
+                  className="w-full p-3 border border-brand-border rounded"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase tracking-wide text-brand-text-secondary mb-2">
+                  Telefono
+                </label>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+39..."
                   required
                   className="w-full p-3 border border-brand-border rounded"
                 />
@@ -80,41 +127,20 @@ export const Register: React.FC = () => {
                 />
               </div>
 
-              <div>
-                <label className="block text-xs uppercase tracking-wide text-brand-text-secondary mb-2">
-                  Password
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Crea una password"
-                    required
-                    className="w-full p-3 border border-brand-border rounded"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((s) => !s)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-text-secondary"
-                    aria-label="Toggle password visibility"
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-              </div>
-
               {error && <p className="text-sm text-red-600">{error}</p>}
 
               <div className="flex items-center justify-between">
-                <button className="px-6 py-3 bg-brand-accent text-white rounded-lg font-semibold cursor-pointer">
-                  Continua la registrazione
+                <button
+                  disabled={submitting}
+                  className="px-6 py-3 bg-brand-accent text-white rounded-lg font-semibold cursor-pointer disabled:opacity-70"
+                >
+                  {submitting ? "Invio..." : "Invia registrazione"}
                 </button>
                 <Link
                   to="/login"
                   className="text-sm text-brand-text-secondary underline"
                 >
-                  Hai già un account? Accedi
+                  Hai gia un account? Accedi
                 </Link>
               </div>
             </form>
@@ -128,7 +154,6 @@ export const Register: React.FC = () => {
 
 export default Register;
 
-// Small footer for auth pages
 const AuthFooter: React.FC = () => (
   <div className="mt-6 text-center text-sm text-brand-text-secondary">
     <Link to="/privacy-policy" className="underline mr-4">

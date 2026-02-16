@@ -16,7 +16,7 @@ type SkillLevel = "none" | "basic" | "intermediate" | "advanced" | "expert";
 type ExperienceLevel = "stage" | "junior" | "mid-level" | "senior";
 type NoticePeriod = "immediata" | "15-giorni" | "30-giorni";
 type EducationLevel =
-  | "scuola"
+  | "scuola media"
   | "formazione-professionale"
   | "diploma"
   | "laurea-triennale"
@@ -67,7 +67,7 @@ const NOTICE_PERIOD_OPTIONS: { value: NoticePeriod; label: string }[] = [
 ];
 
 const EDUCATION_OPTIONS: { value: EducationLevel; label: string }[] = [
-  { value: "scuola", label: "Scuola" },
+  { value: "scuola media", label: "Scuola Media" },
   { value: "formazione-professionale", label: "Formazione professionale" },
   { value: "diploma", label: "Diploma" },
   { value: "laurea-triennale", label: "Laurea Triennale" },
@@ -92,7 +92,7 @@ const LANGUAGE_LEVEL_OPTIONS: { value: LanguageLevel; label: string }[] = [
   { value: "avanzato-madrelingua", label: "Avanzato/Madrelingua" },
 ];
 
-const MAX_EXPERIENCES = 3;
+const MAX_EXPERIENCES = 5;
 const MAX_HARD_SKILLS = 5;
 let experienceCounter = 0;
 
@@ -1084,7 +1084,7 @@ const LavoraConNoi: React.FC = () => {
                           htmlFor="noticePeriod"
                           className="block text-sm font-semibold text-gray-700 mb-2"
                         >
-                          Disponibilita al preavviso *
+                          Disponibilità lavorativa *
                         </label>
                         <select
                           id="noticePeriod"
@@ -1180,7 +1180,7 @@ const LavoraConNoi: React.FC = () => {
                           htmlFor="hardSkills"
                           className="block text-sm font-semibold text-gray-700 mb-2"
                         >
-                          Competenze Tecniche (Hard Skills) *
+                          Competenze Tecniche *
                         </label>
                         <div className="space-y-3">
                           <div className="flex flex-col sm:flex-row gap-3">

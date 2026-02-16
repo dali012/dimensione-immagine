@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
-import { PageTransition } from "../components/Layout/PageTransition";
 import { SEO } from "@/components/SEO/SEO";
 import { Reveal } from "@/components/UI/Reveal";
 import {
-  Building2,
-  ShoppingBag,
-  Send,
   AlertCircle,
+  Building2,
   CheckCircle2,
+  LogOut,
+  Send,
+  ShoppingBag,
 } from "lucide-react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { PageTransition } from "../components/Layout/PageTransition";
+import { useAuth } from "../contexts/AuthContext";
 
 // --- Types ---
 interface FormData {
@@ -32,6 +34,7 @@ const PurchaseRequest: React.FC = () => {
     "idle" | "submitting" | "success" | "error"
   >("idle");
   const navigate = useNavigate();
+  const { logout, user } = useAuth();
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
@@ -82,6 +85,11 @@ const PurchaseRequest: React.FC = () => {
   const inputClass =
     "w-full bg-transparent border-b border-gray-300 py-2.5 text-sm text-gray-900 focus:outline-none focus:border-[#b89b5e] transition-all placeholder:text-gray-300 rounded-none";
 
+  const handleLogout = async () => {
+    await logout();
+    navigate("/login", { replace: true });
+  };
+
   return (
     <PageTransition>
       <div className="pt-24 min-h-screen bg-gray-50 font-sans">
@@ -94,7 +102,7 @@ const PurchaseRequest: React.FC = () => {
         <section className="container mx-auto px-6 py-12 pb-24 max-w-4xl">
           <Reveal width="100%">
             <div className="text-center mb-12">
-              <span className="text-[#b89b5e] font-bold tracking-[0.2em] text-xs uppercase mb-3 block">
+              <span className="text-brand-gold font-bold tracking-[0.2em] text-xs uppercase mb-3 block">
                 Shop & Ordini
               </span>
               <h1 className="text-3xl md:text-5xl font-serif text-gray-900 mb-6">
@@ -105,6 +113,17 @@ const PurchaseRequest: React.FC = () => {
                 disponibilità, prezzi per quantità o per ordinare un articolo
                 specifico.
               </p>
+              <div className="mt-5 flex items-center justify-center gap-4 text-xs text-gray-500">
+                <span>{user?.email}</span>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-gray-300 rounded-md hover:border-brand-gold hover:text-brand-gold transition-colors cursor-pointer"
+                >
+                  <LogOut size={14} />
+                  Esci
+                </button>
+              </div>
             </div>
           </Reveal>
 
@@ -112,7 +131,7 @@ const PurchaseRequest: React.FC = () => {
             {/* Top action cards: Ecommerce link for clients + quick access to B2B form */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-6 flex items-start gap-4">
-                <ShoppingBag size={28} className="text-[#b89b5e]" />
+                <ShoppingBag size={28} className="text-brand-gold" />
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">
                     Compra online
@@ -125,7 +144,7 @@ const PurchaseRequest: React.FC = () => {
                     href="https://shop.dimensioneimmagineabbigliamento.it"
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-block px-4 py-2 bg-[#b89b5e] text-white rounded font-medium text-sm"
+                    className="inline-block px-4 py-2 bg-brand-gold text-white rounded font-medium text-sm"
                   >
                     Vai allo Shop
                   </a>
@@ -133,7 +152,7 @@ const PurchaseRequest: React.FC = () => {
               </div>
 
               <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-6 flex items-start gap-4">
-                <Building2 size={28} className="text-[#b89b5e]" />
+                <Building2 size={28} className="text-brand-gold" />
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">
                     Distribuzione Ingrosso
@@ -152,7 +171,7 @@ const PurchaseRequest: React.FC = () => {
                           block: "start",
                         });
                     }}
-                    className="inline-block px-4 py-2 bg-transparent border border-[#b89b5e] text-[#b89b5e] rounded font-medium text-sm cursor-pointer"
+                    className="inline-block px-4 py-2 bg-transparent border border-brand-gold text-brand-gold rounded font-medium text-sm cursor-pointer"
                   >
                     Compila il modulo
                   </button>
@@ -163,7 +182,7 @@ const PurchaseRequest: React.FC = () => {
             <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
               {/* B2B only: simplified header */}
               <div className="flex border-b border-gray-100">
-                <div className="flex-1 py-6 flex items-center justify-center gap-3 bg-white text-[#b89b5e]">
+                <div className="flex-1 py-6 flex items-center justify-center gap-3 bg-white text-brand-gold">
                   <Building2 size={20} className="stroke-[2.5px]" />
                   <span className="text-sm uppercase tracking-widest font-bold">
                     Azienda (B2B)
@@ -180,7 +199,7 @@ const PurchaseRequest: React.FC = () => {
                 >
                   {/* Mode Header */}
                   <div className="flex items-center gap-2 mb-6 opacity-70">
-                    <AlertCircle size={16} className="text-[#b89b5e]" />
+                    <AlertCircle size={16} className="text-brand-gold" />
                     <p className="text-xs text-gray-500 uppercase tracking-wide">
                       Stai compilando il modulo come:{" "}
                       <strong className="text-gray-900">
@@ -260,7 +279,7 @@ const PurchaseRequest: React.FC = () => {
                       value={formData.productDetails}
                       onChange={handleChange}
                       required
-                      className="w-full h-32 p-3 border border-gray-200 rounded resize-none text-sm text-gray-900 focus:outline-none focus:border-[#b89b5e]"
+                      className="w-full h-32 p-3 border border-gray-200 rounded resize-none text-sm text-gray-900 focus:outline-none focus:border-brand-gold"
                       placeholder="Dettaglia articoli, taglie, colori, quantità desiderata..."
                     />
                   </div>
@@ -304,7 +323,7 @@ const PurchaseRequest: React.FC = () => {
                         type="checkbox"
                         checked={privacyAccepted}
                         onChange={(e) => setPrivacyAccepted(e.target.checked)}
-                        className="mt-1 h-4 w-4 text-[#b89b5e] focus:ring-[#b89b5e] border-gray-300 rounded cursor-pointer"
+                        className="mt-1 h-4 w-4 text-brand-gold focus:ring-brand-gold border-gray-300 rounded cursor-pointer"
                       />
                       <label
                         htmlFor="privacy"
@@ -315,7 +334,7 @@ const PurchaseRequest: React.FC = () => {
                           href="/privacy-policy"
                           target="_blank"
                           rel="noreferrer"
-                          className="text-[#b89b5e] underline mx-1"
+                          className="text-brand-gold underline mx-1"
                         >
                           Privacy Policy
                         </a>
@@ -338,7 +357,7 @@ const PurchaseRequest: React.FC = () => {
                         className={`w-full py-4 md:py-5 text-white uppercase tracking-[0.2em] font-bold text-sm transition-all shadow-xl hover:shadow-2xl flex items-center justify-center gap-3 cursor-pointer ${
                           status === "submitting"
                             ? "bg-gray-400 cursor-not-allowed"
-                            : "bg-[#b89b5e] hover:bg-[#a38a53] transform hover:-translate-y-1"
+                            : "bg-brand-gold hover:bg-[#a38a53] transform hover:-translate-y-1"
                         }`}
                       >
                         {status === "submitting" ? (
