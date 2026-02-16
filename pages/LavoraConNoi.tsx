@@ -53,22 +53,6 @@ const SKILL_LEVELS: { value: SkillLevel; label: string }[] = [
   { value: "expert", label: "Esperto" },
 ];
 
-const SKILL_LEVEL_SHORT_LABEL: Record<SkillLevel, string> = {
-  none: "Nessuna",
-  basic: "Base",
-  intermediate: "Intermedio",
-  advanced: "Avanzato",
-  expert: "Esperto",
-};
-
-const SKILL_LEVEL_STYLE: Record<SkillLevel, string> = {
-  none: "border-gray-200 bg-gray-100 text-gray-600",
-  basic: "border-emerald-300 bg-emerald-50 text-emerald-700",
-  intermediate: "border-sky-300 bg-sky-50 text-sky-700",
-  advanced: "border-indigo-300 bg-indigo-50 text-indigo-700",
-  expert: "border-amber-300 bg-amber-50 text-amber-700",
-};
-
 const EXPERIENCE_LEVEL_OPTIONS: { value: ExperienceLevel; label: string }[] = [
   { value: "stage", label: "Tirocinio/Stage" },
   { value: "junior", label: "Junior" },
@@ -471,45 +455,14 @@ const LavoraConNoi: React.FC = () => {
   const showNoPositions = positionsLoaded && positions.length === 0;
   const hasSelectedPosition = Boolean(selectedPosition);
   const positionTasks = selectedPosition?.tasks || [];
-
-  const totalTasksCount = positionTasks.length;
-  const requiredTasksCount = positionTasks.filter((task) => task.required).length;
-  const ratedTasksCount = positionTasks.filter(
-    (task) => (taskRatings[task.id] || "none") !== "none",
-  ).length;
-  const requiredRatedCount = positionTasks.filter(
-    (task) => task.required && (taskRatings[task.id] || "none") !== "none",
-  ).length;
-  const missingRequiredTasks = positionTasks.filter(
-    (task) => task.required && (taskRatings[task.id] || "none") === "none",
+  const requiredTasks = positionTasks.filter((task) => task.required);
+  const optionalTasks = positionTasks.filter((task) => !task.required);
+  const missingRequiredTasks = requiredTasks.filter(
+    (task) => (taskRatings[task.id] || "none") === "none",
   );
-  const step4CompletionPercent =
-    totalTasksCount > 0 ? Math.round((ratedTasksCount / totalTasksCount) * 100) : 0;
 
   const handleTaskLevelChange = (taskId: string, level: SkillLevel) => {
     setTaskRatings((previous) => ({ ...previous, [taskId]: level }));
-  };
-
-  const fillUnratedTasksWithBasic = () => {
-    setTaskRatings((previous) => {
-      const next = { ...previous };
-      positionTasks.forEach((task) => {
-        if ((next[task.id] || "none") === "none") {
-          next[task.id] = "basic";
-        }
-      });
-      return next;
-    });
-  };
-
-  const clearAllTaskRatings = () => {
-    setTaskRatings((previous) => {
-      const next = { ...previous };
-      positionTasks.forEach((task) => {
-        next[task.id] = "none";
-      });
-      return next;
-    });
   };
 
   const addLanguage = () => {
@@ -1303,136 +1256,154 @@ const LavoraConNoi: React.FC = () => {
                         Competenze per {selectedPosition.title}
                       </h2>
                       <p className="text-sm text-gray-600 mb-6">
-                        Valuti ogni competenza selezionando un livello. Per le
-                        competenze obbligatorie e richiesto almeno un livello
+                        Seleziona il livello per ogni competenza. Le
+                        competenze obbligatorie richiedono almeno il livello
                         Base.
                       </p>
 
-                      <div className="mb-6 rounded-xl border border-gray-200 bg-gray-50/60 p-4 md:p-5">
-                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                          <div className="flex flex-wrap gap-2 text-xs">
-                            <span className="inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1 text-gray-700">
-                              {requiredRatedCount}/{requiredTasksCount}{" "}
-                              obbligatorie compilate
+                      <div className="mb-6 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                        {requiredTasks.length > 0 ? (
+                          <p className="text-sm text-gray-700">
+                            Obbligatorie compilate:{" "}
+                            <span className="font-semibold">
+                              {requiredTasks.length -
+                                missingRequiredTasks.length}
+                              /{requiredTasks.length}
                             </span>
-                            <span className="inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1 text-gray-700">
-                              {ratedTasksCount}/{totalTasksCount} competenze
-                              valutate
-                            </span>
-                          </div>
-                          <span className="text-sm font-semibold text-gray-700">
-                            Completamento: {step4CompletionPercent}%
-                          </span>
-                        </div>
-
-                        <div className="mt-3 h-2 w-full rounded-full bg-gray-200 overflow-hidden">
-                          <div
-                            className="h-full bg-brand-gold transition-all duration-300"
-                            style={{ width: `${step4CompletionPercent}%` }}
-                          />
-                        </div>
-
-                        {missingRequiredTasks.length > 0 && (
-                          <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-                            Mancano {missingRequiredTasks.length} competenze
-                            obbligatorie:{" "}
-                            {missingRequiredTasks
-                              .slice(0, 3)
-                              .map((task) => task.label)
-                              .join(", ")}
-                            {missingRequiredTasks.length > 3 ? "..." : ""}
-                          </div>
+                          </p>
+                        ) : (
+                          <p className="text-sm text-gray-700">
+                            Nessuna competenza obbligatoria per questa
+                            posizione.
+                          </p>
                         )}
-
-                        <div className="mt-4 flex flex-wrap gap-2">
-                          <button
-                            type="button"
-                            onClick={fillUnratedTasksWithBasic}
-                            disabled={status === "submitting"}
-                            className="px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 hover:border-brand-gold hover:text-brand-gold disabled:opacity-50"
-                          >
-                            Compila non valutate a Base
-                          </button>
-                          <button
-                            type="button"
-                            onClick={clearAllTaskRatings}
-                            disabled={status === "submitting"}
-                            className="px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 hover:border-red-300 hover:text-red-600 disabled:opacity-50"
-                          >
-                            Azzera livelli
-                          </button>
-                        </div>
+                        {missingRequiredTasks.length > 0 && (
+                          <p className="mt-2 text-xs text-red-600">
+                            Compila tutte le competenze obbligatorie prima
+                            dell&apos;invio.
+                          </p>
+                        )}
                       </div>
 
-                      <div className="space-y-4">
-                        {positionTasks.map((task) => {
-                          const selectedLevel = taskRatings[task.id] || "none";
-                          const isRequiredMissing =
-                            task.required && selectedLevel === "none";
+                      <div className="space-y-6">
+                        <div>
+                          <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-700">
+                            Competenze obbligatorie
+                          </h3>
+                          {requiredTasks.length === 0 ? (
+                            <p className="rounded-lg border border-gray-200 bg-white p-4 text-sm text-gray-600">
+                              Nessuna competenza obbligatoria disponibile.
+                            </p>
+                          ) : (
+                            <div className="space-y-3">
+                              {requiredTasks.map((task) => {
+                                const selectedLevel =
+                                  taskRatings[task.id] || "none";
+                                const isRequiredMissing =
+                                  selectedLevel === "none";
 
-                          return (
-                            <div
-                              key={task.id}
-                              className="p-4 md:p-5 border border-gray-200 rounded-xl bg-white"
-                            >
-                              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
-                                <div>
-                                  <p className="text-base text-gray-800 font-semibold leading-snug">
-                                    {task.label}
-                                  </p>
-                                  <p
-                                    className={`mt-1 text-xs ${task.required ? "text-amber-700" : "text-gray-500"}`}
+                                return (
+                                  <div
+                                    key={task.id}
+                                    className={`rounded-lg border p-4 ${
+                                      isRequiredMissing
+                                        ? "border-red-200 bg-red-50/50"
+                                        : "border-gray-200 bg-white"
+                                    }`}
                                   >
-                                    {task.required
-                                      ? "Competenza obbligatoria"
-                                      : "Competenza opzionale"}
-                                  </p>
-                                </div>
-
-                                <span
-                                  className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${SKILL_LEVEL_STYLE[selectedLevel]}`}
-                                >
-                                  Livello:{" "}
-                                  {SKILL_LEVEL_SHORT_LABEL[selectedLevel]}
-                                </span>
-                              </div>
-
-                              <div className="mt-4 grid grid-cols-2 md:grid-cols-5 gap-2">
-                                {SKILL_LEVELS.map((level) => {
-                                  const isSelected =
-                                    selectedLevel === level.value;
-                                  return (
-                                    <button
-                                      key={level.value}
-                                      type="button"
-                                      onClick={() =>
+                                    <label
+                                      htmlFor={`task-${task.id}`}
+                                      className="mb-2 block text-sm font-semibold text-gray-800"
+                                    >
+                                      {task.label}{" "}
+                                      <span className="text-red-600">*</span>
+                                    </label>
+                                    <select
+                                      id={`task-${task.id}`}
+                                      value={selectedLevel}
+                                      onChange={(e) =>
                                         handleTaskLevelChange(
                                           task.id,
-                                          level.value,
+                                          e.target.value as SkillLevel,
                                         )
                                       }
+                                      className={inputClasses}
                                       disabled={status === "submitting"}
-                                      className={`px-3 py-2 rounded-lg border text-sm transition-colors disabled:opacity-50 ${
-                                        isSelected
-                                          ? `${SKILL_LEVEL_STYLE[level.value]} border-2 font-semibold`
-                                          : "border-gray-200 text-gray-600 hover:border-brand-gold hover:text-brand-gold"
-                                      }`}
                                     >
-                                      {SKILL_LEVEL_SHORT_LABEL[level.value]}
-                                    </button>
-                                  );
-                                })}
-                              </div>
-
-                              {isRequiredMissing && (
-                                <p className="mt-3 text-xs text-red-600">
-                                  Seleziona almeno Base per questa competenza
-                                  obbligatoria.
-                                </p>
-                              )}
+                                      <option value="none">
+                                        Seleziona livello
+                                      </option>
+                                      {SKILL_LEVELS.filter(
+                                        (level) => level.value !== "none",
+                                      ).map((level) => (
+                                        <option
+                                          key={level.value}
+                                          value={level.value}
+                                        >
+                                          {level.label}
+                                        </option>
+                                      ))}
+                                    </select>
+                                    {isRequiredMissing && (
+                                      <p className="mt-2 text-xs text-red-600">
+                                        Seleziona almeno il livello Base.
+                                      </p>
+                                    )}
+                                  </div>
+                                );
+                              })}
                             </div>
-                          );
-                        })}
+                          )}
+                        </div>
+
+                        {optionalTasks.length > 0 && (
+                          <div>
+                            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-700">
+                              Competenze opzionali
+                            </h3>
+                            <div className="space-y-3">
+                              {optionalTasks.map((task) => {
+                                const selectedLevel =
+                                  taskRatings[task.id] || "none";
+
+                                return (
+                                  <div
+                                    key={task.id}
+                                    className="rounded-lg border border-gray-200 bg-white p-4"
+                                  >
+                                    <label
+                                      htmlFor={`task-${task.id}`}
+                                      className="mb-2 block text-sm font-semibold text-gray-800"
+                                    >
+                                      {task.label}
+                                    </label>
+                                    <select
+                                      id={`task-${task.id}`}
+                                      value={selectedLevel}
+                                      onChange={(e) =>
+                                        handleTaskLevelChange(
+                                          task.id,
+                                          e.target.value as SkillLevel,
+                                        )
+                                      }
+                                      className={inputClasses}
+                                      disabled={status === "submitting"}
+                                    >
+                                      {SKILL_LEVELS.map((level) => (
+                                        <option
+                                          key={level.value}
+                                          value={level.value}
+                                        >
+                                          {level.label}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
