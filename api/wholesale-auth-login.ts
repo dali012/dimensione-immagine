@@ -8,7 +8,7 @@ import {
   normalizeEmail,
   toPublicUser,
   verifyPassword,
-} from "../lib/wholesale-auth";
+} from "../lib/wholesale-auth.js";
 
 type LoginPayload = {
   email?: string;

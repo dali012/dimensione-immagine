@@ -9,7 +9,7 @@ import {
   normalizeEmail,
   normalizePhone,
   sendWholesaleRegistrationNotification,
-} from "../lib/wholesale-auth";
+} from "../lib/wholesale-auth.js";
 
 type RegisterPayload = {
   name?: string;

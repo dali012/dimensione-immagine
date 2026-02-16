@@ -9,7 +9,7 @@ import {
   normalizeEmail,
   parseAdminAuthorization,
   sendPasswordSetupEmail,
-} from "../lib/wholesale-auth";
+} from "../lib/wholesale-auth.js";
 
 type ApprovePayload = {
   email?: string;

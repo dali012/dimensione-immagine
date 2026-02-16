@@ -6,7 +6,7 @@ import {
   getAccountStatus,
   isEmailValid,
   normalizeEmail,
-} from "../lib/wholesale-auth";
+} from "../lib/wholesale-auth.js";
 
 type StatusPayload = {
   email?: string;

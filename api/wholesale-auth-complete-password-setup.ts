@@ -10,7 +10,7 @@ import {
   isPasswordValid,
   normalizeEmail,
   toPublicUser,
-} from "../lib/wholesale-auth";
+} from "../lib/wholesale-auth.js";
 
 type CompletePasswordSetupPayload = {
   email?: string;

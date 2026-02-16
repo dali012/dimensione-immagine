@@ -7,7 +7,7 @@ import {
   issuePasswordSetupToken,
   normalizeEmail,
   sendPasswordSetupEmail,
-} from "../lib/wholesale-auth";
+} from "../lib/wholesale-auth.js";
 
 type PasswordSetupRequestPayload = {
   email?: string;
