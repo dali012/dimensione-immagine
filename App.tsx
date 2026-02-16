@@ -77,6 +77,11 @@ const Login = React.lazy(() =>
 const Register = React.lazy(() =>
   import("./pages/Register").then((module) => ({ default: module.Register })),
 );
+const WholesaleAdmin = React.lazy(() =>
+  import("./pages/WholesaleAdmin").then((module) => ({
+    default: module.WholesaleAdmin,
+  })),
+);
 const Footer = React.lazy(() =>
   import("./components/Layout/Footer").then((module) => ({
     default: module.Footer,
@@ -236,6 +241,14 @@ const AnimatedRoutes = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route
+              path="/admin-wholesale"
+              element={
+                <PageTransition>
+                  <WholesaleAdmin />
+                </PageTransition>
+              }
+            />
+            <Route
               path="*"
               element={
                 <PageTransition>
@@ -260,7 +273,7 @@ const AnimatedRoutes = () => {
 // Render Navbar only on non-auth pages
 const ConditionalNavbar: React.FC = () => {
   const location = useLocation();
-  const hiddenPaths = ["/login", "/register"];
+  const hiddenPaths = ["/login", "/register", "/admin-wholesale"];
   if (hiddenPaths.includes(location.pathname)) return null;
   return <Navbar />;
 };
