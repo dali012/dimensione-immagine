@@ -5,7 +5,7 @@ import {
   deleteSessionByRawToken,
   ensureWholesaleAuthSchema,
   getSessionTokenFromRequest,
-} from "./_wholesale-auth";
+} from "../lib/wholesale-auth";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader("Cache-Control", "no-store");

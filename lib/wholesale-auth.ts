@@ -27,6 +27,11 @@ let schemaEnsured = false;
 
 export const getEnv = (key: string) => process.env[key] || "";
 
+function normalizeConnectionString(value: string) {
+  const trimmed = value.trim();
+  return trimmed.replace(/^['"]|['"]$/g, "");
+}
+
 export function getDatabaseConnectionString() {
   const candidates = [
     "DATABASE_URL",
@@ -36,7 +41,7 @@ export function getDatabaseConnectionString() {
   ];
 
   for (const key of candidates) {
-    const value = cleanText(getEnv(key));
+    const value = normalizeConnectionString(cleanText(getEnv(key)));
     if (value) return value;
   }
 
@@ -78,7 +83,12 @@ export function createDbClient() {
     return null;
   }
 
-  return new Client({ connectionString });
+  try {
+    return new Client({ connectionString });
+  } catch (error) {
+    console.error("Wholesale auth DB client init error:", error);
+    return null;
+  }
 }
 
 export async function ensureWholesaleAuthSchema(db: Client) {

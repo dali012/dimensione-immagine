@@ -6,7 +6,7 @@ import {
   getAccountStatus,
   isEmailValid,
   normalizeEmail,
-} from "./_wholesale-auth";
+} from "../lib/wholesale-auth";
 
 type StatusPayload = {
   email?: string;
@@ -28,7 +28,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const db = createDbClient();
   if (!db) {
-    return res.status(500).json({ error: "Missing database connection env (DATABASE_URL/POSTGRES_URL)" });
+    return res.status(500).json({
+      error:
+        "Invalid or missing database connection env (DATABASE_URL/POSTGRES_URL)",
+    });
   }
 
   try {
