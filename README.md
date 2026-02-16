@@ -83,7 +83,7 @@ La pagina `/distribuzione-in-grosso` usa ora autenticazione reale lato server (P
 - `GET /api/wholesale-auth-me`
 - `POST /api/wholesale-auth-logout`
 - `POST /api/wholesale-auth-approve` (admin, richiede `WHOLESALE_AUTH_ADMIN_TOKEN`)
-- `GET /api/wholesale-auth-list` (admin, richiede `WHOLESALE_AUTH_ADMIN_TOKEN`)
+- `GET /api/wholesale-auth-approve` (admin list, richiede `WHOLESALE_AUTH_ADMIN_TOKEN`)
 
 ### UI amministrazione richieste
 

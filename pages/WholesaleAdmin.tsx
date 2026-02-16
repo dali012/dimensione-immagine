@@ -94,7 +94,10 @@ export const WholesaleAdmin: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      const url = new URL("/api/wholesale-auth-list", window.location.origin);
+      const url = new URL(
+        "/api/wholesale-auth-approve",
+        window.location.origin,
+      );
       url.searchParams.set("status", filter);
       if (q.trim()) url.searchParams.set("q", q.trim());
 
