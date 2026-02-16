@@ -1,7 +1,13 @@
+import { SEO } from "@/components/SEO/SEO";
+import {
+  CheckCircle2,
+  RefreshCw,
+  Send,
+  ShieldCheck,
+  XCircle,
+} from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { SEO } from "@/components/SEO/SEO";
-import { ShieldCheck, RefreshCw, CheckCircle2, XCircle, Send } from "lucide-react";
 
 type ListFilter = "pending" | "approved" | "all";
 
@@ -29,6 +35,14 @@ type ListResponse = {
     pending: number;
     approved: number;
     setupRequired: number;
+  };
+  pagination?: {
+    page: number;
+    pageSize: number;
+    totalItems: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
   };
   error?: string;
 };
@@ -70,11 +84,21 @@ export const WholesaleAdmin: React.FC = () => {
   const [adminToken, setAdminToken] = useState("");
   const [query, setQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<ListFilter>("pending");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
   const [items, setItems] = useState<WholesaleItem[]>([]);
   const [counts, setCounts] = useState({
     pending: 0,
     approved: 0,
     setupRequired: 0,
+  });
+  const [pagination, setPagination] = useState({
+    page: 1,
+    pageSize: 20,
+    totalItems: 0,
+    totalPages: 0,
+    hasNextPage: false,
+    hasPrevPage: false,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -89,7 +113,13 @@ export const WholesaleAdmin: React.FC = () => {
   }, []);
 
   const fetchList = useCallback(
-    async (token: string, filter: ListFilter, q: string) => {
+    async (
+      token: string,
+      filter: ListFilter,
+      q: string,
+      currentPage: number,
+      currentPageSize: number,
+    ) => {
       if (!token) return;
       setLoading(true);
       setError(null);
@@ -100,6 +130,8 @@ export const WholesaleAdmin: React.FC = () => {
       );
       url.searchParams.set("status", filter);
       if (q.trim()) url.searchParams.set("q", q.trim());
+      url.searchParams.set("page", String(currentPage));
+      url.searchParams.set("pageSize", String(currentPageSize));
 
       try {
         const response = await fetch(url.toString(), {
@@ -116,6 +148,14 @@ export const WholesaleAdmin: React.FC = () => {
             setAdminToken("");
             setTokenInput("");
             setItems([]);
+            setPagination({
+              page: 1,
+              pageSize: currentPageSize,
+              totalItems: 0,
+              totalPages: 0,
+              hasNextPage: false,
+              hasPrevPage: false,
+            });
             setError("Token admin non valido.");
             return;
           }
@@ -125,6 +165,12 @@ export const WholesaleAdmin: React.FC = () => {
 
         setItems(data.items || []);
         if (data.counts) setCounts(data.counts);
+        if (data.pagination) {
+          setPagination(data.pagination);
+          if (data.pagination.page !== currentPage) {
+            setPage(data.pagination.page);
+          }
+        }
       } catch {
         setError("Errore di rete durante il caricamento.");
       } finally {
@@ -136,8 +182,8 @@ export const WholesaleAdmin: React.FC = () => {
 
   useEffect(() => {
     if (!adminToken) return;
-    fetchList(adminToken, activeFilter, query);
-  }, [adminToken, activeFilter, fetchList]);
+    fetchList(adminToken, activeFilter, query, page, pageSize);
+  }, [adminToken, activeFilter, page, pageSize, fetchList]);
 
   const approveAction = async (
     item: WholesaleItem,
@@ -168,6 +214,14 @@ export const WholesaleAdmin: React.FC = () => {
           setAdminToken("");
           setTokenInput("");
           setItems([]);
+          setPagination({
+            page: 1,
+            pageSize,
+            totalItems: 0,
+            totalPages: 0,
+            hasNextPage: false,
+            hasPrevPage: false,
+          });
           setError("Token admin non valido.");
           return;
         }
@@ -182,7 +236,7 @@ export const WholesaleAdmin: React.FC = () => {
             : "Profilo approvato."
           : "Profilo riportato in attesa.",
       );
-      await fetchList(adminToken, activeFilter, query);
+      await fetchList(adminToken, activeFilter, query, page, pageSize);
     } catch {
       toast.error("Errore di rete durante l'operazione.");
     } finally {
@@ -200,13 +254,15 @@ export const WholesaleAdmin: React.FC = () => {
 
     sessionStorage.setItem(TOKEN_STORAGE_KEY, trimmed);
     setAdminToken(trimmed);
-    await fetchList(trimmed, activeFilter, query);
+    setPage(1);
+    await fetchList(trimmed, activeFilter, query, 1, pageSize);
   };
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!adminToken) return;
-    await fetchList(adminToken, activeFilter, query);
+    setPage(1);
+    await fetchList(adminToken, activeFilter, query, 1, pageSize);
   };
 
   const statusPillClass = useMemo(
@@ -265,6 +321,7 @@ export const WholesaleAdmin: React.FC = () => {
                   setTokenInput("");
                   setAdminToken("");
                   setItems([]);
+                  setPage(1);
                   setError(null);
                 }}
                 className="px-5 py-3 border border-brand-border rounded-lg font-semibold cursor-pointer"
@@ -306,8 +363,11 @@ export const WholesaleAdmin: React.FC = () => {
                   </label>
                   <select
                     value={activeFilter}
-                    onChange={(e) => setActiveFilter(e.target.value as ListFilter)}
-                    className="p-3 border border-brand-border rounded min-w-[180px]"
+                    onChange={(e) => {
+                      setActiveFilter(e.target.value as ListFilter);
+                      setPage(1);
+                    }}
+                    className="p-3 border border-brand-border rounded min-w-45"
                   >
                     <option value="pending">Solo in attesa</option>
                     <option value="approved">Solo approvati</option>
@@ -320,7 +380,9 @@ export const WholesaleAdmin: React.FC = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => fetchList(adminToken, activeFilter, query)}
+                  onClick={() =>
+                    fetchList(adminToken, activeFilter, query, page, pageSize)
+                  }
                   className="px-5 py-3 border border-brand-border rounded-lg font-semibold inline-flex items-center gap-2 cursor-pointer"
                 >
                   <RefreshCw size={16} />
@@ -420,6 +482,55 @@ export const WholesaleAdmin: React.FC = () => {
                   );
                 })}
             </div>
+
+            <div className="mt-6 bg-white border border-brand-border rounded-xl p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div className="text-sm text-brand-text-secondary">
+                {pagination.totalItems > 0
+                  ? `Pagina ${pagination.page} di ${Math.max(
+                      pagination.totalPages,
+                      1,
+                    )} - ${pagination.totalItems} richieste`
+                  : "Nessuna richiesta"}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <label className="text-xs uppercase tracking-wide text-brand-text-secondary">
+                  Righe
+                </label>
+                <select
+                  value={pageSize}
+                  onChange={(e) => {
+                    const nextSize = Number.parseInt(e.target.value, 10) || 20;
+                    setPageSize(nextSize);
+                    setPage(1);
+                  }}
+                  className="p-2 border border-brand-border rounded"
+                >
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                </select>
+
+                <button
+                  type="button"
+                  onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                  disabled={!pagination.hasPrevPage || loading}
+                  className="px-3 py-2 border border-brand-border rounded text-sm font-semibold disabled:opacity-50 cursor-pointer"
+                >
+                  Precedente
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPage((prev) => prev + 1)}
+                  disabled={!pagination.hasNextPage || loading}
+                  className="px-3 py-2 border border-brand-border rounded text-sm font-semibold disabled:opacity-50 cursor-pointer"
+                >
+                  Successiva
+                </button>
+              </div>
+            </div>
           </>
         )}
       </section>
@@ -427,7 +538,10 @@ export const WholesaleAdmin: React.FC = () => {
   );
 };
 
-const StatCard: React.FC<{ label: string; value: number }> = ({ label, value }) => (
+const StatCard: React.FC<{ label: string; value: number }> = ({
+  label,
+  value,
+}) => (
   <div className="bg-white border border-brand-border rounded-xl p-4">
     <p className="text-xs uppercase tracking-wide text-brand-text-secondary mb-2">
       {label}

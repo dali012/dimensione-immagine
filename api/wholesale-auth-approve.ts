@@ -45,6 +45,10 @@ type CountRow = {
   setup_required_count: string | number;
 };
 
+type TotalRow = {
+  total_count: string | number;
+};
+
 function toInt(value: string | number) {
   if (typeof value === "number") return value;
   return Number.parseInt(value, 10) || 0;
@@ -82,11 +86,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           ? statusRaw
           : "pending";
       const queryText = cleanText(req.query.q);
-      const limitRaw = Number.parseInt(cleanText(req.query.limit), 10);
-      const limit =
-        Number.isFinite(limitRaw) && limitRaw > 0
-          ? Math.min(limitRaw, 250)
-          : 100;
+      const pageRaw = Number.parseInt(cleanText(req.query.page), 10);
+      const page = Number.isFinite(pageRaw) && pageRaw > 0 ? pageRaw : 1;
+      const pageSizeRaw = Number.parseInt(
+        cleanText(req.query.pageSize || req.query.limit),
+        10,
+      );
+      const pageSize =
+        Number.isFinite(pageSizeRaw) && pageSizeRaw > 0
+          ? Math.min(pageSizeRaw, 100)
+          : 20;
 
       const whereClauses: string[] = [];
       const params: Array<string | number> = [];
@@ -105,11 +114,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         );
       }
 
-      params.push(limit);
-      const limitIdx = params.length;
       const whereSql = whereClauses.length
         ? `WHERE ${whereClauses.join(" AND ")}`
         : "";
+
+      const totalResult = await db.query<TotalRow>(
+        `SELECT COUNT(*) AS total_count
+         FROM wholesale_profiles
+         ${whereSql}`,
+        params,
+      );
+
+      const totalItems = toInt(totalResult.rows[0]?.total_count || 0);
+      const totalPages = totalItems > 0 ? Math.ceil(totalItems / pageSize) : 0;
+      const safePage = totalPages > 0 ? Math.min(page, totalPages) : 1;
+      const offset = (safePage - 1) * pageSize;
+
+      const listParams = [...params, pageSize, offset];
+      const limitIdx = params.length + 1;
+      const offsetIdx = params.length + 2;
 
       const { rows } = await db.query<ListItemRow>(
         `SELECT
@@ -128,8 +151,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
          ORDER BY
            CASE WHEN is_approved THEN 1 ELSE 0 END ASC,
            created_at DESC
-         LIMIT $${limitIdx}`,
-        params,
+         LIMIT $${limitIdx}
+         OFFSET $${offsetIdx}`,
+        listParams,
       );
 
       const countResult = await db.query<CountRow>(
@@ -163,6 +187,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           pending: toInt(counts?.pending_count || 0),
           approved: toInt(counts?.approved_count || 0),
           setupRequired: toInt(counts?.setup_required_count || 0),
+        },
+        pagination: {
+          page: safePage,
+          pageSize,
+          totalItems,
+          totalPages,
+          hasNextPage: totalPages > 0 && safePage < totalPages,
+          hasPrevPage: totalPages > 0 && safePage > 1,
         },
       });
     }
