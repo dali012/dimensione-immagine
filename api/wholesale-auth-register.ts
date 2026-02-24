@@ -95,7 +95,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Optional admin notification for new B2B registrations.
-  sendWholesaleRegistrationNotification({
+  sendWholesaleRegistrationNotification(req, {
     name,
     surname,
     phone,

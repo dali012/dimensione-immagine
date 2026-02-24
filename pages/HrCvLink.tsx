@@ -1,6 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { SEO } from "@/components/SEO/SEO";
 
+async function parseJsonSafe<T>(response: Response) {
+  const text = await response.text();
+  if (!text) return {} as T;
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    return {} as T;
+  }
+}
+
 export const HrCvLink: React.FC = () => {
   const [email, setEmail] = useState("");
   const [token, setToken] = useState("");
@@ -28,6 +38,76 @@ export const HrCvLink: React.FC = () => {
     const ok = sessionStorage.getItem("hr_page_authed") === "1";
     if (ok) setPageAuthed(true);
   }, []);
+
+  useEffect(() => {
+    if (!requiredPassword) {
+      setPageAuthed(true);
+      sessionStorage.setItem("hr_page_authed", "1");
+    }
+  }, [requiredPassword]);
+
+  useEffect(() => {
+    let active = true;
+
+    const bootstrap = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const code = (params.get("code") || "").trim();
+      if (!code) return;
+
+      try {
+        const response = await fetch(
+          "/api/lavora-con-noi-admin?action=consume-link",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code }),
+          },
+        );
+        const data = await parseJsonSafe<{
+          token?: string | null;
+          pagePassword?: string | null;
+          error?: string;
+        }>(response);
+
+        if (!active) return;
+
+        if (!response.ok) {
+          setStatus("error");
+          setMessage(data.error || "Link HR non valido o scaduto.");
+          return;
+        }
+
+        if (data.token) {
+          setToken(data.token);
+          localStorage.setItem("hr_api_token", data.token);
+        }
+
+        if (!requiredPassword || data.pagePassword === requiredPassword) {
+          setPageAuthed(true);
+          sessionStorage.setItem("hr_page_authed", "1");
+          setPagePassword("");
+        } else {
+          setStatus("error");
+          setMessage("Password HR non configurata correttamente.");
+        }
+      } catch {
+        if (!active) return;
+        setStatus("error");
+        setMessage("Errore durante autenticazione tramite link HR.");
+      } finally {
+        params.delete("code");
+        const next = params.toString();
+        const nextUrl = `${window.location.pathname}${next ? `?${next}` : ""}${window.location.hash}`;
+        window.history.replaceState({}, "", nextUrl);
+      }
+    };
+
+    bootstrap();
+
+    return () => {
+      active = false;
+    };
+  }, [requiredPassword]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

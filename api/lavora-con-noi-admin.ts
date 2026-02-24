@@ -6,8 +6,11 @@ import {
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { Client } from "pg";
-
-const getEnv = (key: string) => process.env[key] || "";
+import {
+  cleanText,
+  getEnv,
+  verifyAdminMagicCode,
+} from "../lib/wholesale-auth.js";
 
 function isAuthorized(req: VercelRequest) {
   const token = getEnv("HR_API_TOKEN");
@@ -25,6 +28,30 @@ function getAction(req: VercelRequest) {
   const raw = req.query.action;
   if (Array.isArray(raw)) return String(raw[0] || "").trim().toLowerCase();
   return String(raw || "").trim().toLowerCase();
+}
+
+async function handleConsumeLink(req: VercelRequest, res: VercelResponse) {
+  const { code } = (req.body || {}) as { code?: string };
+  const verified = verifyAdminMagicCode(cleanText(code), "hr_admin");
+  if (!verified.valid) {
+    return res
+      .status(401)
+      .json({ error: verified.error || "Invalid or expired link" });
+  }
+
+  const token = cleanText(getEnv("HR_API_TOKEN"));
+  const pagePassword = cleanText(getEnv("VITE_HR_PAGE_PASSWORD"));
+  if (!token && !pagePassword) {
+    return res.status(500).json({
+      error: "Missing HR credentials configuration",
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    token: token || null,
+    pagePassword: pagePassword || null,
+  });
 }
 
 function createStorageClient() {
@@ -166,6 +193,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
   if (action === "delete") {
     return handleDeleteApplication(req, res);
+  }
+  if (action === "consume-link") {
+    return handleConsumeLink(req, res);
   }
 
   return res.status(404).json({ error: "Unknown action" });

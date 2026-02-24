@@ -8,6 +8,7 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import Busboy from "busboy";
 import crypto from "crypto";
 import { Client } from "pg";
+import { createAdminMagicLink } from "../lib/wholesale-auth.js";
 
 export const config = {
   api: { bodyParser: false },
@@ -444,6 +445,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const resendFrom = getEnv("RESEND_FROM_EMAIL");
   const applicantFrom = getEnv("RESEND_APPLICANT_FROM_EMAIL") || resendFrom;
   const appUrl = (getEnv("APP_URL") || "").replace(/\/+$/, "");
+  const hrAdminLink = createAdminMagicLink(req, "hr_admin");
 
   const taskRatingsHtml = taskRatings.length
     ? `<ul>${taskRatings
@@ -533,6 +535,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               signedCvUrl
                 ? `<p><strong>PDF candidatura (link valido 7 giorni):</strong> <a href="${signedCvUrl}">${signedCvUrl}</a></p>`
                 : "<p><strong>PDF candidatura:</strong> Link temporaneo non disponibile. Richiedere un nuovo link.</p>"
+            }
+            ${
+              hrAdminLink
+                ? `<p><strong>Accesso rapido HR admin (link temporaneo):</strong> <a href="${hrAdminLink}">${hrAdminLink}</a></p>`
+                : ""
             }
             ${
               deleteLink

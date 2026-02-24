@@ -22,11 +22,22 @@ export type WholesaleProfileRow = {
 const DEFAULT_COOKIE_NAME = "wholesale_session";
 const DEFAULT_SESSION_DAYS = 30;
 const DEFAULT_SETUP_TOKEN_MINUTES = 30;
+const DEFAULT_ADMIN_MAGIC_LINK_MINUTES = 20;
 const PASSWORD_KEYLEN = 64;
 
 let schemaEnsured = false;
 
 export const getEnv = (key: string) => process.env[key] || "";
+
+export type AdminMagicLinkPurpose = "wholesale_admin" | "hr_admin";
+
+type AdminMagicPayload = {
+  v: 1;
+  purpose: AdminMagicLinkPurpose;
+  iat: number;
+  exp: number;
+  nonce: string;
+};
 
 function normalizeConnectionString(value: string) {
   const trimmed = value.trim();
@@ -194,6 +205,98 @@ export function hashToken(rawToken: string) {
   return crypto.createHash("sha256").update(rawToken).digest("hex");
 }
 
+function signAdminMagicPayload(encodedPayload: string, secret: string) {
+  return crypto
+    .createHmac("sha256", secret)
+    .update(encodedPayload)
+    .digest("base64url");
+}
+
+function timingSafeEqualString(a: string, b: string) {
+  const left = Buffer.from(a);
+  const right = Buffer.from(b);
+  if (left.length !== right.length) return false;
+  return crypto.timingSafeEqual(left, right);
+}
+
+export function createAdminMagicCode(
+  purpose: AdminMagicLinkPurpose,
+  expiresInSeconds?: number,
+) {
+  const secret = getAdminMagicLinkSecret();
+  if (!secret) return "";
+
+  const lifetimeMs =
+    (Number.isFinite(expiresInSeconds) && (expiresInSeconds as number) > 0
+      ? Math.floor((expiresInSeconds as number) * 1000)
+      : getAdminMagicLinkMinutes() * 60 * 1000) || 0;
+  if (lifetimeMs <= 0) return "";
+
+  const now = Date.now();
+  const payload: AdminMagicPayload = {
+    v: 1,
+    purpose,
+    iat: now,
+    exp: now + lifetimeMs,
+    nonce: crypto.randomBytes(12).toString("base64url"),
+  };
+
+  const encodedPayload = Buffer.from(JSON.stringify(payload), "utf8").toString(
+    "base64url",
+  );
+  const signature = signAdminMagicPayload(encodedPayload, secret);
+  return `${encodedPayload}.${signature}`;
+}
+
+export function verifyAdminMagicCode(
+  code: string,
+  expectedPurpose: AdminMagicLinkPurpose,
+) {
+  const secret = getAdminMagicLinkSecret();
+  if (!secret) {
+    return {
+      valid: false as const,
+      error: "Magic link secret is not configured",
+    };
+  }
+
+  const rawCode = cleanText(code);
+  if (!rawCode) {
+    return { valid: false as const, error: "Missing code" };
+  }
+
+  const [encodedPayload, signature] = rawCode.split(".");
+  if (!encodedPayload || !signature) {
+    return { valid: false as const, error: "Invalid code format" };
+  }
+
+  const expectedSignature = signAdminMagicPayload(encodedPayload, secret);
+  if (!timingSafeEqualString(signature, expectedSignature)) {
+    return { valid: false as const, error: "Invalid code signature" };
+  }
+
+  let payload: AdminMagicPayload;
+  try {
+    payload = JSON.parse(
+      Buffer.from(encodedPayload, "base64url").toString("utf8"),
+    ) as AdminMagicPayload;
+  } catch {
+    return { valid: false as const, error: "Invalid code payload" };
+  }
+
+  if (payload?.v !== 1) {
+    return { valid: false as const, error: "Unsupported code version" };
+  }
+  if (payload.purpose !== expectedPurpose) {
+    return { valid: false as const, error: "Code purpose mismatch" };
+  }
+  if (!Number.isFinite(payload.exp) || payload.exp < Date.now()) {
+    return { valid: false as const, error: "Code expired" };
+  }
+
+  return { valid: true as const, payload };
+}
+
 function getCookieName() {
   return cleanText(getEnv("WHOLESALE_AUTH_COOKIE_NAME")) || DEFAULT_COOKIE_NAME;
 }
@@ -211,6 +314,28 @@ function getSetupTokenMinutes() {
   return Number.isFinite(parsed) && parsed > 0
     ? parsed
     : DEFAULT_SETUP_TOKEN_MINUTES;
+}
+
+function getAdminMagicLinkMinutes() {
+  const parsed = Number.parseInt(getEnv("ADMIN_MAGIC_LINK_MINUTES"), 10);
+  return Number.isFinite(parsed) && parsed > 0
+    ? parsed
+    : DEFAULT_ADMIN_MAGIC_LINK_MINUTES;
+}
+
+function getAdminMagicLinkSecret() {
+  const explicit = cleanText(getEnv("ADMIN_MAGIC_LINK_SECRET"));
+  if (explicit) return explicit;
+
+  // Fallback to existing private secrets to avoid breaking existing deployments.
+  const fallback = [
+    cleanText(getEnv("WHOLESALE_AUTH_ADMIN_TOKEN")),
+    cleanText(getEnv("HR_API_TOKEN")),
+  ]
+    .filter(Boolean)
+    .join("|");
+
+  return fallback;
 }
 
 function shouldUseSecureCookie() {
@@ -400,7 +525,7 @@ export async function consumePasswordSetupToken(
   return rowCount > 0;
 }
 
-function getAppUrlFromRequest(req: VercelRequest) {
+export function getAppUrlFromRequest(req: VercelRequest) {
   const fromEnv = cleanText(getEnv("APP_URL")).replace(/\/+$/, "");
   if (fromEnv) return fromEnv;
 
@@ -411,6 +536,19 @@ function getAppUrlFromRequest(req: VercelRequest) {
   const protoHeader = req.headers["x-forwarded-proto"] || "https";
   const proto = Array.isArray(protoHeader) ? protoHeader[0] : protoHeader;
   return `${proto}://${host}`;
+}
+
+export function createAdminMagicLink(
+  req: VercelRequest,
+  purpose: AdminMagicLinkPurpose,
+) {
+  const appUrl = getAppUrlFromRequest(req);
+  const code = createAdminMagicCode(purpose);
+  if (!appUrl || !code) return "";
+
+  const path =
+    purpose === "wholesale_admin" ? "/admin-wholesale" : "/hr-cv-link";
+  return `${appUrl}${path}?code=${encodeURIComponent(code)}`;
 }
 
 function getResendConfig() {
@@ -483,6 +621,7 @@ export async function sendPasswordSetupEmail(
 }
 
 export async function sendWholesaleRegistrationNotification(
+  req: VercelRequest,
   payload: {
     name: string;
     surname: string;
@@ -500,6 +639,8 @@ export async function sendWholesaleRegistrationNotification(
     return { sent: false as const, reason: "missing_resend_config" };
   }
 
+  const adminDirectLink = createAdminMagicLink(req, "wholesale_admin");
+
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -516,6 +657,11 @@ export async function sendWholesaleRegistrationNotification(
         <p><strong>Cognome:</strong> ${escapeHtml(payload.surname)}</p>
         <p><strong>Telefono:</strong> ${escapeHtml(payload.phone)}</p>
         <p><strong>Email:</strong> ${escapeHtml(payload.email)}</p>
+        ${
+          adminDirectLink
+            ? `<p><strong>Accesso rapido admin (link temporaneo):</strong> <a href="${adminDirectLink}">${adminDirectLink}</a></p>`
+            : ""
+        }
       `,
     }),
   });

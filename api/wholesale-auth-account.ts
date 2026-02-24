@@ -3,11 +3,13 @@ import {
   cleanText,
   createDbClient,
   ensureWholesaleAuthSchema,
+  getEnv,
   getAccountStatus,
   isEmailValid,
   issuePasswordSetupToken,
   normalizeEmail,
   sendPasswordSetupEmail,
+  verifyAdminMagicCode,
 } from "../lib/wholesale-auth.js";
 
 type StatusPayload = {
@@ -16,6 +18,10 @@ type StatusPayload = {
 
 type PasswordSetupRequestPayload = {
   email?: string;
+};
+
+type ConsumeAdminLinkPayload = {
+  code?: string;
 };
 
 function getAction(req: VercelRequest) {
@@ -153,6 +159,34 @@ async function handleRequestPasswordSetup(
   }
 }
 
+async function handleConsumeAdminLink(
+  req: VercelRequest,
+  res: VercelResponse,
+) {
+  const body = (req.body || {}) as ConsumeAdminLinkPayload;
+  const code = cleanText(body.code);
+  if (!code) {
+    return res.status(400).json({ error: "Missing code" });
+  }
+
+  const verified = verifyAdminMagicCode(code, "wholesale_admin");
+  if (!verified.valid) {
+    return res
+      .status(401)
+      .json({ error: verified.error || "Invalid or expired link" });
+  }
+
+  const adminToken = cleanText(getEnv("WHOLESALE_AUTH_ADMIN_TOKEN"));
+  if (!adminToken) {
+    return res.status(500).json({ error: "Missing admin token configuration" });
+  }
+
+  return res.status(200).json({
+    success: true,
+    token: adminToken,
+  });
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader("Cache-Control", "no-store");
 
@@ -167,6 +201,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
   if (action === "request-password-setup") {
     return handleRequestPasswordSetup(req, res);
+  }
+  if (action === "consume-admin-link") {
+    return handleConsumeAdminLink(req, res);
   }
 
   return res.status(404).json({ error: "Unknown action" });

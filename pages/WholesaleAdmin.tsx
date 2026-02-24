@@ -135,11 +135,62 @@ export const WholesaleAdmin: React.FC = () => {
   >(null);
 
   useEffect(() => {
-    const stored = sessionStorage.getItem(TOKEN_STORAGE_KEY) || "";
-    if (stored) {
-      setAdminToken(stored);
-      setTokenInput(stored);
-    }
+    let active = true;
+
+    const bootstrap = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const code = (params.get("code") || "").trim();
+      const stored = sessionStorage.getItem(TOKEN_STORAGE_KEY) || "";
+      let nextToken = stored;
+
+      if (!nextToken && code) {
+        try {
+          const response = await fetch(
+            "/api/wholesale-auth-account?action=consume-admin-link",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ code }),
+            },
+          );
+          const data = await parseJsonSafe<{ token?: string; error?: string }>(
+            response,
+          );
+          if (response.ok && data.token) {
+            nextToken = data.token;
+          } else if (active) {
+            setError(data.error || "Link admin non valido o scaduto.");
+          }
+        } catch {
+          if (active) {
+            setError("Errore durante autenticazione tramite link admin.");
+          }
+        }
+      }
+
+      if (!active) return;
+
+      if (nextToken) {
+        sessionStorage.setItem(TOKEN_STORAGE_KEY, nextToken);
+        setAdminToken(nextToken);
+        setTokenInput(nextToken);
+      }
+
+      if (code || params.has("token") || params.has("adminToken")) {
+        params.delete("code");
+        params.delete("token");
+        params.delete("adminToken");
+        const next = params.toString();
+        const nextUrl = `${window.location.pathname}${next ? `?${next}` : ""}${window.location.hash}`;
+        window.history.replaceState({}, "", nextUrl);
+      }
+    };
+
+    bootstrap();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const fetchList = useCallback(
