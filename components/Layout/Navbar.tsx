@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { NavItem } from "../../types";
+import { useAuth } from "../../contexts/AuthContext";
 
 const NAV_ITEMS: NavItem[] = [
   { label: "Home", path: "/" },
@@ -19,6 +20,18 @@ export const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const { user, isReady } = useAuth();
+
+  const navItems = useMemo(() => {
+    const items = [...NAV_ITEMS];
+    if (isReady && user?.canManagePromotions) {
+      items.push({
+        label: "Admin Promozioni",
+        path: "/admin-promozioni",
+      });
+    }
+    return items;
+  }, [isReady, user?.canManagePromotions]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -76,7 +89,7 @@ export const Navbar: React.FC = () => {
 
           {/* Desktop Menu - Hidden on tablets/mobile (< 1024px) */}
           <div className="hidden lg:flex space-x-8 items-center">
-            {NAV_ITEMS.map((item) => {
+            {navItems.map((item) => {
               const isActive = location.pathname === item.path;
               return (
                 <Link
@@ -122,7 +135,7 @@ export const Navbar: React.FC = () => {
       >
         <div className="min-h-screen flex flex-col justify-center items-center py-24 px-6 text-center">
           <div className="flex flex-col space-y-6 md:space-y-8 w-full">
-            {NAV_ITEMS.map((item) => (
+            {navItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
