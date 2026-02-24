@@ -214,7 +214,7 @@ export const WholesaleAdmin: React.FC = () => {
     if (!token) return;
     setPromoEditorsLoading(true);
     try {
-      const response = await fetch("/api/promotions-admin-editors", {
+      const response = await fetch("/api/promotions-admin?action=editors", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -322,14 +322,17 @@ export const WholesaleAdmin: React.FC = () => {
 
     setPromoEditorActionEmail(email);
     try {
-      const response = await fetch("/api/promotions-admin-editors-invite", {
+      const response = await fetch(
+        "/api/promotions-admin?action=editors-invite",
+        {
         method: "POST",
         headers: {
           Authorization: `Bearer ${adminToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email }),
-      });
+        },
+      );
       const data = await parseJsonSafe<{
         error?: string;
         setupEmailSent?: boolean;
@@ -357,14 +360,17 @@ export const WholesaleAdmin: React.FC = () => {
     if (!adminToken) return;
     setPromoEditorActionEmail(email);
     try {
-      const response = await fetch("/api/promotions-admin-editors-revoke", {
+      const response = await fetch(
+        "/api/promotions-admin?action=editors-revoke",
+        {
         method: "POST",
         headers: {
           Authorization: `Bearer ${adminToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email }),
-      });
+        },
+      );
       const data = await parseJsonSafe<{ error?: string }>(response);
       if (!response.ok) {
         throw new Error(data.error || "Revoca editor non riuscita.");

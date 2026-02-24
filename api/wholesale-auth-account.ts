@@ -3,24 +3,71 @@ import {
   cleanText,
   createDbClient,
   ensureWholesaleAuthSchema,
+  getAccountStatus,
   isEmailValid,
   issuePasswordSetupToken,
   normalizeEmail,
   sendPasswordSetupEmail,
 } from "../lib/wholesale-auth.js";
 
+type StatusPayload = {
+  email?: string;
+};
+
 type PasswordSetupRequestPayload = {
   email?: string;
 };
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  res.setHeader("Cache-Control", "no-store");
+function getAction(req: VercelRequest) {
+  const raw = req.query.action;
+  if (Array.isArray(raw)) return cleanText(raw[0]).toLowerCase();
+  return cleanText(raw).toLowerCase();
+}
 
-  if (req.method !== "POST") {
-    res.setHeader("Allow", "POST");
-    return res.status(405).json({ error: "Method not allowed" });
+async function handleStatus(req: VercelRequest, res: VercelResponse) {
+  const body = (req.body || {}) as StatusPayload;
+  const email = normalizeEmail(cleanText(body.email));
+  if (!email || !isEmailValid(email)) {
+    return res.status(400).json({ error: "Invalid email" });
   }
 
+  const db = createDbClient();
+  if (!db) {
+    return res.status(500).json({
+      error:
+        "Invalid or missing database connection env (DATABASE_URL/POSTGRES_URL)",
+    });
+  }
+
+  try {
+    await db.connect();
+    await ensureWholesaleAuthSchema(db);
+
+    const { rows } = await db.query<{
+      is_approved: boolean;
+      password_hash: string | null;
+    }>(
+      `SELECT is_approved, password_hash
+       FROM wholesale_profiles
+       WHERE email = $1
+       LIMIT 1`,
+      [email],
+    );
+
+    const status = getAccountStatus(rows[0] || null);
+    return res.status(200).json({ status });
+  } catch (error) {
+    console.error("Wholesale status error:", error);
+    return res.status(500).json({ error: "Database error" });
+  } finally {
+    await db.end().catch(() => {});
+  }
+}
+
+async function handleRequestPasswordSetup(
+  req: VercelRequest,
+  res: VercelResponse,
+) {
   const body = (req.body || {}) as PasswordSetupRequestPayload;
   const email = normalizeEmail(cleanText(body.email));
   if (!email || !isEmailValid(email)) {
@@ -29,7 +76,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const db = createDbClient();
   if (!db) {
-    return res.status(500).json({ error: "Invalid or missing database connection env (DATABASE_URL/POSTGRES_URL)" });
+    return res.status(500).json({
+      error:
+        "Invalid or missing database connection env (DATABASE_URL/POSTGRES_URL)",
+    });
   }
 
   try {
@@ -97,9 +147,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   } catch (error) {
     console.error("Wholesale request password setup error:", error);
-    await db.end().catch(() => {});
     return res.status(500).json({ error: "Database error" });
   } finally {
     await db.end().catch(() => {});
   }
+}
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  res.setHeader("Cache-Control", "no-store");
+
+  if (req.method !== "POST") {
+    res.setHeader("Allow", "POST");
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  const action = getAction(req);
+  if (action === "status") {
+    return handleStatus(req, res);
+  }
+  if (action === "request-password-setup") {
+    return handleRequestPasswordSetup(req, res);
+  }
+
+  return res.status(404).json({ error: "Unknown action" });
 }

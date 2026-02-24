@@ -75,7 +75,7 @@ export const PromotionsAdmin: React.FC = () => {
     setError(null);
 
     try {
-      const response = await fetch("/api/promotions-admin-list", {
+      const response = await fetch("/api/promotions-admin?action=list", {
         method: "GET",
         credentials: "include",
       });
@@ -155,7 +155,7 @@ export const PromotionsAdmin: React.FC = () => {
         formData.append("image", replacement);
       }
 
-      const response = await fetch("/api/promotions-admin-update", {
+      const response = await fetch("/api/promotions-admin?action=update", {
         method: "POST",
         credentials: "include",
         body: formData,
@@ -187,7 +187,7 @@ export const PromotionsAdmin: React.FC = () => {
 
     setReorderId(id);
     try {
-      const response = await fetch("/api/promotions-admin-reorder", {
+      const response = await fetch("/api/promotions-admin?action=reorder", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -220,7 +220,7 @@ export const PromotionsAdmin: React.FC = () => {
 
     setDeletingId(id);
     try {
-      const response = await fetch("/api/promotions-admin-delete", {
+      const response = await fetch("/api/promotions-admin?action=delete", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -261,7 +261,7 @@ export const PromotionsAdmin: React.FC = () => {
       formData.append("sortOrder", createSortOrder);
       formData.append("image", createImage);
 
-      const response = await fetch("/api/promotions-admin-create", {
+      const response = await fetch("/api/promotions-admin?action=create", {
         method: "POST",
         credentials: "include",
         body: formData,
@@ -600,4 +600,3 @@ export const PromotionsAdmin: React.FC = () => {
 };
 
 export default PromotionsAdmin;
-
