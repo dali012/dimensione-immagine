@@ -421,7 +421,7 @@ const LavoraConNoi: React.FC = () => {
     const runDelete = async () => {
       setDeleteStatus("deleting");
       try {
-        const res = await fetch("/api/lavora-con-noi-delete", {
+        const res = await fetch("/api/lavora-con-noi-admin?action=delete", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ deleteToken, email: emailParam }),

@@ -47,6 +47,30 @@ type ListResponse = {
   error?: string;
 };
 
+type PromoEditorItem = {
+  id: number;
+  name: string;
+  surname: string;
+  phone: string;
+  email: string;
+  isApproved: boolean;
+  canManagePromotions: boolean;
+  hasPassword: boolean;
+  createdAt: string;
+  approvedAt: string | null;
+  verifiedAt: string | null;
+  status:
+    | "not_found"
+    | "pending_approval"
+    | "approved_password_required"
+    | "approved_setup_required";
+};
+
+type PromoEditorsResponse = {
+  items?: PromoEditorItem[];
+  error?: string;
+};
+
 const TOKEN_STORAGE_KEY = "wholesale_admin_token";
 
 function formatDate(value: string | null) {
@@ -56,7 +80,7 @@ function formatDate(value: string | null) {
   return date.toLocaleString("it-IT");
 }
 
-function statusLabel(item: WholesaleItem) {
+function statusLabel(item: { status: WholesaleItem["status"] }) {
   switch (item.status) {
     case "pending_approval":
       return "In attesa";
@@ -103,6 +127,12 @@ export const WholesaleAdmin: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [actionEmail, setActionEmail] = useState<string | null>(null);
+  const [promoEditors, setPromoEditors] = useState<PromoEditorItem[]>([]);
+  const [promoEditorsLoading, setPromoEditorsLoading] = useState(false);
+  const [promoEditorEmail, setPromoEditorEmail] = useState("");
+  const [promoEditorActionEmail, setPromoEditorActionEmail] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
     const stored = sessionStorage.getItem(TOKEN_STORAGE_KEY) || "";
@@ -180,10 +210,47 @@ export const WholesaleAdmin: React.FC = () => {
     [],
   );
 
+  const fetchPromoEditors = useCallback(async (token: string) => {
+    if (!token) return;
+    setPromoEditorsLoading(true);
+    try {
+      const response = await fetch("/api/promotions-admin?action=editors", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await parseJsonSafe<PromoEditorsResponse>(response);
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          sessionStorage.removeItem(TOKEN_STORAGE_KEY);
+          setAdminToken("");
+          setTokenInput("");
+          setPromoEditors([]);
+          setError("Token admin non valido.");
+          return;
+        }
+        throw new Error(data.error || "Impossibile caricare gli editor promo.");
+      }
+
+      setPromoEditors(Array.isArray(data.items) ? data.items : []);
+    } catch (err: any) {
+      toast.error(err?.message || "Errore nel caricamento editor promo.");
+    } finally {
+      setPromoEditorsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (!adminToken) return;
     fetchList(adminToken, activeFilter, query, page, pageSize);
   }, [adminToken, activeFilter, page, pageSize, fetchList]);
+
+  useEffect(() => {
+    if (!adminToken) return;
+    fetchPromoEditors(adminToken);
+  }, [adminToken, fetchPromoEditors]);
 
   const approveAction = async (
     item: WholesaleItem,
@@ -241,6 +308,79 @@ export const WholesaleAdmin: React.FC = () => {
       toast.error("Errore di rete durante l'operazione.");
     } finally {
       setActionEmail(null);
+    }
+  };
+
+  const invitePromoEditor = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!adminToken) return;
+    const email = promoEditorEmail.trim().toLowerCase();
+    if (!email) {
+      toast.error("Inserisci un'email valida.");
+      return;
+    }
+
+    setPromoEditorActionEmail(email);
+    try {
+      const response = await fetch(
+        "/api/promotions-admin?action=editors-invite",
+        {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+        },
+      );
+      const data = await parseJsonSafe<{
+        error?: string;
+        setupEmailSent?: boolean;
+      }>(response);
+
+      if (!response.ok) {
+        throw new Error(data.error || "Invito editor non riuscito.");
+      }
+
+      toast.success(
+        data.setupEmailSent
+          ? "Editor promo invitato e setup inviato."
+          : "Editor promo invitato.",
+      );
+      setPromoEditorEmail("");
+      await fetchPromoEditors(adminToken);
+    } catch (err: any) {
+      toast.error(err?.message || "Errore durante invito editor.");
+    } finally {
+      setPromoEditorActionEmail(null);
+    }
+  };
+
+  const revokePromoEditor = async (email: string) => {
+    if (!adminToken) return;
+    setPromoEditorActionEmail(email);
+    try {
+      const response = await fetch(
+        "/api/promotions-admin?action=editors-revoke",
+        {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+        },
+      );
+      const data = await parseJsonSafe<{ error?: string }>(response);
+      if (!response.ok) {
+        throw new Error(data.error || "Revoca editor non riuscita.");
+      }
+      toast.success("Permesso editor promo revocato.");
+      await fetchPromoEditors(adminToken);
+    } catch (err: any) {
+      toast.error(err?.message || "Errore durante revoca editor.");
+    } finally {
+      setPromoEditorActionEmail(null);
     }
   };
 
@@ -321,6 +461,8 @@ export const WholesaleAdmin: React.FC = () => {
                   setTokenInput("");
                   setAdminToken("");
                   setItems([]);
+                  setPromoEditors([]);
+                  setPromoEditorEmail("");
                   setPage(1);
                   setError(null);
                 }}
@@ -530,6 +672,92 @@ export const WholesaleAdmin: React.FC = () => {
                   Successiva
                 </button>
               </div>
+            </div>
+
+            <div className="mt-8 bg-white border border-brand-border rounded-xl p-5">
+              <h2 className="text-2xl font-serif mb-2">
+                Gestione Editor Promozioni
+              </h2>
+              <p className="text-sm text-brand-text-secondary mb-4">
+                Aggiungi o rimuovi email autorizzate a usare
+                <code className="px-1">/admin-promozioni</code>.
+              </p>
+
+              <form
+                onSubmit={invitePromoEditor}
+                className="flex flex-col md:flex-row gap-3 mb-5"
+              >
+                <input
+                  type="email"
+                  value={promoEditorEmail}
+                  onChange={(e) => setPromoEditorEmail(e.target.value)}
+                  placeholder="email editor promozioni"
+                  className="flex-1 p-3 border border-brand-border rounded"
+                  required
+                />
+                <button
+                  type="submit"
+                  disabled={
+                    !promoEditorEmail.trim() ||
+                    promoEditorActionEmail === promoEditorEmail.trim()
+                  }
+                  className="px-5 py-3 bg-brand-accent text-white rounded-lg font-semibold disabled:opacity-60 cursor-pointer"
+                >
+                  Invita / Abilita
+                </button>
+                <button
+                  type="button"
+                  onClick={() => fetchPromoEditors(adminToken)}
+                  disabled={promoEditorsLoading}
+                  className="px-5 py-3 border border-brand-border rounded-lg font-semibold disabled:opacity-60 cursor-pointer"
+                >
+                  Aggiorna elenco
+                </button>
+              </form>
+
+              {promoEditorsLoading && (
+                <div className="text-sm text-brand-text-secondary">
+                  Caricamento editor promo...
+                </div>
+              )}
+
+              {!promoEditorsLoading && promoEditors.length === 0 && (
+                <div className="text-sm text-brand-text-secondary">
+                  Nessun editor promo abilitato.
+                </div>
+              )}
+
+              {!promoEditorsLoading && promoEditors.length > 0 && (
+                <div className="space-y-3">
+                  {promoEditors.map((editor) => (
+                    <div
+                      key={editor.id}
+                      className="border border-brand-border rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3"
+                    >
+                      <div>
+                        <p className="font-semibold">
+                          {editor.name} {editor.surname}
+                        </p>
+                        <p className="text-sm text-brand-text-secondary">
+                          {editor.email}
+                        </p>
+                        <p className="text-xs text-brand-text-secondary mt-1">
+                          Stato: {statusLabel(editor)} |
+                          Creato: {formatDate(editor.createdAt)}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => revokePromoEditor(editor.email)}
+                        disabled={promoEditorActionEmail === editor.email}
+                        className="px-4 py-2 rounded border border-red-600 text-red-700 hover:bg-red-50 text-sm font-semibold disabled:opacity-60 cursor-pointer"
+                      >
+                        Revoca accesso
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </>
         )}

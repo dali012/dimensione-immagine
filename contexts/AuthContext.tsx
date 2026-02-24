@@ -13,6 +13,7 @@ type AuthUserData = {
   surname: string;
   phone: string;
   email: string;
+  canManagePromotions: boolean;
 };
 
 type AuthUser = AuthUserData | null;
@@ -182,7 +183,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       const { response, data } = await apiRequest<{
         status?: WholesaleAccountStatus;
         error?: string;
-      }>("/api/wholesale-auth-status", {
+      }>("/api/wholesale-auth-account?action=status", {
         method: "POST",
         body: JSON.stringify({ email }),
       });
@@ -205,7 +206,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         expiresAt?: string;
         setupToken?: string;
         error?: string;
-      }>("/api/wholesale-auth-request-password-setup", {
+      }>("/api/wholesale-auth-account?action=request-password-setup", {
         method: "POST",
         body: JSON.stringify({ email }),
       });

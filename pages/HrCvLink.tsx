@@ -36,7 +36,7 @@ export const HrCvLink: React.FC = () => {
     setSignedUrl("");
 
     try {
-      const res = await fetch("/api/lavora-con-noi-cv-link", {
+      const res = await fetch("/api/lavora-con-noi-admin?action=cv-link", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

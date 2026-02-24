@@ -26,6 +26,11 @@ const Locations = React.lazy(() =>
 const Contact = React.lazy(() =>
   import("./pages/Contact").then((module) => ({ default: module.Contact })),
 );
+const Promotions = React.lazy(() =>
+  import("./pages/Promotions").then((module) => ({
+    default: module.Promotions,
+  })),
+);
 const PrivacyPolicy = React.lazy(() =>
   import("./pages/PrivacyPolicy").then((module) => ({
     default: module.PrivacyPolicy,
@@ -80,6 +85,11 @@ const Register = React.lazy(() =>
 const WholesaleAdmin = React.lazy(() =>
   import("./pages/WholesaleAdmin").then((module) => ({
     default: module.WholesaleAdmin,
+  })),
+);
+const PromotionsAdmin = React.lazy(() =>
+  import("./pages/PromotionsAdmin").then((module) => ({
+    default: module.PromotionsAdmin,
   })),
 );
 const Footer = React.lazy(() =>
@@ -189,6 +199,14 @@ const AnimatedRoutes = () => {
               }
             />
             <Route
+              path="/promozioni-offerte"
+              element={
+                <PageTransition>
+                  <Promotions />
+                </PageTransition>
+              }
+            />
+            <Route
               path="/privacy-policy"
               element={
                 <PageTransition>
@@ -249,6 +267,16 @@ const AnimatedRoutes = () => {
               }
             />
             <Route
+              path="/admin-promozioni"
+              element={
+                <RequireAuth>
+                  <PageTransition>
+                    <PromotionsAdmin />
+                  </PageTransition>
+                </RequireAuth>
+              }
+            />
+            <Route
               path="*"
               element={
                 <PageTransition>
@@ -273,7 +301,12 @@ const AnimatedRoutes = () => {
 // Render Navbar only on non-auth pages
 const ConditionalNavbar: React.FC = () => {
   const location = useLocation();
-  const hiddenPaths = ["/login", "/register", "/admin-wholesale"];
+  const hiddenPaths = [
+    "/login",
+    "/register",
+    "/admin-wholesale",
+    "/admin-promozioni",
+  ];
   if (hiddenPaths.includes(location.pathname)) return null;
   return <Navbar />;
 };
