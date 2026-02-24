@@ -291,8 +291,9 @@ export const Contact: React.FC = () => {
                     Orari
                   </h3>
                   <p className="text-gray-500 text-sm leading-relaxed">
-                    Lun - Ven: 09:00 - 13:00
-                    <br />e 15:00 - 19:00
+                    Lun - Ven: 09:00 - 18:00
+                    <br />
+                    Sab: 09:00 - 12:00
                   </p>
                 </div>
               </div>

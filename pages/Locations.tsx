@@ -9,6 +9,7 @@ import { SectionHeader } from "../components/UI/SectionHeader";
 interface LocationData {
   name: string;
   region: string;
+  mapUrl: string;
   address: string;
   isFranchise: boolean;
   image: string;
@@ -17,38 +18,34 @@ interface LocationData {
 
 const LOCATIONS: LocationData[] = [
   {
-    name: "Vulcano Buono (Victor Benjamin)",
+    name: "Kreazioni Uomo",
     region: "Campania",
-    address: "https://maps.app.goo.gl/SgrSD6mEyAUuzmhz8",
+    mapUrl: "https://maps.app.goo.gl/SgrSD6mEyAUuzmhz8",
+    address: "Indirizzo disponibile su Google Maps",
     isFranchise: true,
     image: "/images/victor-benjamin.jpeg",
   },
   {
-    name: "Dimensione immagine",
-    region: "Sicilia",
-    address: "https://maps.app.goo.gl/GKpBfNFA3L9iZLSD6",
-    isFranchise: false,
-    image: "/images/dimensione-immagine.jpeg",
-    phone: "0902141746",
-  },
-  {
     name: "Vittoria Company",
     region: "Puglia",
-    address: "https://maps.app.goo.gl/kpAaPAKXJ3YAGzSU7",
+    mapUrl: "https://maps.app.goo.gl/kpAaPAKXJ3YAGzSU7",
+    address: "De Donno Essence",
     isFranchise: true,
     image: "/images/vittoria-company.jpeg",
   },
   {
     name: "Le Porte Del Savuto (Aquino abbigliamento)",
     region: "Calabria",
-    address: "https://maps.app.goo.gl/7vLK9Mf9nwBFTmyL7",
+    mapUrl: "https://maps.app.goo.gl/7vLK9Mf9nwBFTmyL7",
+    address: "Via Antonio Guarasci, 87056 Vallegianno CS",
     isFranchise: true,
     image: "/images/calabria.jpeg",
   },
   {
     name: "Montesilvano Store",
     region: "Abruzzo",
-    address: "https://maps.app.goo.gl/ok2jt8DpLFYcjMFz5",
+    mapUrl: "https://maps.app.goo.gl/ok2jt8DpLFYcjMFz5",
+    address: "Dimensione Immagine",
     isFranchise: false,
     image: "/images/montesilvano.jpeg",
     phone: "0852034097",
@@ -56,7 +53,8 @@ const LOCATIONS: LocationData[] = [
   {
     name: "Boutique Donna",
     region: "Sicilia",
-    address: "https://maps.app.goo.gl/53LA8JTywzaJV5RGA",
+    mapUrl: "https://maps.app.goo.gl/53LA8JTywzaJV5RGA",
+    address: "Via Maddalena, 74, 98123 Messina ME",
     isFranchise: false,
     image: "/images/boutique-donna.jpeg",
     phone: "0902131218",
@@ -64,7 +62,8 @@ const LOCATIONS: LocationData[] = [
   {
     name: "Torre Faro",
     region: "Sicilia",
-    address: "https://maps.app.goo.gl/R2nNhbPdUjb9dMbQ6",
+    mapUrl: "https://maps.app.goo.gl/R2nNhbPdUjb9dMbQ6",
+    address: "Via Circuito, 177, 98164 Torre Faro ME",
     isFranchise: false,
     image: "/images/torre-faro.jpeg",
     phone: "090326785",
@@ -72,7 +71,8 @@ const LOCATIONS: LocationData[] = [
   {
     name: "Boutique Uomo",
     region: "Sicilia",
-    address: "https://maps.app.goo.gl/2WrCVJGFWRrpueMf9",
+    mapUrl: "https://maps.app.goo.gl/2WrCVJGFWRrpueMf9",
+    address: "Via Maddalena & Via Giordano Bruno, 98123 Messina ME",
     isFranchise: false,
     image: "/images/boutique-uomo.jpeg",
     phone: "0909074525",
@@ -80,7 +80,8 @@ const LOCATIONS: LocationData[] = [
   {
     name: "Centro Commerciale Tremestieri",
     region: "Sicilia",
-    address: "https://maps.app.goo.gl/RnTKwHm7rg97mDng8",
+    mapUrl: "https://maps.app.goo.gl/RnTKwHm7rg97mDng8",
+    address: "Centro Commerciale Tremestieri",
     isFranchise: false,
     image: "/images/tremestieri.jpeg",
     phone: "0902406782",
@@ -149,6 +150,37 @@ export const Locations: React.FC = () => {
     );
   };
 
+  const getHoursForLocation = (name: string) => {
+    switch (name) {
+      case "Torre Faro":
+        return "Orari: Lun-Sab 9:00-20:00, Dom 9:00-13:00 / 16:00-20:00";
+      case "Boutique Uomo":
+        return "Orari: Lun-Sab 9:00-20:00, Dom 9:00-13:00 / 16:00-20:00";
+      case "Boutique Donna":
+        return "Orari: Lun-Dom 9:00-13:00 / 16:00-20:00";
+      case "Centro Commerciale Tremestieri":
+        return "Orari: Lun-Sab 9:00-20:30, Dom e festivi: 9:30-20:30";
+      case "Montesilvano Store":
+        return "Orari: Lun-Sab 9:00-20:00, Dom 9:00-13:00 / 16:00-20:00";
+      case "Kreazioni Uomo":
+        return "Orari: Lun-Sab 9:00-20:00, Dom 9:00-13:00 / 16:00-20:00";
+      default:
+        return "Orari: Lun-Sab 9:30-13:00 / 16:30-20:30";
+    }
+  };
+
+  const formatHoursWithSundayBreak = (hours: string) => {
+    const everyDayMatch = hours.match(/^Orari:\s*Lun-Dom\s*(.+)$/);
+    if (everyDayMatch) {
+      const dailyHours = everyDayMatch[1];
+      return `Orari: Lun-Sab ${dailyHours}\nDom ${dailyHours}`;
+    }
+
+    return hours
+      .replace(", Dom e festivi", ",\nDom e festivi")
+      .replace(", Dom", ",\nDom");
+  };
+
   const locationsContent =
     regionEntries.length > 0 ? (
       regionEntries.map(([region, locations]) => (
@@ -164,7 +196,7 @@ export const Locations: React.FC = () => {
                 delay={index * 0.1}
                 fullHeight
               >
-                <a href={loc.address} target="_blank" rel="noopener noreferrer">
+                <a href={loc.mapUrl} target="_blank" rel="noopener noreferrer">
                   <div className="group flex flex-col h-full bg-white rounded-sm pb-6 transition-shadow duration-300 hover:shadow-sm border border-brand-border">
                     <div className="aspect-video relative overflow-hidden mb-6 bg-brand-surface">
                       <img
@@ -227,25 +259,10 @@ export const Locations: React.FC = () => {
                                   size={16}
                                   className="text-brand-accent mr-3 shrink-0"
                                 />
-                                <span>
-                                  {(() => {
-                                    switch (loc.name) {
-                                      case "Torre Faro":
-                                        return "Orari: Lun-Sab 9:00-20:00, Dom 9:00-13:00 / 16:00-20:00";
-                                      case "Boutique Uomo":
-                                        return "Orari: Lun-Sab 9:00-20:00, Dom 9:00-13:00 / 16:00-20:00";
-                                      case "Boutique Donna":
-                                        return "Orari: Lun-Dom 9:00-13:00 / 16:00-20:00";
-                                      case "Centro Commerciale Tremestieri":
-                                        return "Orari: Lun-Sab 9:00-20:30, Dom e festivi: 9:30-20:30";
-                                      case "Montesilvano Store":
-                                        return "Orari: Lun-Sab 9:00-20:00, Dom 9:00-13:00 / 16:00-20:00";
-                                      case "Dimensione immagine":
-                                        return "Orari: Lun-Sab 9:00-13:00 / 16:00-20:00";
-                                      default:
-                                        return "Orari: Lun-Sab 9:30-13:00 / 16:30-20:30";
-                                    }
-                                  })()}
+                                <span className="whitespace-pre-line">
+                                  {formatHoursWithSundayBreak(
+                                    getHoursForLocation(loc.name),
+                                  )}
                                 </span>
                               </div>
                             )}

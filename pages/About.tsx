@@ -12,17 +12,22 @@ const VALUES: ValueItem[] = [
   {
     title: "Famiglia & Accoglienza",
     description:
-      "Il nostro DNA e familiare: accogliere con calore, ascoltare con attenzione, rispettare con autenticita.",
+      "Il nostro DNA é familiare: accogliere con calore, ascoltare con attenzione, rispettare con autenticita. Prestiamo la massima attenzione all'esposizione del prodotto, alla suddivisione dei colori, per creare outfit versabili e facilmente comprensibili. La perfetta concezione per un impatto diretto ed una lettura comprensibile del prodotto.",
+  },
+  {
+    title: "Valore aggiunto",
+    description:
+      "Curiamo al massimo il prezzo di vendita, offriamo tutto l'anno promozioni e iniziative per rendere la moda accessibile a tutti. Con sconti dal 50% al 90% su una selezione di oltre 650.000 capi per stagione, ogni giorno é un'opportunita' per rinnovare il proprio stile senza compromessi.",
   },
   {
     title: "Stile & Tendenza",
     description:
-      "Collezioni dinamiche, ricercate e sempre aggiornate, create per accompagnare ogni stagione e stato d'animo.",
+      "Collezioni dinamiche, ricercate e sempre aggiornate, create per accompagnare ogni stagione e stato d'animo. In collaborazione con i nostri fornitori, con un accordo che ci rende esclusivisti a livello nazionale di molti marchi da noi trattati. ",
   },
   {
     title: "Qualita & Selezione Curata",
     description:
-      "Ogni capo e scelto con attenzione ai materiali, alle finiture e al comfort, affinche duri e si indossi con piacere.",
+      "Ogni capo e scelto con attenzione ai materiali, i nostri fornitori curano ogni dettaglio  dalle finiture  al comfort, affinche duri e si indossi con piacere in un total look sempre aggiornato per stile e colore.",
   },
   {
     title: "Tradizione & Evoluzione",
@@ -63,19 +68,15 @@ export const About: React.FC = () => {
             <div className="lg:col-span-8 border-l border-brand-accent/30 pl-4 sm:pl-8 lg:pl-10">
               <div className="space-y-6 text-brand-text-secondary text-base md:text-lg leading-relaxed font-light">
                 <p>
-                  Un racconto di stile, autenticita e visione curato da{" "}
-                  <span className="font-bold">
-                    Debora Scabora, Direttrice Marketing e Visual Merchandising.
-                  </span>
+                  Un racconto di stile, autenticita e visione curato da un team
+                  proffesionale e altamente specializzato.{" "}
                 </p>
                 <p>
-                  Dal 1984 Dimensione Immagine, fondata da{" "}
-                  <span className="font-bold">Fortunato Oteri</span>, interpreta
-                  la moda come un gesto di accoglienza e identita. Nata in
-                  Sicilia come realta elegante, la nostra storia affonda le
-                  radici nella cura del dettaglio, nel rispetto delle persone e
-                  nella volonta di creare un'esperienza che unisce stile e
-                  umanita.
+                  Dal 1984 Dimensione Immagine, interpreta la moda come un gesto
+                  di accoglienza e identita. Nata in Sicilia, la nostra storia
+                  affonda le radici nella cura del dettaglio, nel rispetto delle
+                  persone e nella volonta di creare un'esperienza che unisce
+                  stile e umanita.
                 </p>
                 <p>
                   Nel corso dei decenni, quel primo negozio e diventato un
@@ -87,17 +88,11 @@ export const About: React.FC = () => {
                   compreso e valorizzato.
                 </p>
                 <p>
-                  Oggi Dimensione Immagine e una rete di store diretti e
+                  Oggi Dimensione Immagine é una rete di store diretti e
                   affiliati che combina tradizione, modernita e cultura
                   dell'accoglienza. Un brand che evolve restando fedele alla
                   propria anima.
                 </p>
-                <p>
-                  "Come custode della comunicazione istituzionale, mi impegno a
-                  tradurre questa essenza in ogni parola, preservando
-                  l'autenticita che ci accompagna da sempre."
-                </p>
-                <p className="font-bold">- Debora Scabora</p>
               </div>
             </div>
           </div>
@@ -151,7 +146,7 @@ export const About: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12 text-center">
               <div>
                 <span className="block text-5xl font-serif text-brand-accent mb-4">
-                  5000+
+                  650.000+
                 </span>
                 <span className="text-xs uppercase tracking-widest text-brand-text-secondary">
                   Capi Disponibili
@@ -159,7 +154,7 @@ export const About: React.FC = () => {
               </div>
               <div>
                 <span className="block text-5xl font-serif text-brand-accent mb-4">
-                  9
+                  10
                 </span>
                 <span className="text-xs uppercase tracking-widest text-brand-text-secondary">
                   Punti Vendita
@@ -167,10 +162,10 @@ export const About: React.FC = () => {
               </div>
               <div>
                 <span className="block text-5xl font-serif text-brand-accent mb-4">
-                  1500+
+                  30.000+
                 </span>
                 <span className="text-xs uppercase tracking-widest text-brand-text-secondary">
-                  Clienti Felici
+                  Clienti fidelizzati
                 </span>
               </div>
             </div>
@@ -190,13 +185,16 @@ export const About: React.FC = () => {
             </p>
           </Reveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 items-stretch">
             {VALUES.map((value, index) => (
-              <Reveal key={value.title} width="100%">
-                <div className="h-full border border-brand-border bg-white p-8 sm:p-10 rounded-sm">
-                  <span className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-brand-accent/30 text-brand-accent text-sm font-semibold mb-6">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
+              <Reveal key={value.title} width="100%" fullHeight>
+                <div className="h-full border border-brand-border bg-white p-6 sm:p-8 lg:p-10 rounded-sm">
+                  <div className="flex items-center gap-4 mb-6">
+                    <span className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-brand-accent/30 text-brand-accent text-sm font-semibold shrink-0">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <div className="h-px w-full bg-brand-accent/20"></div>
+                  </div>
                   <h3 className="text-2xl lg:text-3xl font-serif uppercase mb-5 tracking-wide text-brand-text-primary leading-tight">
                     {value.title}
                   </h3>
