@@ -37,7 +37,7 @@ export const NewsletterPopup: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const shouldHide = useMemo(() => {
-    return ["/login", "/register", "/admin-wholesale"].includes(
+    return ["/login", "/register", "/admin-wholesale", "/admin-promozioni"].includes(
       location.pathname,
     );
   }, [location.pathname]);

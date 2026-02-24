@@ -9,6 +9,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Cosa Trovi da Noi", path: "/trovi-da-noi" },
   { label: "Blog", path: "/blog" },
   { label: "Negozi & Sedi", path: "/sedi" },
+  { label: "Promozioni e Offerte", path: "/promozioni-offerte" },
   { label: "Lavora con Noi", path: "/lavora-con-noi" },
   { label: "Distribuzione Ingrosso", path: "/distribuzione-in-grosso" },
   { label: "Contatti", path: "/contatti" },
