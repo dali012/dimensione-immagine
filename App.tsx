@@ -1,4 +1,4 @@
-import React, { useEffect, Suspense } from "react";
+import React, { useEffect, Suspense, useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -299,7 +299,15 @@ const AnimatedRoutes = () => {
 };
 
 // Render Navbar only on non-auth pages
-const ConditionalNavbar: React.FC = () => {
+interface ConditionalNavbarProps {
+  showOpeningBanner: boolean;
+  onCloseOpeningBanner: () => void;
+}
+
+const ConditionalNavbar: React.FC<ConditionalNavbarProps> = ({
+  showOpeningBanner,
+  onCloseOpeningBanner,
+}) => {
   const location = useLocation();
   const hiddenPaths = [
     "/login",
@@ -308,10 +316,21 @@ const ConditionalNavbar: React.FC = () => {
     "/admin-promozioni",
   ];
   if (hiddenPaths.includes(location.pathname)) return null;
-  return <Navbar />;
+  return (
+    <Navbar
+      showOpeningBanner={showOpeningBanner}
+      onCloseOpeningBanner={onCloseOpeningBanner}
+    />
+  );
 };
 
 const App: React.FC = () => {
+  const [showOpeningBanner, setShowOpeningBanner] = useState(true);
+
+  const handleCloseOpeningBanner = () => {
+    setShowOpeningBanner(false);
+  };
+
   // Use the exported `RequireAuth` from `AuthContext` (no local override)
   const localBusinessSchema = {
     "@context": "https://schema.org",
@@ -385,7 +404,10 @@ const App: React.FC = () => {
         <ScrollToTop />
         <Toaster closeButton position="bottom-left" />
         <div className="flex flex-col min-h-screen bg-brand-bg text-brand-text-primary selection:bg-brand-accent selection:text-white">
-          <ConditionalNavbar />
+          <ConditionalNavbar
+            showOpeningBanner={showOpeningBanner}
+            onCloseOpeningBanner={handleCloseOpeningBanner}
+          />
           <NewsletterPopup />
           <main className="grow">
             <AnimatedRoutes />

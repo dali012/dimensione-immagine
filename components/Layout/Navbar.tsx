@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { NavItem } from "../../types";
 import { useAuth } from "../../contexts/AuthContext";
+import { NewOpeningBanner } from "../UI/NewOpeningBanner";
 
 const NAV_ITEMS: NavItem[] = [
   { label: "Home", path: "/" },
@@ -16,9 +17,16 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Contatti", path: "/contatti" },
 ];
 
-export const Navbar: React.FC = () => {
+interface NavbarProps {
+  showOpeningBanner?: boolean;
+  onCloseOpeningBanner?: () => void;
+}
+
+export const Navbar: React.FC<NavbarProps> = ({
+  showOpeningBanner = false,
+  onCloseOpeningBanner,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const { user, isReady } = useAuth();
 
@@ -32,14 +40,6 @@ export const Navbar: React.FC = () => {
     }
     return items;
   }, [isReady, user?.canManagePromotions]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   // Close mobile menu when route changes
   useEffect(() => {
@@ -60,7 +60,15 @@ export const Navbar: React.FC = () => {
 
   return (
     <>
-      <nav className="fixed w-full z-50 bg-white border-b border-brand-border h-18 flex items-center transition-all duration-300">
+      {showOpeningBanner && (
+        <NewOpeningBanner onClose={onCloseOpeningBanner} />
+      )}
+
+      <nav
+        className={`fixed w-full z-50 bg-white border-b border-brand-border h-18 flex items-center transition-all duration-300 ${
+          showOpeningBanner ? "top-6" : "top-0"
+        }`}
+      >
         <div className="container mx-auto flex justify-between items-center px-6 h-full">
           {/* Logo */}
           <Link

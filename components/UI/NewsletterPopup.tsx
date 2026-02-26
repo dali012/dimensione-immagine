@@ -82,8 +82,7 @@ export const NewsletterPopup: React.FC = () => {
       );
       setEmail("");
       handleClose();
-    } catch (err) {
-      console.error(err);
+    } catch {
       toast.error("Si è verificato un errore. Riprova più tardi.");
     } finally {
       setIsSubmitting(false);

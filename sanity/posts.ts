@@ -1,7 +1,6 @@
 import { client } from "./client";
 import type { BlogPost as BlogPostType } from "../types";
 
-const CACHE_KEY = "blog_posts_cache_v1";
 const CACHE_TTL_MS = 10 * 60 * 1000;
 let memoryCache: { data: BlogPostType[]; ts: number } | null = null;
 
@@ -10,29 +9,11 @@ function getCachedPosts(): BlogPostType[] | null {
   if (memoryCache && now - memoryCache.ts < CACHE_TTL_MS) {
     return memoryCache.data;
   }
-
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = localStorage.getItem(CACHE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as { ts: number; data: BlogPostType[] };
-    if (!parsed?.data || now - parsed.ts >= CACHE_TTL_MS) return null;
-    memoryCache = { data: parsed.data, ts: parsed.ts };
-    return parsed.data;
-  } catch {
-    return null;
-  }
+  return null;
 }
 
 function setCachedPosts(data: BlogPostType[]) {
-  const payload = { ts: Date.now(), data };
-  memoryCache = payload;
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify(payload));
-  } catch {
-    // ignore cache errors
-  }
+  memoryCache = { ts: Date.now(), data };
 }
 
 function blocksToPlainText(blocks: any[] = []) {

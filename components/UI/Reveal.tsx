@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { motion, useInView, useAnimation, Variant } from "framer-motion";
+import { motion, useInView, useAnimation, type Variants } from "framer-motion";
 
 interface RevealProps {
   children: React.ReactNode;
@@ -30,7 +30,7 @@ export const Reveal: React.FC<RevealProps> = ({
     }
   }, [isInView, mainControls]);
 
-  const getVariants = () => {
+  const getVariants = (): Variants => {
     const hidden: { opacity: number; x?: number; y?: number } = { opacity: 0 };
     const visible: { opacity: number; x?: number; y?: number } = {
       opacity: 1,
@@ -59,7 +59,7 @@ export const Reveal: React.FC<RevealProps> = ({
       hidden,
       visible: {
         ...visible,
-        transition: { duration, delay, ease: "easeOut" },
+        transition: { duration, delay, ease: "easeOut" as const },
       },
     };
   };

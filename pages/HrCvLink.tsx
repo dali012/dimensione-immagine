@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { SEO } from "@/components/SEO/SEO";
 
+const HR_API_TOKEN_STORAGE_KEY = "hr_api_token";
+const HR_PAGE_AUTHED_STORAGE_KEY = "hr_page_authed";
+
 async function parseJsonSafe<T>(response: Response) {
   const text = await response.text();
   if (!text) return {} as T;
@@ -26,23 +29,23 @@ export const HrCvLink: React.FC = () => {
     | undefined;
 
   useEffect(() => {
-    const saved = localStorage.getItem("hr_api_token");
+    const saved = sessionStorage.getItem(HR_API_TOKEN_STORAGE_KEY);
     if (saved) setToken(saved);
   }, []);
 
   useEffect(() => {
-    if (token) localStorage.setItem("hr_api_token", token);
+    if (token) sessionStorage.setItem(HR_API_TOKEN_STORAGE_KEY, token);
   }, [token]);
 
   useEffect(() => {
-    const ok = sessionStorage.getItem("hr_page_authed") === "1";
+    const ok = sessionStorage.getItem(HR_PAGE_AUTHED_STORAGE_KEY) === "1";
     if (ok) setPageAuthed(true);
   }, []);
 
   useEffect(() => {
     if (!requiredPassword) {
       setPageAuthed(true);
-      sessionStorage.setItem("hr_page_authed", "1");
+      sessionStorage.setItem(HR_PAGE_AUTHED_STORAGE_KEY, "1");
     }
   }, [requiredPassword]);
 
@@ -79,12 +82,12 @@ export const HrCvLink: React.FC = () => {
 
         if (data.token) {
           setToken(data.token);
-          localStorage.setItem("hr_api_token", data.token);
+          sessionStorage.setItem(HR_API_TOKEN_STORAGE_KEY, data.token);
         }
 
         if (!requiredPassword || data.pagePassword === requiredPassword) {
           setPageAuthed(true);
-          sessionStorage.setItem("hr_page_authed", "1");
+          sessionStorage.setItem(HR_PAGE_AUTHED_STORAGE_KEY, "1");
           setPagePassword("");
         } else {
           setStatus("error");
@@ -144,12 +147,12 @@ export const HrCvLink: React.FC = () => {
     e.preventDefault();
     if (!requiredPassword) {
       setPageAuthed(true);
-      sessionStorage.setItem("hr_page_authed", "1");
+      sessionStorage.setItem(HR_PAGE_AUTHED_STORAGE_KEY, "1");
       return;
     }
     if (pagePassword === requiredPassword) {
       setPageAuthed(true);
-      sessionStorage.setItem("hr_page_authed", "1");
+      sessionStorage.setItem(HR_PAGE_AUTHED_STORAGE_KEY, "1");
       setPagePassword("");
       return;
     }
@@ -208,7 +211,7 @@ export const HrCvLink: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => {
-                    sessionStorage.removeItem("hr_page_authed");
+                    sessionStorage.removeItem(HR_PAGE_AUTHED_STORAGE_KEY);
                     setPageAuthed(false);
                   }}
                   className="text-xs uppercase tracking-widest text-brand-accent hover:underline"
