@@ -17,15 +17,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Contatti", path: "/contatti" },
 ];
 
-interface NavbarProps {
-  showOpeningBanner?: boolean;
-  onCloseOpeningBanner?: () => void;
-}
-
-export const Navbar: React.FC<NavbarProps> = ({
-  showOpeningBanner = false,
-  onCloseOpeningBanner,
-}) => {
+export const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { user, isReady } = useAuth();
@@ -60,14 +52,10 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <>
-      {showOpeningBanner && (
-        <NewOpeningBanner onClose={onCloseOpeningBanner} />
-      )}
+      <NewOpeningBanner />
 
       <nav
-        className={`fixed w-full z-50 bg-white border-b border-brand-border h-18 flex items-center transition-all duration-300 ${
-          showOpeningBanner ? "top-6" : "top-0"
-        }`}
+        className="fixed top-8 w-full z-50 bg-white border-b border-brand-border h-16 flex items-center transition-all duration-300"
       >
         <div className="container mx-auto flex justify-between items-center px-6 h-full">
           {/* Logo */}

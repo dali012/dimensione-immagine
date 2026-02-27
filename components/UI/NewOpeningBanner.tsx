@@ -1,5 +1,5 @@
 import React from "react";
-import { MapPin, Sparkles, X } from "lucide-react";
+import { MapPin, Sparkles } from "lucide-react";
 
 interface NewOpeningBannerProps {
   className?: string;
@@ -7,7 +7,6 @@ interface NewOpeningBannerProps {
   province?: string;
   region?: string;
   openingNote?: string;
-  onClose?: () => void;
 }
 
 export const NewOpeningBanner: React.FC<NewOpeningBannerProps> = ({
@@ -16,42 +15,33 @@ export const NewOpeningBanner: React.FC<NewOpeningBannerProps> = ({
   province = "Pescara",
   region = "Abruzzo",
   openingNote = "Nuovo punto vendita in arrivo",
-  onClose,
 }) => {
   return (
     <div
-      className={`fixed inset-x-0 top-0 z-60 h-6 overflow-hidden border-b border-brand-accent/35 bg-linear-to-r from-[#16120d] via-[#0f0f0f] to-[#1a1510] text-white ${className}`}
+      className={`banner-gradient-drift motion-reduce:animate-none fixed inset-x-0 top-0 z-60 h-8 overflow-hidden bg-linear-to-r from-[#17120c] via-[#0f0f0f] to-[#1d160d] text-white shadow-[0_0_20px_rgba(245,158,11,0.18)] ${className}`}
       role="region"
       aria-label="Annuncio nuova apertura"
     >
-      <div className="pointer-events-none absolute inset-0 bg-linear-to-r from-brand-accent/10 via-transparent to-brand-accent/10" />
-      <div className="container relative mx-auto flex h-full items-center justify-between gap-2 px-3 sm:px-6">
-        <p className="min-w-0 truncate text-[10px] font-medium uppercase tracking-[0.2em] text-white/90">
-          <span className="inline-flex items-center gap-1.5 text-brand-accent">
-            <Sparkles size={11} />
+      <div className="banner-border-beam motion-reduce:animate-none pointer-events-none absolute inset-x-0 top-0 h-[2px]" />
+      <div className="banner-border-beam-reverse motion-reduce:animate-none pointer-events-none absolute inset-x-0 bottom-0 h-[2px]" />
+      <div className="banner-glow-breathe motion-reduce:animate-none pointer-events-none absolute inset-0 bg-linear-to-r from-brand-accent/10 via-transparent to-brand-accent/10" />
+      <div className="banner-glow-breathe motion-reduce:animate-none pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_50%,rgba(245,158,11,0.24),transparent_45%),radial-gradient(circle_at_82%_50%,rgba(56,189,248,0.2),transparent_45%)]" />
+      <div className="container relative mx-auto flex h-full items-center justify-center px-3 sm:px-6">
+        <p className="banner-text-shift motion-reduce:animate-none min-w-0 truncate text-xs font-semibold uppercase tracking-[0.16em] text-white/85 sm:text-[13px]">
+          <span className="banner-accent-pulse motion-reduce:animate-none inline-flex items-center gap-1.5 text-brand-accent">
+            <Sparkles size={14} />
             Nuova Apertura
           </span>
           <span className="mx-2 text-white/35">|</span>
-          <span className="inline-flex items-center gap-1 text-white/90">
-            <MapPin size={11} />
+          <span className="inline-flex items-center gap-1 text-current">
+            <MapPin size={13} />
             {locationName} ({province}) - {region}
           </span>
-          <span className="hidden sm:inline">
+          <span className="hidden text-current sm:inline">
             <span className="mx-2 text-white/35">|</span>
             {openingNote}
           </span>
         </p>
-
-        {onClose && (
-          <button
-            type="button"
-            onClick={onClose}
-            className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-white/25 bg-white/10 text-white/85 transition-colors hover:bg-white/20"
-            aria-label="Chiudi annuncio nuova apertura"
-          >
-            <X size={12} />
-          </button>
-        )}
       </div>
     </div>
   );
