@@ -15,6 +15,19 @@ import { Calendar, User, Tag, ArrowLeft, Link as LinkIcon } from "lucide-react";
 import { generateArticleSchema } from "../lib/generateArticleSchema";
 import { toast } from "sonner";
 
+const formatDate = (iso?: string) => {
+  if (!iso) return "";
+  try {
+    return new Date(iso).toLocaleDateString("it-IT", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+  } catch (e) {
+    return iso;
+  }
+};
+
 export const BlogPost: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -65,19 +78,6 @@ export const BlogPost: React.FC = () => {
 
   const shareUrl = `https://www.dimensioneimmagineabbigliamento.it${location.pathname}`;
   const shareText = `${post?.title ?? ""} | Dimensione Immagine`;
-
-  const formatDate = (iso?: string) => {
-    if (!iso) return "";
-    try {
-      return new Date(iso).toLocaleDateString("it-IT", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-      });
-    } catch (e) {
-      return iso;
-    }
-  };
 
   const handleCopy = async () => {
     try {

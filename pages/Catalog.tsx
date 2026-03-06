@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { SEO } from "../components/SEO/SEO";
@@ -44,7 +44,7 @@ export const Catalog: React.FC = () => {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState("Tutto");
   const [search, setSearch] = useState("");
-  const [favorites, setFavorites] = useState<number[]>([]);
+  const [favorites, setFavorites] = useState<Set<number>>(new Set());
 
   // Sync state with URL params on mount and update
   useEffect(() => {
@@ -61,22 +61,25 @@ export const Catalog: React.FC = () => {
     const stored = localStorage.getItem("catalog-favorites");
     if (stored) {
       try {
-        setFavorites(JSON.parse(stored));
+        setFavorites(new Set<number>(JSON.parse(stored)));
       } catch {
-        setFavorites([]);
+        setFavorites(new Set());
       }
     }
   }, []);
 
-  const toggleFavorite = (id: number) => {
+  const toggleFavorite = useCallback((id: number) => {
     setFavorites((prev) => {
-      const updated = prev.includes(id)
-        ? prev.filter((fav) => fav !== id)
-        : [...prev, id];
-      localStorage.setItem("catalog-favorites", JSON.stringify(updated));
+      const updated = new Set(prev);
+      if (updated.has(id)) {
+        updated.delete(id);
+      } else {
+        updated.add(id);
+      }
+      localStorage.setItem("catalog-favorites", JSON.stringify([...updated]));
       return updated;
     });
-  };
+  }, []);
 
   const handleFilterClick = (filter: string) => {
     setActiveFilter(filter);
@@ -184,7 +187,7 @@ export const Catalog: React.FC = () => {
                   onClick={() => toggleFavorite(image.id)}
                   className="absolute top-4 right-4 z-10 bg-white/80 backdrop-blur-sm p-2 rounded-full border border-brand-border hover:border-brand-accent transition-colors"
                   aria-label={
-                    favorites.includes(image.id)
+                    favorites.has(image.id)
                       ? "Rimuovi dai preferiti"
                       : "Aggiungi ai preferiti"
                   }
@@ -192,7 +195,7 @@ export const Catalog: React.FC = () => {
                   <Heart
                     size={16}
                     className={
-                      favorites.includes(image.id)
+                      favorites.has(image.id)
                         ? "text-brand-accent fill-brand-accent"
                         : "text-brand-text-secondary"
                     }

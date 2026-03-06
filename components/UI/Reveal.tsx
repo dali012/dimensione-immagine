@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { motion, useInView, useAnimation, type Variants } from "framer-motion";
 
 interface RevealProps {
@@ -28,9 +28,9 @@ export const Reveal: React.FC<RevealProps> = ({
     if (isInView) {
       mainControls.start("visible");
     }
-  }, [isInView, mainControls]);
+  }, [isInView]);
 
-  const getVariants = (): Variants => {
+  const variants = useMemo((): Variants => {
     const hidden: { opacity: number; x?: number; y?: number } = { opacity: 0 };
     const visible: { opacity: number; x?: number; y?: number } = {
       opacity: 1,
@@ -62,7 +62,7 @@ export const Reveal: React.FC<RevealProps> = ({
         transition: { duration, delay, ease: "easeOut" as const },
       },
     };
-  };
+  }, [direction, duration, delay]);
 
   return (
     <div
@@ -71,7 +71,7 @@ export const Reveal: React.FC<RevealProps> = ({
       className={`${className} ${fullHeight ? "h-full" : ""}`}
     >
       <motion.div
-        variants={getVariants()}
+        variants={variants}
         initial="hidden"
         animate={mainControls}
         className={fullHeight ? "h-full" : ""}

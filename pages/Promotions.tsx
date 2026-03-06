@@ -16,6 +16,17 @@ type PromotionItem = {
   sortOrder: number;
 };
 
+const formatDate = (iso: string | null) => {
+  if (!iso) return null;
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toLocaleDateString("it-IT", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+};
+
 export const Promotions: React.FC = () => {
   const location = useLocation();
   const [items, setItems] = useState<PromotionItem[]>([]);
@@ -65,17 +76,6 @@ export const Promotions: React.FC = () => {
       }),
     [],
   );
-
-  const formatDate = (iso: string | null) => {
-    if (!iso) return null;
-    const date = new Date(iso);
-    if (Number.isNaN(date.getTime())) return null;
-    return date.toLocaleDateString("it-IT", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  };
 
   return (
     <div className="pt-24 min-h-screen bg-brand-bg text-brand-text-primary">
