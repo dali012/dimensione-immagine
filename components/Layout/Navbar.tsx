@@ -69,27 +69,28 @@ export const Navbar: React.FC = () => {
             onClick={() => setIsOpen(false)}
             aria-label="Torna alla home di Dimensione Immagine"
           >
-            <span className="flex items-center gap-2.5 sm:gap-3.5">
-              <span className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-brand-gold/25 bg-[radial-gradient(circle_at_30%_30%,rgba(184,155,94,0.18),rgba(17,17,17,0.96)_70%)] shadow-[0_0_24px_rgba(184,155,94,0.14)] sm:h-12 sm:w-12">
+            <span className="flex items-center gap-2 sm:gap-3">
+              <span className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-visible sm:h-12 sm:w-12">
+                <span className="pointer-events-none absolute inset-0 blur-[14px] opacity-35 bg-[radial-gradient(circle,rgba(184,155,94,0.26),transparent_70%)]" />
                 <img
                   src="/images/logo-elephant-golden-2025.png"
                   alt=""
                   aria-hidden="true"
-                  className="h-full w-full object-cover opacity-95"
+                  className="relative h-full w-full object-cover opacity-95"
                   loading="eager"
                   decoding="async"
                   style={{
-                    clipPath: "inset(0 25% 0 0 round 999px)",
+                    clipPath: "inset(0 25% 0 0)",
                     objectPosition: "26% center",
                     transform: "translateX(-4%) scale(1.18)",
                   }}
                 />
               </span>
               <span className="flex min-w-0 flex-col justify-center leading-none text-brand-gold">
-                <span className="whitespace-nowrap text-[1.02rem] font-semibold uppercase tracking-[0.22em] sm:text-[1.16rem]">
+                <span className="whitespace-nowrap text-[1.02rem] font-semibold uppercase tracking-[0.2em] sm:text-[1.16rem]">
                   DIMMI
                 </span>
-                <span className="mt-1 whitespace-nowrap font-serif text-[10px] tracking-[0.03em] text-brand-gold/88 max-[340px]:hidden sm:text-[13px]">
+                <span className="mt-1 whitespace-nowrap font-serif text-[10px] tracking-[0.015em] text-brand-gold/88 max-[340px]:hidden sm:text-[13px]">
                   Dimensione Immagine
                 </span>
               </span>
