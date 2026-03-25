@@ -94,6 +94,7 @@ const LANGUAGE_LEVEL_OPTIONS: { value: LanguageLevel; label: string }[] = [
 
 const MAX_EXPERIENCES = 5;
 const MAX_HARD_SKILLS = 5;
+const WHATSAPP_CAREERS_NUMBER = "390902400474";
 let experienceCounter = 0;
 
 const createEmptyExperience = (): ExperienceItem => {
@@ -267,6 +268,64 @@ function buildApplicationPdf(data: {
   return doc.output("blob");
 }
 
+type PreparedApplicationPayload = {
+  normalizedEmail: string;
+  normalizedLanguages: LanguageItem[];
+  normalizedHardSkills: string[];
+  experiencesPayload: ExperienceItem[];
+  taskRatingsPayload: TaskRatingItem[];
+  experienceLevelLabel: string;
+  noticePeriodLabel: string;
+  educationLevelLabel: string;
+  hardSkillsText: string;
+  pdfBlob: Blob;
+  pdfFileName: string;
+  generatedPdf: File;
+  whatsappMessage: string;
+};
+
+type ApplicationPreparationResult =
+  | { error: string }
+  | { data: PreparedApplicationPayload };
+
+function buildWhatsAppApplicationMessage(data: {
+  fullName: string;
+  position: string;
+  city: string;
+  phone: string;
+  email: string;
+}) {
+  const lines = [
+    "Ciao, vorrei candidarmi per Dimensione Immagine.",
+    `Posizione: ${data.position}`,
+    `Nome e cognome: ${data.fullName}`,
+    `Citta/Provincia: ${data.city}`,
+    `Telefono: ${data.phone}`,
+  ];
+
+  if (data.email) {
+    lines.push(`Email: ${data.email}`);
+  }
+
+  lines.push("Allego il CV in PDF generato dal modulo Lavora con Noi.");
+  return lines.join("\n");
+}
+
+function downloadBlobFile(blob: Blob, fileName: string) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = fileName;
+  link.style.display = "none";
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
 const LavoraConNoi: React.FC = () => {
   const location = useLocation();
 
@@ -309,6 +368,10 @@ const LavoraConNoi: React.FC = () => {
     "idle" | "submitting" | "success" | "error"
   >("idle");
   const [feedbackMsg, setFeedbackMsg] = useState("");
+  const [whatsAppStatus, setWhatsAppStatus] = useState<
+    "idle" | "preparing" | "success" | "error"
+  >("idle");
+  const [whatsAppFeedback, setWhatsAppFeedback] = useState("");
   const [deleteStatus, setDeleteStatus] = useState<
     "idle" | "deleting" | "deleted" | "error"
   >("idle");
@@ -566,30 +629,27 @@ const LavoraConNoi: React.FC = () => {
 
   const summaryChars = professionalSummary.length;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (status === "submitting") return;
-
+  const prepareApplicationPayload = ({
+    requireRecaptcha,
+  }: {
+    requireRecaptcha: boolean;
+  }): ApplicationPreparationResult => {
     if (!fullName.trim() || !phone.trim() || !city.trim() || !position.trim()) {
-      setStatus("error");
-      setFeedbackMsg("Compila tutti i campi obbligatori dei dati personali.");
-      return;
+      return {
+        error: "Compila tutti i campi obbligatori dei dati personali.",
+      };
     }
 
     const normalizedEmail = email.trim();
 
     if (!experienceLevel || !noticePeriod) {
-      setStatus("error");
-      setFeedbackMsg(
-        "Seleziona livello di esperienza e disponibilita al preavviso.",
-      );
-      return;
+      return {
+        error: "Seleziona livello di esperienza e disponibilita al preavviso.",
+      };
     }
 
     if (!educationLevel) {
-      setStatus("error");
-      setFeedbackMsg("Seleziona il titolo di studio.");
-      return;
+      return { error: "Seleziona il titolo di studio." };
     }
 
     const normalizedLanguages = languages
@@ -600,9 +660,7 @@ const LavoraConNoi: React.FC = () => {
       .filter((item) => item.language.length > 0);
 
     if (normalizedLanguages.length === 0) {
-      setStatus("error");
-      setFeedbackMsg("Inserisci almeno una lingua straniera.");
-      return;
+      return { error: "Inserisci almeno una lingua straniera." };
     }
 
     const normalizedHardSkills = hardSkills
@@ -611,9 +669,7 @@ const LavoraConNoi: React.FC = () => {
       .slice(0, MAX_HARD_SKILLS);
 
     if (normalizedHardSkills.length === 0) {
-      setStatus("error");
-      setFeedbackMsg("Inserisci le competenze tecniche principali.");
-      return;
+      return { error: "Inserisci le competenze tecniche principali." };
     }
 
     const normalizedExperiences = experiences.map((item) => ({
@@ -636,11 +692,10 @@ const LavoraConNoi: React.FC = () => {
       );
 
       if (!hasAtLeastOneExperience) {
-        setStatus("error");
-        setFeedbackMsg(
-          "Compila almeno una esperienza professionale oppure seleziona 'E la mia prima esperienza lavorativa'.",
-        );
-        return;
+        return {
+          error:
+            "Compila almeno una esperienza professionale oppure seleziona 'E la mia prima esperienza lavorativa'.",
+        };
       }
 
       const invalidExperience = normalizedExperiences.find((item) => {
@@ -669,11 +724,10 @@ const LavoraConNoi: React.FC = () => {
       });
 
       if (invalidExperience) {
-        setStatus("error");
-        setFeedbackMsg(
-          "Ogni esperienza compilata deve includere azienda, ruolo, data inizio, responsabilita e data fine (o Attualmente occupato).",
-        );
-        return;
+        return {
+          error:
+            "Ogni esperienza compilata deve includere azienda, ruolo, data inizio, responsabilita e data fine (o Attualmente occupato).",
+        };
       }
     }
 
@@ -681,98 +735,184 @@ const LavoraConNoi: React.FC = () => {
       !professionalSummary.trim() ||
       professionalSummary.trim().length > 500
     ) {
-      setStatus("error");
-      setFeedbackMsg(
-        "Il riepilogo professionale e obbligatorio e deve essere massimo 500 caratteri.",
-      );
-      return;
+      return {
+        error:
+          "Il riepilogo professionale e obbligatorio e deve essere massimo 500 caratteri.",
+      };
     }
 
     if (!selectedPosition || selectedPosition.tasks.length === 0) {
-      setStatus("error");
-      setFeedbackMsg(
-        "Nessuna competenza disponibile per questa posizione. Aggiorna la posizione in Sanity.",
-      );
-      return;
+      return {
+        error:
+          "Nessuna competenza disponibile per questa posizione. Aggiorna la posizione in Sanity.",
+      };
     }
 
     const missingRequiredTask = selectedPosition.tasks.find(
       (task) => task.required && (taskRatings[task.id] || "none") === "none",
     );
     if (missingRequiredTask) {
-      setStatus("error");
-      setFeedbackMsg(
-        `Seleziona almeno un livello Base per la competenza obbligatoria: "${missingRequiredTask.label}".`,
-      );
-      return;
+      return {
+        error: `Seleziona almeno un livello Base per la competenza obbligatoria: "${missingRequiredTask.label}".`,
+      };
     }
 
     if (!privacyAccepted) {
-      setStatus("error");
-      setFeedbackMsg(
-        "Devi accettare la normativa sulla privacy per procedere.",
+      return {
+        error: "Devi accettare la normativa sulla privacy per procedere.",
+      };
+    }
+
+    if (requireRecaptcha) {
+      if (!siteKey) {
+        return { error: "reCAPTCHA non configurato." };
+      }
+
+      if (!recaptchaToken) {
+        return { error: "Conferma di non essere un robot." };
+      }
+    }
+
+    const taskRatingsPayload: TaskRatingItem[] = selectedPosition.tasks.map(
+      (task) => ({
+        task: task.label,
+        level: taskRatings[task.id] || "none",
+      }),
+    );
+
+    const experienceLevelLabel =
+      EXPERIENCE_LEVEL_OPTIONS.find((opt) => opt.value === experienceLevel)
+        ?.label || "";
+    const noticePeriodLabel =
+      NOTICE_PERIOD_OPTIONS.find((opt) => opt.value === noticePeriod)?.label ||
+      "";
+    const educationLevelLabel =
+      EDUCATION_OPTIONS.find((opt) => opt.value === educationLevel)?.label || "";
+    const experiencesPayload = isFirstExperience ? [] : normalizedExperiences;
+    const hardSkillsText = normalizedHardSkills.join(", ");
+
+    const pdfBlob = buildApplicationPdf({
+      fullName: fullName.trim(),
+      email: normalizedEmail,
+      phone: phone.trim(),
+      city: city.trim(),
+      linkedin: linkedin.trim(),
+      position: position.trim(),
+      experienceLevel: experienceLevelLabel || "-",
+      noticePeriod: noticePeriodLabel || "-",
+      educationLevel: educationLevelLabel || "-",
+      languages: normalizedLanguages,
+      hardSkills: normalizedHardSkills,
+      firstExperience: isFirstExperience,
+      experiences: experiencesPayload,
+      professionalSummary: professionalSummary.trim(),
+      taskRatings: taskRatingsPayload,
+    });
+
+    const fileSafeName = sanitizeFileNamePart(fullName) || "candidato";
+    const pdfFileName = `candidatura-${fileSafeName}.pdf`;
+    const generatedPdf = new File([pdfBlob], pdfFileName, {
+      type: "application/pdf",
+    });
+
+    const whatsappMessage = buildWhatsAppApplicationMessage({
+      fullName: fullName.trim(),
+      position: position.trim(),
+      city: city.trim(),
+      phone: phone.trim(),
+      email: normalizedEmail,
+    });
+
+    return {
+      data: {
+        normalizedEmail,
+        normalizedLanguages,
+        normalizedHardSkills,
+        experiencesPayload,
+        taskRatingsPayload,
+        experienceLevelLabel,
+        noticePeriodLabel,
+        educationLevelLabel,
+        hardSkillsText,
+        pdfBlob,
+        pdfFileName,
+        generatedPdf,
+        whatsappMessage,
+      },
+    };
+  };
+
+  const handleWhatsAppShare = () => {
+    if (status === "submitting" || whatsAppStatus === "preparing") return;
+
+    setWhatsAppStatus("preparing");
+    setWhatsAppFeedback("");
+
+    const prepared = prepareApplicationPayload({ requireRecaptcha: false });
+
+    if ("error" in prepared) {
+      setWhatsAppStatus("error");
+      setWhatsAppFeedback(prepared.error);
+      return;
+    }
+
+    try {
+      const { pdfBlob, pdfFileName, whatsappMessage } = prepared.data;
+      const whatsappUrl = `https://wa.me/${WHATSAPP_CAREERS_NUMBER}?text=${encodeURIComponent(whatsappMessage)}`;
+
+      downloadBlobFile(pdfBlob, pdfFileName);
+
+      const popup = window.open(
+        whatsappUrl,
+        "_blank",
+        "noopener,noreferrer",
       );
-      return;
-    }
 
-    if (!siteKey) {
-      setStatus("error");
-      setFeedbackMsg("reCAPTCHA non configurato.");
-      return;
-    }
+      if (!popup) {
+        window.location.href = whatsappUrl;
+      }
 
-    if (!recaptchaToken) {
+      setWhatsAppStatus("success");
+      setWhatsAppFeedback(
+        "PDF pronto. Abbiamo aperto WhatsApp: allega il file appena scaricato e invialo in chat.",
+      );
+    } catch {
+      setWhatsAppStatus("error");
+      setWhatsAppFeedback(
+        "Non siamo riusciti ad aprire WhatsApp. Riprova tra qualche secondo.",
+      );
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (status === "submitting") return;
+    const prepared = prepareApplicationPayload({ requireRecaptcha: true });
+
+    if ("error" in prepared) {
       setStatus("error");
-      setFeedbackMsg("Conferma di non essere un robot.");
+      setFeedbackMsg(prepared.error);
       return;
     }
 
     setStatus("submitting");
     setFeedbackMsg("");
+    setWhatsAppStatus("idle");
+    setWhatsAppFeedback("");
 
     try {
-      const taskRatingsPayload: TaskRatingItem[] = selectedPosition.tasks.map(
-        (task) => ({
-          task: task.label,
-          level: taskRatings[task.id] || "none",
-        }),
-      );
-
-      const experienceLevelLabel =
-        EXPERIENCE_LEVEL_OPTIONS.find((opt) => opt.value === experienceLevel)
-          ?.label || "";
-      const noticePeriodLabel =
-        NOTICE_PERIOD_OPTIONS.find((opt) => opt.value === noticePeriod)
-          ?.label || "";
-      const educationLevelLabel =
-        EDUCATION_OPTIONS.find((opt) => opt.value === educationLevel)?.label ||
-        "";
-      const experiencesPayload = isFirstExperience ? [] : normalizedExperiences;
-      const hardSkillsText = normalizedHardSkills.join(", ");
-
-      const pdfBlob = buildApplicationPdf({
-        fullName: fullName.trim(),
-        email: normalizedEmail,
-        phone: phone.trim(),
-        city: city.trim(),
-        linkedin: linkedin.trim(),
-        position: position.trim(),
-        experienceLevel: experienceLevelLabel || "-",
-        noticePeriod: noticePeriodLabel || "-",
-        educationLevel: educationLevelLabel || "-",
-        languages: normalizedLanguages,
-        hardSkills: normalizedHardSkills,
-        firstExperience: isFirstExperience,
-        experiences: experiencesPayload,
-        professionalSummary: professionalSummary.trim(),
-        taskRatings: taskRatingsPayload,
-      });
-
-      const fileSafeName = sanitizeFileNamePart(fullName) || "candidato";
-      const pdfFileName = `candidatura-${fileSafeName}.pdf`;
-      const generatedPdf = new File([pdfBlob], pdfFileName, {
-        type: "application/pdf",
-      });
+      const {
+        normalizedEmail,
+        normalizedLanguages,
+        normalizedHardSkills,
+        experiencesPayload,
+        taskRatingsPayload,
+        experienceLevelLabel,
+        noticePeriodLabel,
+        educationLevelLabel,
+        hardSkillsText,
+        generatedPdf,
+      } = prepared.data;
 
       const fd = new FormData();
       fd.append("name", fullName.trim());
@@ -1657,6 +1797,57 @@ const LavoraConNoi: React.FC = () => {
                     <div className="pt-5">
                       <div ref={recaptchaContainerRef} />
                     </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-[#d6e8d7] bg-[#f4fbf5] p-5 md:p-6">
+                    <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                      <div className="max-w-2xl">
+                        <p className="text-xs tracking-widest uppercase text-[#1f8f52] font-semibold mb-2">
+                          Invio alternativo
+                        </p>
+                        <h3 className="text-lg md:text-xl font-serif text-gray-900 mb-2">
+                          Candidatura via WhatsApp
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          Prepariamo il tuo CV in PDF e apriamo la chat WhatsApp
+                          di Dimensione Immagine al numero +39 090 240 0474.
+                          Per motivi tecnici il browser non puo allegare il file
+                          da solo, quindi lo scarichiamo per te e lo trovi subito
+                          pronto da inviare in chat.
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleWhatsAppShare}
+                        disabled={
+                          status === "submitting" ||
+                          whatsAppStatus === "preparing"
+                        }
+                        className={`w-full md:w-auto px-6 py-3 rounded-lg font-semibold text-white transition-all shadow-md ${
+                          status === "submitting" ||
+                          whatsAppStatus === "preparing"
+                            ? "bg-green-300 cursor-not-allowed"
+                            : "bg-[#25D366] hover:bg-[#1ebe5d]"
+                        }`}
+                      >
+                        {whatsAppStatus === "preparing"
+                          ? "Preparazione PDF..."
+                          : "Prepara CV per WhatsApp"}
+                      </button>
+                    </div>
+
+                    {whatsAppFeedback && (
+                      <div
+                        className={`mt-4 rounded-lg border px-4 py-3 text-sm font-medium ${
+                          whatsAppStatus === "success"
+                            ? "border-green-200 bg-green-50 text-green-700"
+                            : "border-red-200 bg-red-50 text-red-700"
+                        }`}
+                      >
+                        {whatsAppFeedback}
+                      </div>
+                    )}
                   </div>
 
                   {feedbackMsg && (
