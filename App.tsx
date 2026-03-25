@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
   useLocation,
+  Navigate,
 } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { Toaster } from "sonner";
@@ -26,11 +27,6 @@ const Locations = React.lazy(() =>
 const Contact = React.lazy(() =>
   import("./pages/Contact").then((module) => ({ default: module.Contact })),
 );
-const Promotions = React.lazy(() =>
-  import("./pages/Promotions").then((module) => ({
-    default: module.Promotions,
-  })),
-);
 const PrivacyPolicy = React.lazy(() =>
   import("./pages/PrivacyPolicy").then((module) => ({
     default: module.PrivacyPolicy,
@@ -48,12 +44,6 @@ const TermsAndConditions = React.lazy(() =>
 );
 const Catalog = React.lazy(() =>
   import("./pages/Catalog").then((module) => ({ default: module.Catalog })),
-);
-const Blog = React.lazy(() =>
-  import("./pages/Blog").then((module) => ({ default: module.Blog })),
-);
-const BlogPost = React.lazy(() =>
-  import("./pages/BlogPost").then((module) => ({ default: module.BlogPost })),
 );
 const ThankYou = React.lazy(() =>
   import("./pages/ThankYou").then((module) => ({ default: module.ThankYou })),
@@ -85,11 +75,6 @@ const Register = React.lazy(() =>
 const WholesaleAdmin = React.lazy(() =>
   import("./pages/WholesaleAdmin").then((module) => ({
     default: module.WholesaleAdmin,
-  })),
-);
-const PromotionsAdmin = React.lazy(() =>
-  import("./pages/PromotionsAdmin").then((module) => ({
-    default: module.PromotionsAdmin,
   })),
 );
 const Footer = React.lazy(() =>
@@ -176,19 +161,11 @@ const AnimatedRoutes = () => {
             />
             <Route
               path="/blog"
-              element={
-                <PageTransition>
-                  <Blog />
-                </PageTransition>
-              }
+              element={<Navigate to="/" replace />}
             />
             <Route
               path="/blog/:slug"
-              element={
-                <PageTransition>
-                  <BlogPost />
-                </PageTransition>
-              }
+              element={<Navigate to="/" replace />}
             />
             <Route
               path="/contatti"
@@ -200,11 +177,7 @@ const AnimatedRoutes = () => {
             />
             <Route
               path="/promozioni-offerte"
-              element={
-                <PageTransition>
-                  <Promotions />
-                </PageTransition>
-              }
+              element={<Navigate to="/" replace />}
             />
             <Route
               path="/privacy-policy"
@@ -268,13 +241,7 @@ const AnimatedRoutes = () => {
             />
             <Route
               path="/admin-promozioni"
-              element={
-                <RequireAuth>
-                  <PageTransition>
-                    <PromotionsAdmin />
-                  </PageTransition>
-                </RequireAuth>
-              }
+              element={<Navigate to="/admin-wholesale" replace />}
             />
             <Route
               path="*"
@@ -305,7 +272,6 @@ const ConditionalNavbar: React.FC = () => {
     "/login",
     "/register",
     "/admin-wholesale",
-    "/admin-promozioni",
   ];
   if (hiddenPaths.includes(location.pathname)) return null;
   return <Navbar />;

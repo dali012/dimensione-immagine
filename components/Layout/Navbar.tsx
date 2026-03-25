@@ -1,17 +1,13 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { NavItem } from "../../types";
-import { useAuth } from "../../contexts/AuthContext";
-import { NewOpeningBanner } from "../UI/NewOpeningBanner";
 
 const NAV_ITEMS: NavItem[] = [
   { label: "Home", path: "/" },
   { label: "Chi Siamo", path: "/chi-siamo" },
   { label: "Cosa Trovi da Noi", path: "/trovi-da-noi" },
-  { label: "Blog", path: "/blog" },
   { label: "Negozi & Sedi", path: "/sedi" },
-  { label: "Promozioni e Offerte", path: "/promozioni-offerte" },
   { label: "Lavora con Noi", path: "/lavora-con-noi" },
   { label: "Distribuzione Ingrosso", path: "/distribuzione-in-grosso" },
   { label: "Contatti", path: "/contatti" },
@@ -20,18 +16,6 @@ const NAV_ITEMS: NavItem[] = [
 export const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
-  const { user, isReady } = useAuth();
-
-  const navItems = useMemo(() => {
-    const items = [...NAV_ITEMS];
-    if (isReady && user?.canManagePromotions) {
-      items.push({
-        label: "Admin Promozioni",
-        path: "/admin-promozioni",
-      });
-    }
-    return items;
-  }, [isReady, user?.canManagePromotions]);
 
   // Close mobile menu when route changes
   useEffect(() => {
@@ -50,51 +34,80 @@ export const Navbar: React.FC = () => {
     };
   }, [isOpen]);
 
+  // iPad rotation can cross the desktop breakpoint while the drawer is open.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const mediaQuery = window.matchMedia("(min-width: 1280px)");
+    const closeMenuOnDesktop = (event?: MediaQueryListEvent) => {
+      if ((event ? event.matches : mediaQuery.matches) && isOpen) {
+        setIsOpen(false);
+      }
+    };
+
+    closeMenuOnDesktop();
+
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", closeMenuOnDesktop);
+      return () => mediaQuery.removeEventListener("change", closeMenuOnDesktop);
+    }
+
+    mediaQuery.addListener(closeMenuOnDesktop);
+    return () => mediaQuery.removeListener(closeMenuOnDesktop);
+  }, [isOpen]);
+
   return (
     <>
-      <NewOpeningBanner />
-
       <nav
-        className="fixed top-8 w-full z-50 bg-white border-b border-brand-border h-16 flex items-center transition-all duration-300"
+        className="fixed top-0 w-full z-50 bg-brand-text-primary border-b border-brand-accent/40 h-16 flex items-center transition-all duration-300"
       >
-        <div className="container mx-auto flex justify-between items-center px-6 h-full">
+        <div className="container mx-auto flex justify-between items-center gap-4 px-4 sm:px-6 lg:px-8 h-full">
           {/* Logo */}
           <Link
             to="/"
-            className="z-50 group relative flex items-center"
+            className="z-50 group relative flex min-w-0 items-center"
             onClick={() => setIsOpen(false)}
+            aria-label="Torna alla home di Dimensione Immagine"
           >
-            <picture>
-              <source
-                type="image/webp"
-                srcSet="/images/logo-124.webp"
-                sizes="(max-width: 640px) 108px, 124px"
-              />
-              <img
-                src="/images/logo-124.png"
-                srcSet="/images/logo-124.png"
-                sizes="(max-width: 640px) 108px, 124px"
-                alt="Dimensione Immagine"
-                className="h-10 sm:h-12 w-auto object-contain transition-opacity duration-300"
-                width="124"
-                height="48"
-                style={{ filter: "invert(1) grayscale(1) brightness(0.2)" }}
-              />
-            </picture>
+            <span className="flex items-center gap-2.5 sm:gap-3.5">
+              <span className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-brand-gold/25 bg-[radial-gradient(circle_at_30%_30%,rgba(184,155,94,0.18),rgba(17,17,17,0.96)_70%)] shadow-[0_0_24px_rgba(184,155,94,0.14)] sm:h-12 sm:w-12">
+                <img
+                  src="/images/logo-elephant-golden-2025.png"
+                  alt=""
+                  aria-hidden="true"
+                  className="h-full w-full object-cover opacity-95"
+                  loading="eager"
+                  decoding="async"
+                  style={{
+                    clipPath: "inset(0 25% 0 0 round 999px)",
+                    objectPosition: "26% center",
+                    transform: "translateX(-4%) scale(1.18)",
+                  }}
+                />
+              </span>
+              <span className="flex min-w-0 flex-col justify-center leading-none text-brand-gold">
+                <span className="whitespace-nowrap text-[1.02rem] font-semibold uppercase tracking-[0.22em] sm:text-[1.16rem]">
+                  DIMMI
+                </span>
+                <span className="mt-1 whitespace-nowrap font-serif text-[10px] tracking-[0.03em] text-brand-gold/88 max-[340px]:hidden sm:text-[13px]">
+                  Dimensione Immagine
+                </span>
+              </span>
+            </span>
           </Link>
 
-          {/* Desktop Menu - Hidden on tablets/mobile (< 1024px) */}
-          <div className="hidden lg:flex space-x-8 items-center">
-            {navItems.map((item) => {
+          {/* Desktop Menu - Hidden on tablets/mobile (< 1280px) */}
+          <div className="hidden xl:flex xl:items-center xl:justify-end xl:flex-1 xl:gap-4 2xl:gap-6">
+            {NAV_ITEMS.map((item) => {
               const isActive = location.pathname === item.path;
               return (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`relative text-sm font-medium tracking-wide transition-colors duration-300 ${
+                  className={`relative whitespace-nowrap text-[11px] 2xl:text-sm font-medium tracking-wide transition-colors duration-300 ${
                     isActive
-                      ? "text-brand-accent"
-                      : "text-brand-text-secondary hover:text-brand-accent"
+                      ? "text-brand-gold"
+                      : "text-brand-gold/78 hover:text-brand-gold"
                   }`}
                 >
                   {item.label}
@@ -106,11 +119,14 @@ export const Navbar: React.FC = () => {
             })}
           </div>
 
-          {/* Mobile/Tablet Toggle - Visible until desktop (> 1024px) */}
+          {/* Mobile/Tablet Toggle - Visible until desktop (> 1280px) */}
           <button
+            type="button"
             onClick={() => setIsOpen(!isOpen)}
-            className="lg:hidden text-brand-text-primary hover:text-brand-accent transition-colors z-50 focus:outline-none p-2 -mr-2"
+            className="xl:hidden inline-flex h-11 w-11 items-center justify-center rounded-full border border-brand-gold/45 text-brand-gold hover:text-brand-gold hover:border-brand-gold transition-colors z-50 focus:outline-none"
             aria-label={isOpen ? "Chiudi menu" : "Apri menu"}
+            aria-expanded={isOpen}
+            aria-controls="site-navigation-drawer"
           >
             {isOpen ? (
               <X size={24} className="cursor-pointer" />
@@ -121,28 +137,37 @@ export const Navbar: React.FC = () => {
         </div>
       </nav>
 
-      {/* Mobile Menu Overlay */}
+      {/* Mobile/Tablet Menu */}
       <div
-        className={`fixed inset-0 bg-brand-bg z-40 overflow-y-auto transition-all duration-500 ${
+        id="site-navigation-drawer"
+        className={`fixed inset-x-0 top-16 bottom-0 z-40 overflow-y-auto border-t border-brand-accent/30 bg-brand-text-primary/96 backdrop-blur-sm transition-all duration-300 xl:hidden ${
           isOpen
-            ? "opacity-100 pointer-events-auto"
-            : "opacity-0 pointer-events-none"
+            ? "translate-y-0 opacity-100 pointer-events-auto"
+            : "-translate-y-2 opacity-0 pointer-events-none"
         }`}
       >
-        <div className="min-h-screen flex flex-col justify-center items-center py-24 px-6 text-center">
-          <div className="flex flex-col space-y-6 md:space-y-8 w-full">
-            {navItems.map((item) => (
+        <div className="mx-auto min-h-full w-full max-w-5xl px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
+          <div className="mb-4 px-1 text-[11px] font-medium uppercase tracking-[0.2em] text-brand-gold/70">
+            Navigazione
+          </div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {NAV_ITEMS.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
                 onClick={() => setIsOpen(false)}
-                className={`font-serif text-2xl sm:text-3xl md:text-4xl hover:text-brand-accent transition-colors duration-300 ${
+                className={`rounded-2xl border px-4 py-4 sm:px-5 sm:py-5 text-left transition-colors duration-300 ${
                   location.pathname === item.path
-                    ? "text-brand-accent italic"
-                    : "text-brand-text-secondary"
+                    ? "border-brand-gold bg-brand-gold/10 text-brand-gold"
+                    : "border-brand-gold/20 bg-white/3 text-brand-gold/82 hover:border-brand-gold hover:text-brand-gold"
                 }`}
               >
-                {item.label}
+                <span className="block font-serif text-xl sm:text-2xl leading-tight">
+                  {item.label}
+                </span>
+                <span className="mt-1 block text-[11px] font-medium uppercase tracking-[0.18em] text-brand-gold/55">
+                  Vai alla sezione
+                </span>
               </Link>
             ))}
           </div>

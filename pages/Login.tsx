@@ -22,7 +22,6 @@ export const Login: React.FC = () => {
     requestPasswordSetup,
     completePasswordSetup,
     isAuthenticated,
-    user,
   } = useAuth();
   const navigate = useNavigate();
   const location = useLocation() as {
@@ -54,22 +53,9 @@ export const Login: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      const isPasswordSetupFlow =
-        step === "setupPassword" || Boolean(setupTokenFromQuery);
-      if (isPasswordSetupFlow && user?.canManagePromotions) {
-        navigate("/admin-promozioni", { replace: true });
-        return;
-      }
       navigate(from, { replace: true });
     }
-  }, [
-    isAuthenticated,
-    navigate,
-    from,
-    step,
-    setupTokenFromQuery,
-    user?.canManagePromotions,
-  ]);
+  }, [isAuthenticated, navigate, from]);
 
   useEffect(() => {
     if (location.state?.justRegistered) {

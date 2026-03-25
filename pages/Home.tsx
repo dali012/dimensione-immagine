@@ -112,8 +112,8 @@ export const Home: React.FC = () => {
         <div className="container mx-auto px-4 sm:px-6 relative z-20 h-full flex items-center">
           <div className="max-w-2xl pt-20 md:pt-0">
             <h1 className="font-serif text-4xl sm:text-5xl md:text-7xl text-brand-text-primary mb-6 leading-[1.1]">
-              Moda che parla
-              <span className="block italic text-brand-accent">alle persone.</span>
+              Lo stile che ami,
+              <span className="block italic text-brand-accent">al prezzo che sogni</span>
             </h1>
             <div className="h-px w-24 bg-brand-accent mb-8"></div>
             <p className="text-base sm:text-lg md:text-xl text-brand-text-secondary max-w-lg mb-10 font-light leading-relaxed">

@@ -23,7 +23,6 @@ type ProfileRow = {
   email: string;
   is_approved: boolean;
   password_hash: string | null;
-  can_manage_promotions: boolean;
 };
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -55,7 +54,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     await ensureWholesaleAuthSchema(db);
 
     const { rows } = await db.query<ProfileRow>(
-      `SELECT id, name, surname, phone, email, is_approved, password_hash, can_manage_promotions
+      `SELECT id, name, surname, phone, email, is_approved, password_hash
        FROM wholesale_profiles
        WHERE email = $1
        LIMIT 1`,

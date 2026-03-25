@@ -13,7 +13,6 @@ type AuthUserData = {
   surname: string;
   phone: string;
   email: string;
-  canManagePromotions: boolean;
 };
 
 type AuthUser = AuthUserData | null;

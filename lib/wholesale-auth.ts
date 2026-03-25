@@ -16,7 +16,6 @@ export type WholesaleProfileRow = {
   email: string;
   is_approved: boolean;
   password_hash: string | null;
-  can_manage_promotions: boolean;
 };
 
 const DEFAULT_COOKIE_NAME = "wholesale_session";
@@ -117,7 +116,6 @@ export async function ensureWholesaleAuthSchema(db: Client) {
       email TEXT NOT NULL UNIQUE,
       password_hash TEXT,
       is_approved BOOLEAN NOT NULL DEFAULT FALSE,
-      can_manage_promotions BOOLEAN NOT NULL DEFAULT FALSE,
       approved_at TIMESTAMPTZ,
       verified_at TIMESTAMPTZ,
       ip TEXT,
@@ -132,7 +130,6 @@ export async function ensureWholesaleAuthSchema(db: Client) {
     ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     ADD COLUMN IF NOT EXISTS password_hash TEXT,
     ADD COLUMN IF NOT EXISTS is_approved BOOLEAN NOT NULL DEFAULT FALSE,
-    ADD COLUMN IF NOT EXISTS can_manage_promotions BOOLEAN NOT NULL DEFAULT FALSE,
     ADD COLUMN IF NOT EXISTS approved_at TIMESTAMPTZ,
     ADD COLUMN IF NOT EXISTS verified_at TIMESTAMPTZ,
     ADD COLUMN IF NOT EXISTS ip TEXT,
@@ -469,8 +466,7 @@ export async function getProfileFromSession(
       p.phone,
       p.email,
       p.is_approved,
-      p.password_hash,
-      p.can_manage_promotions
+      p.password_hash
      FROM wholesale_sessions s
      JOIN wholesale_profiles p ON p.id = s.profile_id
      WHERE s.session_hash = $1
@@ -679,7 +675,6 @@ export type WholesalePublicUser = {
   surname: string;
   phone: string;
   email: string;
-  canManagePromotions: boolean;
 };
 
 export function toPublicUser(profile: WholesaleProfileRow): WholesalePublicUser {
@@ -689,7 +684,6 @@ export function toPublicUser(profile: WholesaleProfileRow): WholesalePublicUser 
     surname: profile.surname,
     phone: profile.phone,
     email: profile.email,
-    canManagePromotions: Boolean(profile.can_manage_promotions),
   };
 }
 

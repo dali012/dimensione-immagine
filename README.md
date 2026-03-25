@@ -1,6 +1,6 @@
 # Dimensione Immagine — Website
 
-Sito web per Dimensione Immagine realizzato con React + Vite e un design editoriale basato su Tailwind. Include pagine istituzionali, catalogo, blog, contatti e sedi.
+Sito web per Dimensione Immagine realizzato con React + Vite e un design editoriale basato su Tailwind. Include pagine istituzionali, catalogo, contatti e sedi.
 
 ## Stack
 

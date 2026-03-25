@@ -12,10 +12,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.981.0",
     "@aws-sdk/s3-request-presigner": "^3.981.0",
-    "@portabletext/react": "^6.0.2",
     "@sanity/client": "^7.14.1",
-    "@sanity/code-input": "^7.0.6",
-    "@sanity/image-url": "^2.0.3",
     "@sanity/vision": "^5.9.0",
     "@vercel/node": "^5.5.28",
     "busboy": "^1.6.0",
@@ -41,5 +38,6 @@
     "tailwindcss": "^4.1.18",
     "typescript": "~5.8.2",
     "vite": "^6.2.0"
-  }
+  },
+  "packageManager": "pnpm@10.31.0+sha512.e3927388bfaa8078ceb79b748ffc1e8274e84d75163e67bc22e06c0d3aed43dd153151cbf11d7f8301ff4acb98c68bdc5cadf6989532801ffafe3b3e4a63c268"
 }

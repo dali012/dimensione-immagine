@@ -25,17 +25,3 @@ export interface LocationItem {
   phone?: string;
   type: "headquarters" | "store";
 }
-
-export interface BlogPost {
-  id: string;
-  slug: string;
-  title: string;
-  excerpt?: string;
-  // Portable Text blocks from Sanity or array of paragraphs
-  content?: any[];
-  imageUrl?: string;
-  date?: string;
-  author?: string;
-  category?: string;
-  tags?: string[];
-}
