@@ -42,16 +42,16 @@ const LOCATIONS: LocationData[] = [
     image: "/images/calabria.jpeg",
   },
   {
-    name: "Montesilvano Store",
+    name: "Dimensione Immagine Montesilvano",
     region: "Abruzzo",
     mapUrl: "https://maps.app.goo.gl/ok2jt8DpLFYcjMFz5",
-    address: "Dimensione Immagine",
+    address: "610 SS16 Montesilvano, Abruzzo",
     isFranchise: false,
     image: "/images/montesilvano.jpeg",
     phone: "0852034097",
   },
   {
-    name: "Boutique Donna",
+    name: "Dimensione Immagine Donna",
     region: "Sicilia",
     mapUrl: "https://maps.app.goo.gl/53LA8JTywzaJV5RGA",
     address: "Via Maddalena, 74, 98123 Messina ME",
@@ -60,7 +60,7 @@ const LOCATIONS: LocationData[] = [
     phone: "0902131218",
   },
   {
-    name: "Torre Faro",
+    name: "Dimensione Immagine Torre Faro",
     region: "Sicilia",
     mapUrl: "https://maps.app.goo.gl/R2nNhbPdUjb9dMbQ6",
     address: "Via Circuito, 177, 98164 Torre Faro ME",
@@ -69,7 +69,7 @@ const LOCATIONS: LocationData[] = [
     phone: "090326785",
   },
   {
-    name: "Boutique Uomo",
+    name: "Dimensione Immagine Uomo",
     region: "Sicilia",
     mapUrl: "https://maps.app.goo.gl/2WrCVJGFWRrpueMf9",
     address: "Via Maddalena & Via Giordano Bruno, 98123 Messina ME",
@@ -78,7 +78,7 @@ const LOCATIONS: LocationData[] = [
     phone: "0909074525",
   },
   {
-    name: "Centro Commerciale Tremestieri",
+    name: "Dimensione Immagine Tremestieri",
     region: "Sicilia",
     mapUrl: "https://maps.app.goo.gl/RnTKwHm7rg97mDng8",
     address: "Centro Commerciale Tremestieri",
