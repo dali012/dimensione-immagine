@@ -299,15 +299,16 @@ const AnimatedRoutes = () => {
 };
 
 // Render Navbar only on non-auth pages
+const HIDDEN_NAVBAR_PATHS = new Set([
+  "/login",
+  "/register",
+  "/admin-wholesale",
+  "/admin-promozioni",
+]);
+
 const ConditionalNavbar: React.FC = () => {
   const location = useLocation();
-  const hiddenPaths = [
-    "/login",
-    "/register",
-    "/admin-wholesale",
-    "/admin-promozioni",
-  ];
-  if (hiddenPaths.includes(location.pathname)) return null;
+  if (HIDDEN_NAVBAR_PATHS.has(location.pathname)) return null;
   return <Navbar />;
 };
 
