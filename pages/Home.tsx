@@ -57,7 +57,6 @@ const STYLE_SPOTLIGHTS = [
 export const Home: React.FC = () => {
   const location = useLocation();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [showVideo, setShowVideo] = useState(true);
   const [videoFailed, setVideoFailed] = useState(false);
 
   useEffect(() => {
@@ -70,20 +69,8 @@ export const Home: React.FC = () => {
   }, [currentIndex]);
 
   useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setShowVideo(!mq.matches);
-    update();
-    if (mq.addEventListener) {
-      mq.addEventListener("change", update);
-      return () => mq.removeEventListener("change", update);
-    }
-    mq.addListener(update);
-    return () => mq.removeListener(update);
-  }, []);
-
-  useEffect(() => {
     setVideoFailed(false);
-  }, [currentIndex, showVideo]);
+  }, [currentIndex]);
 
   return (
     <div className="flex flex-col bg-brand-bg min-h-screen">
@@ -99,7 +86,7 @@ export const Home: React.FC = () => {
           <div className="absolute inset-0 w-full h-full">
             {HERO_MEDIA[currentIndex].type === "video" ? (
               <>
-                {showVideo && !videoFailed && (
+                {!videoFailed && (
                   <video
                     key={HERO_MEDIA[currentIndex].src}
                     className="w-full h-full object-cover object-top md:object-center"
@@ -116,7 +103,7 @@ export const Home: React.FC = () => {
                     <source src={HERO_MEDIA[currentIndex].src} type="video/mp4" />
                   </video>
                 )}
-                {(!showVideo || videoFailed) && (
+                {videoFailed && (
                   <picture className="block w-full h-full">
                     <source
                       type="image/webp"
