@@ -1,0 +1,30 @@
+- generic [ref=e2]:
+  - region "Notifications alt+T"
+  - generic [ref=e3]:
+    - navigation [ref=e4]:
+      - generic [ref=e5]:
+        - link "Torna alla home di Dimensione Immagine" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e7]:
+            - img [ref=e9]
+            - generic [ref=e10]:
+              - generic [ref=e11]: DIMMI
+              - generic [ref=e12]: Dimensione Immagine
+        - generic [ref=e13]:
+          - link "Home" [ref=e14] [cursor=pointer]:
+            - /url: /
+            - text: Home
+          - link "Chi Siamo" [ref=e16] [cursor=pointer]:
+            - /url: /chi-siamo
+          - link "Cosa Trovi da Noi" [ref=e17] [cursor=pointer]:
+            - /url: /trovi-da-noi
+          - link "Negozi & Sedi" [ref=e18] [cursor=pointer]:
+            - /url: /sedi
+          - link "Lavora con Noi" [ref=e19] [cursor=pointer]:
+            - /url: /lavora-con-noi
+          - link "Distribuzione Ingrosso" [ref=e20] [cursor=pointer]:
+            - /url: /distribuzione-in-grosso
+          - link "Contatti" [ref=e21] [cursor=pointer]:
+            - /url: /contatti
+    - main [ref=e22]:
+      - img "Caricamento..." [ref=e26]

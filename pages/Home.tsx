@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { SEO } from "../components/SEO/SEO";
 
@@ -59,7 +59,6 @@ export const Home: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showVideo, setShowVideo] = useState(true);
   const [videoFailed, setVideoFailed] = useState(false);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
     if (HERO_MEDIA[currentIndex].type === "image") {
@@ -86,31 +85,6 @@ export const Home: React.FC = () => {
     setVideoFailed(false);
   }, [currentIndex, showVideo]);
 
-  useEffect(() => {
-    if (!showVideo || videoFailed || HERO_MEDIA[currentIndex].type !== "video") {
-      return;
-    }
-
-    const video = videoRef.current;
-    if (!video) {
-      return;
-    }
-
-    // Force a fresh load/play cycle for production browsers that don't
-    // reliably autoplay when only the src changes on an existing node.
-    video.load();
-
-    const tryPlay = async () => {
-      try {
-        await video.play();
-      } catch {
-        setVideoFailed(true);
-      }
-    };
-
-    void tryPlay();
-  }, [currentIndex, showVideo, videoFailed]);
-
   return (
     <div className="flex flex-col bg-brand-bg min-h-screen">
       <SEO
@@ -128,24 +102,12 @@ export const Home: React.FC = () => {
                 {showVideo && !videoFailed && (
                   <video
                     key={HERO_MEDIA[currentIndex].src}
-                    ref={videoRef}
                     className="w-full h-full object-cover object-top md:object-center"
                     autoPlay
                     muted
-                    defaultMuted
                     playsInline
                     preload="metadata"
                     poster={HERO_MEDIA[currentIndex].poster}
-                    onCanPlay={() => {
-                      const video = videoRef.current;
-                      if (!video) {
-                        return;
-                      }
-
-                      void video.play().catch(() => {
-                        setVideoFailed(true);
-                      });
-                    }}
                     onError={() => setVideoFailed(true)}
                     onEnded={() =>
                       setCurrentIndex((prev) => (prev + 1) % HERO_MEDIA.length)
