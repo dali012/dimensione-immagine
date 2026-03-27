@@ -96,9 +96,10 @@ Il form contatti usa `POST /api/contact` (Vercel serverless), con:
 - validazione server-side
 - rate limit per IP + honeypot
 - salvataggio su PostgreSQL (`DATABASE_URL`)
-- notifica email opzionale via Resend (`RESEND_API_KEY`, `RESEND_TO_EMAIL`, `RESEND_FROM_EMAIL`)
+- notifica email opzionale al team via Resend (`RESEND_API_KEY`, `RESEND_CONTACT_TO_EMAIL` o `RESEND_TO_EMAIL`, `RESEND_FROM_EMAIL`)
+- email di conferma opzionale al cliente (`RESEND_CONTACT_CONFIRMATION_FROM_EMAIL`, con fallback a `RESEND_APPLICANT_FROM_EMAIL` o `RESEND_FROM_EMAIL`)
 
-Imposta anche `CONTACT_IP_SALT` in produzione per hashare gli IP nei log DB.
+Imposta anche `CONTACT_IP_SALT` in produzione per hashare gli IP nei log DB. Se vuoi controllare il destinatario delle risposte, usa `CONTACT_REPLY_TO_EMAIL` per il team e `RESEND_CONTACT_CONFIRMATION_REPLY_TO_EMAIL` per la conferma cliente.
 
 ## Auth Distribuzione Ingrosso (B2B)
 
