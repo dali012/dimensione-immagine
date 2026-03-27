@@ -50,10 +50,23 @@ export const storeLocationType = defineType({
       validation: (Rule) => Rule.required().min(4).max(200),
     }),
     defineField({
-      name: "image",
-      title: "Immagine negozio",
+      name: "primaryImage",
+      title: "Immagine principale",
       type: "imageWithAlt",
+      description:
+        "Questa immagine viene mostrata per prima sul sito nelle schede negozio.",
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: "galleryImages",
+      title: "Galleria immagini",
+      type: "array",
+      description:
+        "Immagini aggiuntive sfogliabili nel dettaglio del negozio.",
+      of: [{ type: "imageWithAlt" }],
+      options: {
+        layout: "grid",
+      },
     }),
     defineField({
       name: "phone",
@@ -109,7 +122,8 @@ export const storeLocationType = defineType({
     select: {
       title: "name",
       subtitle: "city",
-      media: "image.image",
+      media: "primaryImage.image",
+      legacyMedia: "image.image",
       ownershipType: "ownershipType",
     },
     prepare(selection) {
@@ -123,7 +137,7 @@ export const storeLocationType = defineType({
       return {
         title: selection.title,
         subtitle: subtitleParts.filter(Boolean).join(" - "),
-        media: selection.media,
+        media: selection.media || selection.legacyMedia,
       };
     },
   },

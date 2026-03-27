@@ -142,6 +142,19 @@ async function buildImageField(image) {
   };
 }
 
+async function buildImageGallery(images) {
+  if (!Array.isArray(images) || images.length === 0) return [];
+
+  const galleryImages = await Promise.all(images.map((image) => buildImageField(image)));
+
+  return galleryImages
+    .filter(Boolean)
+    .map((image) => ({
+      ...image,
+      _key: randomUUID(),
+    }));
+}
+
 async function buildVideoField(video) {
   if (!video?.src) return undefined;
   const asset = await uploadAsset("file", video.src);
@@ -259,25 +272,34 @@ async function buildSingletonDocuments() {
 
 async function buildStoreDocuments() {
   return Promise.all(
-    storeLocationsFallback.map(async (item) => ({
-      _id: `storeLocation-${item.id}`,
-      _type: "storeLocation",
-      name: item.name,
-      ownershipType: item.ownershipType,
-      region: item.region,
-      city: item.city,
-      mapUrl: item.mapUrl,
-      address: item.address,
-      image: await buildImageField(item.image),
-      phone: item.phone || "",
-      hours: item.hours.map((hour) => withKey(hour, "businessHours")),
-      latitude: item.latitude,
-      longitude: item.longitude,
-      markerOffsetX: item.markerOffsetX || 0,
-      markerOffsetY: item.markerOffsetY || 0,
-      displayOrder: item.displayOrder,
-      active: item.active,
-    })),
+    storeLocationsFallback.map(async (item) => {
+      const primaryImage = await buildImageField(item.image);
+      const galleryImages = await buildImageGallery(
+        item.galleryImages?.length ? item.galleryImages : item.image ? [item.image] : [],
+      );
+
+      return {
+        _id: `storeLocation-${item.id}`,
+        _type: "storeLocation",
+        name: item.name,
+        ownershipType: item.ownershipType,
+        region: item.region,
+        city: item.city,
+        mapUrl: item.mapUrl,
+        address: item.address,
+        primaryImage,
+        galleryImages,
+        image: primaryImage,
+        phone: item.phone || "",
+        hours: item.hours.map((hour) => withKey(hour, "businessHours")),
+        latitude: item.latitude,
+        longitude: item.longitude,
+        markerOffsetX: item.markerOffsetX || 0,
+        markerOffsetY: item.markerOffsetY || 0,
+        displayOrder: item.displayOrder,
+        active: item.active,
+      };
+    }),
   );
 }
 

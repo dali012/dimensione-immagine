@@ -198,6 +198,7 @@ export interface StoreLocationContent {
   mapUrl: string;
   address: string;
   image: ImageAsset;
+  galleryImages: ImageAsset[];
   phone?: string;
   hours: BusinessHour[];
   latitude: number;

@@ -354,6 +354,65 @@ export const catalogPageFallback = {
   ],
 };
 
+const createImageGallery = (alt, sources) =>
+  sources.map((src) => ({
+    src,
+    alt,
+  }));
+
+const kreazioniUomoGallery = createImageGallery("Kreazioni Uomo", [
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-48_5.jpg",
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-46.jpg",
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-46_1.jpg",
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-46_2.jpg",
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-46_3.jpg",
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-47.jpg",
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-47_1.jpg",
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-47_2.jpg",
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-47_3.jpg",
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-47_4.jpg",
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-47_5.jpg",
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-47_6.jpg",
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-47_7.jpg",
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-47_8.jpg",
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-48.jpg",
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-48_1.jpg",
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-48_2.jpg",
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-48_3.jpg",
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-48_4.jpg",
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-48_6.jpg",
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-48_7.jpg",
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-48_8.jpg",
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-48_9.jpg",
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-49.jpg",
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-49_1.jpg",
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-49_2.jpg",
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-49_3.jpg",
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-49_4.jpg",
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-49_5.jpg",
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-49_6.jpg",
+  "/images/shops/kreazioni uomo/PHOTO-2026-03-27-10-40-50.jpg",
+]);
+
+const montesilvanoGallery = createImageGallery(
+  "Dimensione Immagine Montesilvano",
+  [
+    "/images/shops/montesilvano/a51bda13-96da-471a-bb38-a7f9b61cd392.JPG",
+    "/images/shops/montesilvano/49d26b9b-3fe5-4648-af28-6fc9e6395474.JPG",
+    "/images/shops/montesilvano/f6e2b042-13ff-4184-b6cf-0ded9ad91226.JPG",
+  ],
+);
+
+const tremestieriGallery = createImageGallery(
+  "Dimensione Immagine Tremestieri",
+  [
+    "/images/shops/tremestieri/PHOTO-2026-03-27-10-11-09_1.jpg",
+    "/images/shops/tremestieri/PHOTO-2026-03-27-10-11-10.jpg",
+    "/images/shops/tremestieri/PHOTO-2026-03-27-10-11-10_1.jpg",
+    "/images/shops/tremestieri/PHOTO-2026-03-27-10-11-10_2.jpg",
+  ],
+);
+
 export const storeLocationsFallback = [
   {
     id: "kreazioni-uomo",
@@ -363,7 +422,8 @@ export const storeLocationsFallback = [
     city: "Area Vesuviana",
     mapUrl: "https://maps.app.goo.gl/SgrSD6mEyAUuzmhz8",
     address: "Indirizzo disponibile su Google Maps",
-    image: { src: "/images/victor-benjamin.jpeg", alt: "Kreazioni Uomo" },
+    image: kreazioniUomoGallery[0],
+    galleryImages: kreazioniUomoGallery,
     hours: [{ label: "Orari", value: "Consulta gli orari direttamente su Google Maps" }],
     latitude: 40.949674,
     longitude: 14.4859061,
@@ -381,6 +441,7 @@ export const storeLocationsFallback = [
     mapUrl: "https://maps.app.goo.gl/kpAaPAKXJ3YAGzSU7",
     address: "De Donno Essence",
     image: { src: "/images/vittoria-company.jpeg", alt: "Vittoria Company" },
+    galleryImages: [{ src: "/images/vittoria-company.jpeg", alt: "Vittoria Company" }],
     hours: [{ label: "Orari", value: "Consulta gli orari direttamente su Google Maps" }],
     latitude: 40.3538269,
     longitude: 18.1812054,
@@ -398,6 +459,7 @@ export const storeLocationsFallback = [
     mapUrl: "https://maps.app.goo.gl/7vLK9Mf9nwBFTmyL7",
     address: "Via Antonio Guarasci, 87056 Vallegianno CS",
     image: { src: "/images/calabria.jpeg", alt: "Le Porte Del Savuto" },
+    galleryImages: [{ src: "/images/calabria.jpeg", alt: "Le Porte Del Savuto" }],
     hours: [{ label: "Orari", value: "Consulta gli orari direttamente su Google Maps" }],
     latitude: 39.1992582,
     longitude: 16.3065286,
@@ -414,7 +476,8 @@ export const storeLocationsFallback = [
     city: "Montesilvano",
     mapUrl: "https://maps.app.goo.gl/ok2jt8DpLFYcjMFz5",
     address: "SS16, 610, Montesilvano, Abruzzo",
-    image: { src: "/images/montesilvano.jpeg", alt: "Dimensione Immagine Montesilvano" },
+    image: montesilvanoGallery[0],
+    galleryImages: montesilvanoGallery,
     phone: "0852034097",
     hours: [
       { label: "Lun-Sab", value: "9:00-20:00" },
@@ -436,6 +499,9 @@ export const storeLocationsFallback = [
     mapUrl: "https://maps.app.goo.gl/53LA8JTywzaJV5RGA",
     address: "Via Maddalena, 74, 98123 Messina ME",
     image: { src: "/images/boutique-donna.jpeg", alt: "Dimensione Immagine Donna" },
+    galleryImages: [
+      { src: "/images/boutique-donna.jpeg", alt: "Dimensione Immagine Donna" },
+    ],
     phone: "0902131218",
     hours: [{ label: "Lun-Dom", value: "9:00-13:00 / 16:00-20:00" }],
     latitude: 38.1848977,
@@ -454,6 +520,9 @@ export const storeLocationsFallback = [
     mapUrl: "https://maps.app.goo.gl/R2nNhbPdUjb9dMbQ6",
     address: "Via Circuito, 177, 98164 Torre Faro ME",
     image: { src: "/images/torre-faro.jpeg", alt: "Dimensione Immagine Torre Faro" },
+    galleryImages: [
+      { src: "/images/torre-faro.jpeg", alt: "Dimensione Immagine Torre Faro" },
+    ],
     phone: "090326785",
     hours: [
       { label: "Lun-Sab", value: "9:00-20:00" },
@@ -475,6 +544,9 @@ export const storeLocationsFallback = [
     mapUrl: "https://maps.app.goo.gl/2WrCVJGFWRrpueMf9",
     address: "Via Maddalena & Via Giordano Bruno, 98123 Messina ME",
     image: { src: "/images/boutique-uomo.jpeg", alt: "Dimensione Immagine Uomo" },
+    galleryImages: [
+      { src: "/images/boutique-uomo.jpeg", alt: "Dimensione Immagine Uomo" },
+    ],
     phone: "0909074525",
     hours: [
       { label: "Lun-Sab", value: "9:00-20:00" },
@@ -495,7 +567,8 @@ export const storeLocationsFallback = [
     city: "Messina",
     mapUrl: "https://maps.app.goo.gl/RnTKwHm7rg97mDng8",
     address: "Centro Commerciale Tremestieri",
-    image: { src: "/images/tremestieri.jpeg", alt: "Dimensione Immagine Tremestieri" },
+    image: tremestieriGallery[0],
+    galleryImages: tremestieriGallery,
     phone: "0902406782",
     hours: [
       { label: "Lun-Sab", value: "9:00-20:30" },

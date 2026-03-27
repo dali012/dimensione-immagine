@@ -1,4 +1,6 @@
 import {
+  ChevronLeft,
+  ChevronRight,
   ExternalLink,
   Filter,
   Globe2,
@@ -26,6 +28,10 @@ interface LocationData {
   mapUrl: string;
   address: string;
   image: string;
+  galleryImages: {
+    src: string;
+    alt: string;
+  }[];
   phone?: string;
   hours?: string;
   latitude: number;
@@ -290,6 +296,8 @@ export const Locations: React.FC = () => {
         mapUrl: store.mapUrl,
         address: store.address,
         image: store.image.src,
+        galleryImages:
+          store.galleryImages.length > 0 ? store.galleryImages : [store.image],
         phone: store.phone || undefined,
         hours: businessHoursToMultiline(store.hours),
         latitude: store.latitude,
@@ -312,6 +320,10 @@ export const Locations: React.FC = () => {
   const [selectedLocationId, setSelectedLocationId] = useState(
     locations[0]?.id ?? "",
   );
+  const [selectedGalleryIndex, setSelectedGalleryIndex] = useState(0);
+  const [cardGalleryIndices, setCardGalleryIndices] = useState<
+    Record<string, number>
+  >({});
 
   const filteredLocations = useMemo(() => {
     return [...locations]
@@ -332,10 +344,24 @@ export const Locations: React.FC = () => {
     }
   }, [filteredLocations, selectedLocationId]);
 
+  useEffect(() => {
+    setSelectedGalleryIndex(0);
+  }, [selectedLocationId]);
+
   const selectedLocation =
     filteredLocations.find((store) => store.id === selectedLocationId) ??
     filteredLocations[0] ??
     null;
+
+  const selectedGalleryImages = selectedLocation?.galleryImages || [];
+  const selectedGalleryImage =
+    selectedGalleryImages[selectedGalleryIndex] ||
+    (selectedLocation
+      ? {
+          src: selectedLocation.image,
+          alt: `Sede ${selectedLocation.name}`,
+        }
+      : null);
 
   const activeRegionCount = new Set(
     filteredLocations.map((store) => store.region),
@@ -352,6 +378,51 @@ export const Locations: React.FC = () => {
 
   const resetFilters = () => {
     setSelectedRegion("Tutte");
+  };
+
+  const goToPreviousGalleryImage = () => {
+    if (selectedGalleryImages.length <= 1) return;
+
+    setSelectedGalleryIndex((current) =>
+      current === 0 ? selectedGalleryImages.length - 1 : current - 1,
+    );
+  };
+
+  const goToNextGalleryImage = () => {
+    if (selectedGalleryImages.length <= 1) return;
+
+    setSelectedGalleryIndex((current) => (current + 1) % selectedGalleryImages.length);
+  };
+
+  const getCardGalleryIndex = (store: LocationData) => {
+    if (store.galleryImages.length <= 1) return 0;
+
+    const rawIndex = cardGalleryIndices[store.id] ?? 0;
+    return ((rawIndex % store.galleryImages.length) + store.galleryImages.length) %
+      store.galleryImages.length;
+  };
+
+  const getCardGalleryImage = (store: LocationData) =>
+    store.galleryImages[getCardGalleryIndex(store)] || {
+      src: store.image,
+      alt: `Sede ${store.name}`,
+    };
+
+  const changeCardGalleryImage = (store: LocationData, direction: -1 | 1) => {
+    if (store.galleryImages.length <= 1) return;
+
+    setSelectedLocationId(store.id);
+    setCardGalleryIndices((current) => {
+      const previousIndex = current[store.id] ?? 0;
+      const nextIndex =
+        (previousIndex + direction + store.galleryImages.length) %
+        store.galleryImages.length;
+
+      return {
+        ...current,
+        [store.id]: nextIndex,
+      };
+    });
   };
 
   return (
@@ -552,8 +623,9 @@ export const Locations: React.FC = () => {
 
                       {filteredLocations.map((store) => {
                         const markerPosition = getMarkerPosition(store);
-                        const markerSpread =
-                          markerSpreadOffsets.get(store.id) || { x: 0, y: 0 };
+                        const markerSpread = markerSpreadOffsets.get(
+                          store.id,
+                        ) || { x: 0, y: 0 };
                         const isSelected = selectedLocation?.id === store.id;
                         const connectorX =
                           markerPosition.x +
@@ -604,8 +676,9 @@ export const Locations: React.FC = () => {
                     <div className="absolute inset-0">
                       {filteredLocations.map((store, index) => {
                         const markerPosition = getMarkerPosition(store);
-                        const markerSpread =
-                          markerSpreadOffsets.get(store.id) || { x: 0, y: 0 };
+                        const markerSpread = markerSpreadOffsets.get(
+                          store.id,
+                        ) || { x: 0, y: 0 };
                         const isSelected = selectedLocation?.id === store.id;
 
                         return (
@@ -649,7 +722,6 @@ export const Locations: React.FC = () => {
                     </div>
                   </div>
                 </div>
-
               </div>
             </div>
           </Reveal>
@@ -658,20 +730,45 @@ export const Locations: React.FC = () => {
             {selectedLocation ? (
               <div className="flex h-full flex-col overflow-hidden rounded-[32px] border border-brand-border bg-white shadow-[0_28px_80px_rgba(17,17,17,0.1)]">
                 <div className="relative aspect-[4/3] overflow-hidden">
-                  <img
-                    src={selectedLocation.image}
-                    alt={`Sede ${selectedLocation.name}`}
-                    className="h-full w-full object-cover"
-                    loading="lazy"
-                    decoding="async"
-                    sizes="(min-width: 1280px) 32vw, 100vw"
-                  />
+                  {selectedGalleryImage && (
+                    <img
+                      src={selectedGalleryImage.src}
+                      alt={selectedGalleryImage.alt || `Sede ${selectedLocation.name}`}
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                      decoding="async"
+                      sizes="(min-width: 1280px) 32vw, 100vw"
+                    />
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
                   <div className="absolute left-5 top-5 inline-flex items-center gap-2 rounded-full bg-white/92 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-text-primary backdrop-blur-sm">
                     <span>{selectedLocation.region}</span>
                     <span className="h-1 w-1 rounded-full bg-brand-accent" />
                     <span>{selectedLocation.city}</span>
                   </div>
+                  {selectedGalleryImages.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={goToPreviousGalleryImage}
+                        className="absolute left-4 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/88 text-brand-text-primary shadow-lg backdrop-blur-sm transition-colors hover:bg-white"
+                        aria-label="Immagine precedente"
+                      >
+                        <ChevronLeft size={18} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={goToNextGalleryImage}
+                        className="absolute right-4 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/88 text-brand-text-primary shadow-lg backdrop-blur-sm transition-colors hover:bg-white"
+                        aria-label="Immagine successiva"
+                      >
+                        <ChevronRight size={18} />
+                      </button>
+                      <div className="absolute bottom-4 right-4 rounded-full bg-black/58 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white backdrop-blur-sm">
+                        {selectedGalleryIndex + 1} / {selectedGalleryImages.length}
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 <div className="flex grow flex-col p-6 sm:p-7">
@@ -813,6 +910,8 @@ export const Locations: React.FC = () => {
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             {filteredLocations.map((store, index) => {
               const isSelected = selectedLocation?.id === store.id;
+              const currentCardImage = getCardGalleryImage(store);
+              const currentCardGalleryIndex = getCardGalleryIndex(store);
 
               return (
                 <Reveal
@@ -821,12 +920,10 @@ export const Locations: React.FC = () => {
                   delay={(index % 3) * 0.08}
                   fullHeight
                 >
-                  <a
-                    href={store.mapUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <article
                     onMouseEnter={() => setSelectedLocationId(store.id)}
-                    onFocus={() => setSelectedLocationId(store.id)}
+                    onFocusCapture={() => setSelectedLocationId(store.id)}
+                    onClick={() => setSelectedLocationId(store.id)}
                     className={`group flex h-full flex-col overflow-hidden rounded-[28px] border bg-white transition-all duration-300 ${
                       isSelected
                         ? "border-brand-gold shadow-[0_20px_60px_rgba(17,17,17,0.12)]"
@@ -835,8 +932,8 @@ export const Locations: React.FC = () => {
                   >
                     <div className="relative aspect-[16/10] overflow-hidden">
                       <img
-                        src={store.image}
-                        alt={`Sede ${store.name}`}
+                        src={currentCardImage.src}
+                        alt={currentCardImage.alt || `Sede ${store.name}`}
                         className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                         loading="lazy"
                         decoding="async"
@@ -851,6 +948,35 @@ export const Locations: React.FC = () => {
                           {store.region}
                         </span>
                       </div>
+                      {store.galleryImages.length > 1 && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              changeCardGalleryImage(store, -1);
+                            }}
+                            className="absolute left-4 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/88 text-brand-text-primary shadow-lg backdrop-blur-sm transition-colors hover:bg-white"
+                            aria-label={`Immagine precedente per ${store.name}`}
+                          >
+                            <ChevronLeft size={16} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              changeCardGalleryImage(store, 1);
+                            }}
+                            className="absolute right-4 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/88 text-brand-text-primary shadow-lg backdrop-blur-sm transition-colors hover:bg-white"
+                            aria-label={`Immagine successiva per ${store.name}`}
+                          >
+                            <ChevronRight size={16} />
+                          </button>
+                          <div className="absolute bottom-4 right-4 rounded-full bg-black/58 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white backdrop-blur-sm">
+                            {currentCardGalleryIndex + 1} / {store.galleryImages.length}
+                          </div>
+                        </>
+                      )}
                     </div>
 
                     <div className="flex grow flex-col px-5 py-5 sm:px-6">
@@ -906,13 +1032,19 @@ export const Locations: React.FC = () => {
                       </div>
 
                       <div className="mt-auto pt-6">
-                        <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-brand-accent transition-colors group-hover:text-brand-text-primary">
+                        <a
+                          href={store.mapUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(event) => event.stopPropagation()}
+                          className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-brand-accent transition-colors hover:text-brand-text-primary"
+                        >
                           Apri su Google Maps
                           <ExternalLink size={14} />
-                        </span>
+                        </a>
                       </div>
                     </div>
-                  </a>
+                  </article>
                 </Reveal>
               );
             })}

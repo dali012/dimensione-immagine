@@ -197,6 +197,8 @@ const storeLocationsQuery = `*[_type == "storeLocation" && active == true] | ord
   city,
   mapUrl,
   address,
+  primaryImage ${imageProjection},
+  galleryImages[]${imageProjection},
   image ${imageProjection},
   phone,
   hours[]{
@@ -246,6 +248,38 @@ const normalizeImage = (
     alt: normalizeString(raw?.alt, fallback?.alt || ""),
     caption: normalizeString(raw?.caption, fallback?.caption || ""),
   };
+};
+
+const normalizeImageArray = (
+  raw: any,
+  fallback: ImageAsset[] = [],
+): ImageAsset[] => {
+  if (!Array.isArray(raw) || raw.length === 0) {
+    return fallback;
+  }
+
+  const normalized = raw
+    .map((item) => normalizeImage(item))
+    .filter(Boolean) as ImageAsset[];
+
+  return normalized.length > 0 ? normalized : fallback;
+};
+
+const mergePrimaryIntoGallery = (
+  primaryImage: ImageAsset | undefined,
+  galleryImages: ImageAsset[],
+): ImageAsset[] => {
+  const merged = [primaryImage, ...galleryImages].filter(Boolean) as ImageAsset[];
+  const seen = new Set<string>();
+
+  return merged.filter((image) => {
+    if (seen.has(image.src)) {
+      return false;
+    }
+
+    seen.add(image.src);
+    return true;
+  });
 };
 
 const normalizeLink = (raw: any, fallback: LinkFields): LinkFields => ({
@@ -651,8 +685,21 @@ export async function getStoreLocations(): Promise<StoreLocationContent[]> {
 
       const normalized = raw
         .map((item: any, index: number) => {
-          const image = normalizeImage(item?.image, fallback[index]?.image);
+          const fallbackPrimaryImage = fallback[index]?.image;
+          const image = normalizeImage(
+            item?.primaryImage,
+            normalizeImage(item?.image, fallbackPrimaryImage),
+          );
           if (!image) return null;
+
+          const fallbackGalleryImages = mergePrimaryIntoGallery(
+            fallbackPrimaryImage || image,
+            normalizeImageArray(fallback[index]?.galleryImages, []),
+          );
+          const galleryImages = mergePrimaryIntoGallery(
+            image,
+            normalizeImageArray(item?.galleryImages, fallbackGalleryImages),
+          );
 
           return {
             id: normalizeString(item?._id, fallback[index]?.id || `store-${index}`),
@@ -672,6 +719,7 @@ export async function getStoreLocations(): Promise<StoreLocationContent[]> {
               fallback[index]?.address || "",
             ),
             image,
+            galleryImages,
             phone: normalizeString(item?.phone, fallback[index]?.phone || ""),
             hours: normalizeHours(item?.hours, fallback[index]?.hours || []),
             latitude: normalizeNumber(
