@@ -127,7 +127,9 @@ export const Contact: React.FC = () => {
 
       setStatus("success");
       setSubmitMessage(
-        "Grazie! La tua richiesta e stata inviata con successo.",
+        data?.confirmationEmailSent
+          ? "Grazie! La tua richiesta e stata inviata con successo. Ti abbiamo inviato anche una email di conferma."
+          : "Grazie! La tua richiesta e stata inviata con successo.",
       );
       setFormData({ name: "", email: "", phone: "", message: "" });
       setTermsAccepted(false);
