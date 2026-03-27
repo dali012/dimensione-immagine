@@ -1,40 +1,18 @@
 import { X } from "lucide-react";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
+import { useSiteContent } from "../../contexts/SiteContentContext";
 
-const STORAGE_KEY = "di_newsletter_popup_v1";
-const DISMISS_DAYS = 14;
-const SHOW_DELAY_MS = 4000;
-
-const isDismissed = () => {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return false;
-    const data = JSON.parse(raw) as { dismissedUntil?: number };
-    return (
-      typeof data.dismissedUntil === "number" &&
-      Date.now() < data.dismissedUntil
-    );
-  } catch {
-    return false;
-  }
-};
-
-const dismissForDays = (days: number) => {
-  try {
-    const dismissedUntil = Date.now() + days * 24 * 60 * 60 * 1000;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ dismissedUntil }));
-  } catch {
-    // Ignore storage errors and let the popup reappear next time.
-  }
-};
+const NEWSLETTER_ENDPOINT = "/api/newsletter-subscribe";
 
 export const NewsletterPopup: React.FC = () => {
   const location = useLocation();
+  const { siteSettings } = useSiteContent();
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const hasShownRef = useRef(false);
 
   const shouldHide = useMemo(() => {
     return ["/login", "/register", "/admin-wholesale"].includes(
@@ -43,15 +21,18 @@ export const NewsletterPopup: React.FC = () => {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (shouldHide) return;
-    if (isDismissed()) return;
+    if (shouldHide) {
+      setIsOpen(false);
+      return;
+    }
 
-    const timer = setTimeout(() => setIsOpen(true), SHOW_DELAY_MS);
-    return () => clearTimeout(timer);
+    if (hasShownRef.current) return;
+
+    hasShownRef.current = true;
+    setIsOpen(true);
   }, [shouldHide]);
 
   const handleClose = () => {
-    dismissForDays(DISMISS_DAYS);
     setIsOpen(false);
   };
 
@@ -62,28 +43,31 @@ export const NewsletterPopup: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      const res = await fetch(
-        "https://newsletter.dimensioneimmagineabbigliamento.it/subscribe",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email }),
-        },
-      );
+      const res = await fetch(NEWSLETTER_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          sourcePage: location.pathname,
+        }),
+      });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
       if (!res.ok || !data.success) {
         throw new Error(data?.error || "Subscription failed");
       }
 
       toast.success(
-        "Iscrizione avvenuta! Controlla la tua email per il coupon.",
+        data?.confirmationEmailSent
+          ? "Iscrizione avvenuta! Ti abbiamo inviato una email di conferma."
+          : "Iscrizione avvenuta con successo!",
       );
       setEmail("");
       handleClose();
-    } catch {
-      toast.error("Si è verificato un errore. Riprova più tardi.");
+    } catch (error) {
+      console.error(error);
+      toast.error("Si e verificato un errore. Riprova piu tardi.");
     } finally {
       setIsSubmitting(false);
     }
@@ -110,14 +94,13 @@ export const NewsletterPopup: React.FC = () => {
 
         <div className="px-6 py-8 sm:px-10 sm:py-10 overflow-y-auto max-h-[90svh] sm:max-h-none">
           <p className="text-xs uppercase tracking-widest text-brand-text-secondary mb-3">
-            Benvenuto
+            Newsletter
           </p>
           <h2 className="text-3xl sm:text-4xl font-serif text-brand-text-primary mb-4">
-            -10% sul tuo primo acquisto
+            {siteSettings.footerNewsletterTitle}
           </h2>
           <p className="text-sm sm:text-base text-brand-text-secondary leading-relaxed mb-6">
-            Iscriviti alla newsletter per ricevere il coupon e scoprire in
-            anteprima nuove collezioni e offerte esclusive.
+            {siteSettings.footerNewsletterDescription}
           </p>
 
           <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
@@ -134,7 +117,7 @@ export const NewsletterPopup: React.FC = () => {
               disabled={isSubmitting}
               className="w-full bg-brand-accent text-white text-xs font-semibold uppercase px-6 py-3 hover:bg-brand-accent/80 transition-colors disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
             >
-              {isSubmitting ? "Invio..." : "Sblocca il 10%"}
+              {isSubmitting ? "Invio..." : "Iscriviti"}
             </button>
           </form>
 
@@ -146,8 +129,7 @@ export const NewsletterPopup: React.FC = () => {
             No grazie, magari dopo
           </button>
           <p className="mt-4 text-[11px] text-brand-text-secondary leading-relaxed">
-            Iscrivendoti accetti di ricevere comunicazioni e materiale marketing
-            da Dimensione Immagine.
+            {siteSettings.footerNewsletterDisclaimer}
           </p>
         </div>
       </div>

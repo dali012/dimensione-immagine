@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Facebook, FileText, IdCard, Instagram, Linkedin } from "lucide-react";
-import { toast } from "sonner";
 import { useSiteContent } from "../../contexts/SiteContentContext";
 
 const TikTokIcon = ({
@@ -43,8 +42,6 @@ const renderSocialIcon = (platform: string) => {
 };
 
 export const Footer: React.FC = () => {
-  const [email, setEmail] = React.useState("");
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const { siteSettings } = useSiteContent();
 
   const companyLinks = siteSettings.navigationItems.filter((item) =>
@@ -106,111 +103,45 @@ export const Footer: React.FC = () => {
           </div>
 
           <div className="flex flex-col space-y-6 lg:pl-4">
-            <div className="flex justify-between items-start gap-6">
-              <h3 className="font-serif font-bold text-xs tracking-widest uppercase text-brand-text-primary leading-relaxed">
-                {siteSettings.footerNewsletterTitle}
-              </h3>
-              <div className="flex space-x-3 text-brand-text-secondary">
-                {siteSettings.socialLinks.map((item) => (
-                  <a
-                    key={item.url}
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={item.label || item.platform}
-                    className="hover:text-brand-accent transition-colors"
-                  >
-                    {renderSocialIcon(item.platform)}
-                  </a>
-                ))}
-              </div>
-            </div>
+            <h3 className="font-serif font-bold text-xs tracking-widest uppercase text-brand-text-primary leading-relaxed">
+              Seguici
+            </h3>
             <p className="text-sm text-brand-text-secondary font-light leading-relaxed">
-              {siteSettings.footerNewsletterDescription}
+              Rimani aggiornato sulle novita di Dimensione Immagine attraverso i
+              nostri canali social ufficiali.
             </p>
-
-            <form
-              className="w-full flex flex-col sm:flex-row sm:items-end gap-3 sm:gap-0 pt-2"
-              onSubmit={async (e) => {
-                e.preventDefault();
-
-                if (isSubmitting) return;
-                if (!email) return;
-
-                setIsSubmitting(true);
-
-                try {
-                  const res = await fetch(
-                    "https://newsletter.dimensioneimmagineabbigliamento.it/subscribe",
-                    {
-                      method: "POST",
-                      headers: {
-                        "Content-Type": "application/json",
-                      },
-                      body: JSON.stringify({ email }),
-                    },
-                  );
-
-                  const data = await res.json();
-
-                  if (!res.ok || !data.success) {
-                    throw new Error(data?.error || "Subscription failed");
-                  }
-
-                  toast.success("Iscrizione avvenuta con successo!");
-                  setEmail("");
-                } catch (error) {
-                  console.error(error);
-                  toast.error("Si e verificato un errore. Riprova piu tardi.");
-                } finally {
-                  setIsSubmitting(false);
-                }
-              }}
-            >
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Indirizzo e-mail"
-                className="w-full grow bg-transparent border-b border-brand-text-secondary py-2 text-sm text-brand-text-primary placeholder-brand-text-secondary/60 outline-none focus:border-brand-accent transition-colors sm:mr-4"
-              />
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full sm:w-auto bg-brand-accent text-white text-xs font-semibold uppercase px-6 py-3 hover:bg-brand-accent/80 transition-colors disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
-              >
-                {isSubmitting ? (
-                  <span className="flex items-center space-x-2">
-                    <svg
-                      className="h-4 w-4 animate-spin"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                      />
-                    </svg>
-                    <span>Invio...</span>
-                  </span>
-                ) : (
-                  "Iscriviti"
-                )}
-              </button>
-            </form>
-            <p className="text-xs text-brand-text-secondary font-light leading-relaxed">
-              {siteSettings.footerNewsletterDisclaimer}
-            </p>
+            <div className="flex flex-wrap gap-3 text-brand-text-secondary">
+              {siteSettings.socialLinks.map((item) => (
+                <a
+                  key={item.url}
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={item.label || item.platform}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-border hover:border-brand-accent hover:text-brand-accent transition-colors"
+                >
+                  {renderSocialIcon(item.platform)}
+                </a>
+              ))}
+            </div>
+            <div className="flex flex-col space-y-2 text-sm text-brand-text-secondary font-light">
+              {siteSettings.primaryEmail && (
+                <a
+                  href={`mailto:${siteSettings.primaryEmail}`}
+                  className="hover:text-brand-accent transition-colors break-all"
+                >
+                  {siteSettings.primaryEmail}
+                </a>
+              )}
+              {siteSettings.primaryPhone && (
+                <a
+                  href={`tel:${siteSettings.primaryPhone.replace(/\s+/g, "")}`}
+                  className="hover:text-brand-accent transition-colors"
+                >
+                  {siteSettings.primaryPhone}
+                </a>
+              )}
+            </div>
           </div>
         </div>
 
