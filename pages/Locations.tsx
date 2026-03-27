@@ -25,7 +25,6 @@ interface LocationData {
   city: string;
   mapUrl: string;
   address: string;
-  isFranchise: boolean;
   image: string;
   phone?: string;
   hours?: string;
@@ -36,6 +35,10 @@ interface LocationData {
 }
 
 type MapCoordinate = [number, number];
+type MarkerSpreadOffset = {
+  x: number;
+  y: number;
+};
 
 const MAP_VIEWPORT = {
   width: 860,
@@ -48,6 +51,7 @@ const MAP_VIEWPORT = {
 
 const MAP_LATITUDE_LINES = [37, 39, 41, 43, 45, 47];
 const MAP_LONGITUDE_LINES = [7, 9, 11, 13, 15, 17, 19];
+const MARKER_CLUSTER_THRESHOLD_PX = 34;
 
 const MAP_LANDMASSES: MapCoordinate[][] = [
   [
@@ -145,8 +149,6 @@ const MAP_LANDMASSES: MapCoordinate[][] = [
   ],
 ];
 
-const OWNERSHIP_TYPES = ["Tutti", "Proprietario", "Franchising"];
-
 const isOpenNow = () => {
   const now = new Date();
   const minutes = now.getHours() * 60 + now.getMinutes();
@@ -197,6 +199,67 @@ const getMarkerPosition = (location: LocationData) => {
   };
 };
 
+const buildMarkerSpreadOffsets = (locations: LocationData[]) => {
+  const renderedMarkers = locations.map((location) => {
+    const markerPosition = getMarkerPosition(location);
+    return {
+      location,
+      renderedX: markerPosition.x + (location.markerOffsetX ?? 0),
+      renderedY: markerPosition.y + (location.markerOffsetY ?? 0),
+    };
+  });
+
+  const spreadOffsets = new Map<string, MarkerSpreadOffset>();
+  const visited = new Set<string>();
+
+  for (const marker of renderedMarkers) {
+    if (visited.has(marker.location.id)) continue;
+
+    const cluster = [];
+    const stack = [marker];
+    visited.add(marker.location.id);
+
+    while (stack.length) {
+      const current = stack.pop();
+      if (!current) continue;
+      cluster.push(current);
+
+      for (const candidate of renderedMarkers) {
+        if (visited.has(candidate.location.id)) continue;
+
+        const distance = Math.hypot(
+          candidate.renderedX - current.renderedX,
+          candidate.renderedY - current.renderedY,
+        );
+
+        if (distance <= MARKER_CLUSTER_THRESHOLD_PX) {
+          visited.add(candidate.location.id);
+          stack.push(candidate);
+        }
+      }
+    }
+
+    if (cluster.length < 2) continue;
+
+    const sortedCluster = [...cluster].sort((a, b) =>
+      a.location.name.localeCompare(b.location.name),
+    );
+    const radius = Math.min(28, 10 + sortedCluster.length * 4);
+
+    sortedCluster.forEach((entry, index) => {
+      const angle =
+        -Math.PI / 2 + (index * (2 * Math.PI)) / sortedCluster.length;
+
+      spreadOffsets.set(entry.location.id, {
+        x: Math.cos(angle) * radius,
+        y: Math.sin(angle) * radius,
+      });
+    });
+  }
+
+  return spreadOffsets;
+};
+
 const buildNetworkPath = (locations: LocationData[]) => {
   if (locations.length < 2) {
     return "";
@@ -226,7 +289,6 @@ export const Locations: React.FC = () => {
         city: store.city,
         mapUrl: store.mapUrl,
         address: store.address,
-        isFranchise: store.ownershipType === "franchise",
         image: store.image.src,
         phone: store.phone || undefined,
         hours: businessHoursToMultiline(store.hours),
@@ -240,14 +302,13 @@ export const Locations: React.FC = () => {
   const regions = useMemo(
     () => [
       "Tutte",
-      ...Array.from(new Set(locations.map((store) => store.region))).sort((a, b) =>
-        a.localeCompare(b),
+      ...Array.from(new Set(locations.map((store) => store.region))).sort(
+        (a, b) => a.localeCompare(b),
       ),
     ],
     [locations],
   );
   const [selectedRegion, setSelectedRegion] = useState("Tutte");
-  const [selectedOwnership, setSelectedOwnership] = useState("Tutti");
   const [selectedLocationId, setSelectedLocationId] = useState(
     locations[0]?.id ?? "",
   );
@@ -255,24 +316,10 @@ export const Locations: React.FC = () => {
   const filteredLocations = useMemo(() => {
     return [...locations]
       .filter((store) => {
-        const regionMatch =
-          selectedRegion === "Tutte" || store.region === selectedRegion;
-
-        const ownershipMatch =
-          selectedOwnership === "Tutti" ||
-          (selectedOwnership === "Franchising" && store.isFranchise) ||
-          (selectedOwnership === "Proprietario" && !store.isFranchise);
-
-        return regionMatch && ownershipMatch;
+        return selectedRegion === "Tutte" || store.region === selectedRegion;
       })
-      .sort((a, b) => {
-        if (a.isFranchise === b.isFranchise) {
-          return a.name.localeCompare(b.name);
-        }
-
-        return a.isFranchise ? 1 : -1;
-      });
-  }, [locations, selectedOwnership, selectedRegion]);
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [locations, selectedRegion]);
 
   useEffect(() => {
     if (!filteredLocations.length) {
@@ -290,8 +337,6 @@ export const Locations: React.FC = () => {
     filteredLocations[0] ??
     null;
 
-  const directStores = filteredLocations.filter((store) => !store.isFranchise);
-  const franchiseStores = filteredLocations.filter((store) => store.isFranchise);
   const activeRegionCount = new Set(
     filteredLocations.map((store) => store.region),
   ).size;
@@ -299,11 +344,14 @@ export const Locations: React.FC = () => {
     () => buildNetworkPath(filteredLocations),
     [filteredLocations],
   );
+  const markerSpreadOffsets = useMemo(
+    () => buildMarkerSpreadOffsets(filteredLocations),
+    [filteredLocations],
+  );
   const currentlyOpen = isOpenNow();
 
   const resetFilters = () => {
     setSelectedRegion("Tutte");
-    setSelectedOwnership("Tutti");
   };
 
   return (
@@ -341,12 +389,12 @@ export const Locations: React.FC = () => {
                   </span>
                 </div>
                 <p className="mt-3 text-sm leading-relaxed text-brand-text-secondary">
-                  Filtra per regione o tipologia per aggiornare la mappa e la
-                  selezione dei negozi in tempo reale.
+                  Filtra per regione per aggiornare la mappa e la selezione dei
+                  negozi in tempo reale.
                 </p>
               </div>
 
-              <div className="flex-1 space-y-6">
+              <div className="flex-1">
                 <div>
                   <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-text-secondary">
                     Regione
@@ -371,56 +419,15 @@ export const Locations: React.FC = () => {
                     })}
                   </div>
                 </div>
-
-                <div>
-                  <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-text-secondary">
-                    Tipologia
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {OWNERSHIP_TYPES.map((type) => {
-                      const isActive = selectedOwnership === type;
-                      return (
-                        <button
-                          key={type}
-                          type="button"
-                          onClick={() => setSelectedOwnership(type)}
-                          className={`rounded-full border px-4 py-2 text-sm transition-colors ${
-                            isActive
-                              ? "border-brand-text-primary bg-brand-text-primary text-brand-gold"
-                              : "border-brand-border bg-white text-brand-text-primary hover:border-brand-text-primary"
-                          }`}
-                        >
-                          {type}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 xl:w-[27rem]">
+              <div className="grid grid-cols-2 gap-3 xl:w-[18rem]">
                 <div className="rounded-2xl border border-brand-border bg-brand-bg px-4 py-4">
                   <p className="text-[11px] uppercase tracking-[0.2em] text-brand-text-secondary">
                     Totale
                   </p>
                   <p className="mt-3 font-serif text-3xl text-brand-text-primary">
                     {filteredLocations.length}
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-brand-border bg-brand-bg px-4 py-4">
-                  <p className="text-[11px] uppercase tracking-[0.2em] text-brand-text-secondary">
-                    Diretti
-                  </p>
-                  <p className="mt-3 font-serif text-3xl text-brand-text-primary">
-                    {directStores.length}
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-brand-border bg-brand-bg px-4 py-4">
-                  <p className="text-[11px] uppercase tracking-[0.2em] text-brand-text-secondary">
-                    Partner
-                  </p>
-                  <p className="mt-3 font-serif text-3xl text-brand-text-primary">
-                    {franchiseStores.length}
                   </p>
                 </div>
                 <div className="rounded-2xl border border-brand-border bg-brand-bg px-4 py-4">
@@ -438,7 +445,7 @@ export const Locations: React.FC = () => {
       </section>
 
       <section className="container mx-auto px-4 sm:px-6 mb-16">
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.95fr)]">
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.95fr)] xl:items-stretch">
           <Reveal width="100%" className="h-full">
             <div className="relative h-full overflow-hidden rounded-[32px] border border-brand-gold/20 bg-[#060606] p-5 shadow-[0_28px_80px_rgba(17,17,17,0.24)] sm:p-7">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(184,155,94,0.18),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(184,155,94,0.12),transparent_28%)]" />
@@ -459,7 +466,7 @@ export const Locations: React.FC = () => {
 
                   <div className="inline-flex items-center gap-2 rounded-full border border-brand-gold/15 bg-white/5 px-4 py-2 text-[11px] font-medium uppercase tracking-[0.18em] text-brand-gold/75">
                     <Globe2 size={14} />
-                    Italia Reale
+                    Italia
                   </div>
                 </div>
 
@@ -481,8 +488,14 @@ export const Locations: React.FC = () => {
                           y2="0%"
                         >
                           <stop offset="0%" stopColor="rgba(184,155,94,0.12)" />
-                          <stop offset="50%" stopColor="rgba(184,155,94,0.45)" />
-                          <stop offset="100%" stopColor="rgba(184,155,94,0.12)" />
+                          <stop
+                            offset="50%"
+                            stopColor="rgba(184,155,94,0.45)"
+                          />
+                          <stop
+                            offset="100%"
+                            stopColor="rgba(184,155,94,0.12)"
+                          />
                         </linearGradient>
                       </defs>
 
@@ -539,15 +552,24 @@ export const Locations: React.FC = () => {
 
                       {filteredLocations.map((store) => {
                         const markerPosition = getMarkerPosition(store);
+                        const markerSpread =
+                          markerSpreadOffsets.get(store.id) || { x: 0, y: 0 };
                         const isSelected = selectedLocation?.id === store.id;
                         const connectorX =
-                          markerPosition.x + (store.markerOffsetX ?? 0);
+                          markerPosition.x +
+                          (store.markerOffsetX ?? 0) +
+                          markerSpread.x;
                         const connectorY =
-                          markerPosition.y + (store.markerOffsetY ?? 0);
+                          markerPosition.y +
+                          (store.markerOffsetY ?? 0) +
+                          markerSpread.y;
 
                         return (
                           <g key={`connector-${store.id}`}>
-                            {(store.markerOffsetX || store.markerOffsetY) && (
+                            {(store.markerOffsetX ||
+                              store.markerOffsetY ||
+                              markerSpread.x ||
+                              markerSpread.y) && (
                               <line
                                 x1={markerPosition.x}
                                 y1={markerPosition.y}
@@ -582,6 +604,8 @@ export const Locations: React.FC = () => {
                     <div className="absolute inset-0">
                       {filteredLocations.map((store, index) => {
                         const markerPosition = getMarkerPosition(store);
+                        const markerSpread =
+                          markerSpreadOffsets.get(store.id) || { x: 0, y: 0 };
                         const isSelected = selectedLocation?.id === store.id;
 
                         return (
@@ -596,20 +620,21 @@ export const Locations: React.FC = () => {
                             className="absolute z-10"
                             style={{
                               left: `calc(${markerPosition.leftPercent}% + ${
-                                store.markerOffsetX ?? 0
+                                (store.markerOffsetX ?? 0) + markerSpread.x
                               }px)`,
                               top: `calc(${markerPosition.topPercent}% + ${
-                                store.markerOffsetY ?? 0
+                                (store.markerOffsetY ?? 0) + markerSpread.y
                               }px)`,
                               transform: resetMarkerTransform,
+                              zIndex: isSelected ? 30 : 20 + index,
                             }}
                           >
-                            <span className="relative flex h-10 w-10 items-center justify-center">
+                            <span className="relative flex h-12 w-12 items-center justify-center">
                               {isSelected && (
-                                <span className="absolute h-10 w-10 rounded-full bg-brand-gold/25 animate-ping" />
+                                <span className="absolute h-12 w-12 rounded-full bg-brand-gold/25 animate-ping" />
                               )}
                               <span
-                                className={`relative flex h-8 w-8 items-center justify-center rounded-full border text-[11px] font-semibold shadow-lg transition-all duration-300 ${
+                                className={`relative flex h-9 w-9 items-center justify-center rounded-full border text-[11px] font-semibold shadow-lg transition-all duration-300 ${
                                   isSelected
                                     ? "border-brand-gold bg-brand-gold text-brand-text-primary"
                                     : "border-white/35 bg-[#111111]/92 text-brand-gold hover:border-brand-gold hover:bg-brand-gold/12"
@@ -622,73 +647,16 @@ export const Locations: React.FC = () => {
                         );
                       })}
                     </div>
-
                   </div>
                 </div>
 
-                <div className="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_minmax(18rem,0.8fr)]">
-                  <div className="rounded-2xl border border-brand-gold/18 bg-[#080808]/92 px-4 py-4 backdrop-blur-sm">
-                    <span className="text-[10px] uppercase tracking-[0.24em] text-brand-gold/55">
-                      Focus
-                    </span>
-                    <p className="mt-2 font-serif text-xl text-white">
-                      {selectedLocation
-                        ? selectedLocation.name
-                        : "Nessuna sede visibile"}
-                    </p>
-                    <p className="mt-1 text-sm leading-relaxed text-brand-gold/72">
-                      {selectedLocation
-                        ? `${selectedLocation.city}, ${selectedLocation.region}`
-                        : "Resettando i filtri torni a vedere tutta la rete."}
-                    </p>
-                  </div>
-
-                  <div className="rounded-2xl border border-brand-gold/15 bg-white/5 px-4 py-4 backdrop-blur-sm lg:text-right">
-                    <span className="text-[10px] uppercase tracking-[0.24em] text-brand-gold/55">
-                      Interazione
-                    </span>
-                    <p className="mt-2 text-sm text-brand-gold/78">
-                      Passa su un pin per cambiare focus.
-                    </p>
-                    <p className="text-sm text-brand-gold/78">
-                      Clicca per aprire Google Maps.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-3">
-                  <div className="rounded-2xl border border-brand-gold/12 bg-white/5 px-4 py-4">
-                    <p className="text-[10px] uppercase tracking-[0.22em] text-brand-gold/55">
-                      Proprietario
-                    </p>
-                    <p className="mt-2 text-2xl font-semibold text-white">
-                      {directStores.length}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-brand-gold/12 bg-white/5 px-4 py-4">
-                    <p className="text-[10px] uppercase tracking-[0.22em] text-brand-gold/55">
-                      Franchising
-                    </p>
-                    <p className="mt-2 text-2xl font-semibold text-white">
-                      {franchiseStores.length}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-brand-gold/12 bg-white/5 px-4 py-4">
-                    <p className="text-[10px] uppercase tracking-[0.22em] text-brand-gold/55">
-                      Regioni attive
-                    </p>
-                    <p className="mt-2 text-2xl font-semibold text-white">
-                      {activeRegionCount}
-                    </p>
-                  </div>
-                </div>
               </div>
             </div>
           </Reveal>
 
           <Reveal width="100%" className="h-full" delay={0.08}>
             {selectedLocation ? (
-              <div className="overflow-hidden rounded-[32px] border border-brand-border bg-white shadow-[0_28px_80px_rgba(17,17,17,0.1)]">
+              <div className="flex h-full flex-col overflow-hidden rounded-[32px] border border-brand-border bg-white shadow-[0_28px_80px_rgba(17,17,17,0.1)]">
                 <div className="relative aspect-[4/3] overflow-hidden">
                   <img
                     src={selectedLocation.image}
@@ -706,19 +674,10 @@ export const Locations: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="p-6 sm:p-7">
+                <div className="flex grow flex-col p-6 sm:p-7">
                   <div className="flex flex-wrap items-center gap-3">
                     <span className="inline-flex rounded-full border border-brand-accent/20 bg-brand-accent/8 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-accent">
-                      {selectedLocation.isFranchise
-                        ? "Franchising"
-                        : currentlyOpen
-                          ? "Aperto ora"
-                          : "Chiuso ora"}
-                    </span>
-                    <span className="inline-flex rounded-full border border-brand-border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-text-secondary">
-                      {selectedLocation.isFranchise
-                        ? "Partner"
-                        : "Sede diretta"}
+                      {currentlyOpen ? "Aperto ora" : "Chiuso ora"}
                     </span>
                   </div>
 
@@ -753,12 +712,10 @@ export const Locations: React.FC = () => {
                       />
                       <div>
                         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-text-secondary">
-                          {selectedLocation.isFranchise ? "Tipologia" : "Orari"}
+                          Orari
                         </p>
                         <p className="mt-1 whitespace-pre-line leading-relaxed text-brand-text-primary">
-                          {selectedLocation.isFranchise
-                            ? "Franchising"
-                            : selectedLocation.hours}
+                          {selectedLocation.hours}
                         </p>
                       </div>
                     </div>
@@ -844,7 +801,7 @@ export const Locations: React.FC = () => {
               </p>
             </div>
 
-            {(selectedRegion !== "Tutte" || selectedOwnership !== "Tutti") && (
+            {selectedRegion !== "Tutte" && (
               <Button variant="outline" onClick={resetFilters}>
                 Resetta filtri
               </Button>
@@ -900,18 +857,12 @@ export const Locations: React.FC = () => {
                       <div className="flex flex-wrap items-center gap-2">
                         <span
                           className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] ${
-                            store.isFranchise
-                              ? "bg-brand-text-primary/6 text-brand-text-secondary"
-                              : currentlyOpen
-                                ? "bg-green-50 text-green-700"
-                                : "bg-red-50 text-red-700"
+                            currentlyOpen
+                              ? "bg-green-50 text-green-700"
+                              : "bg-red-50 text-red-700"
                           }`}
                         >
-                          {store.isFranchise
-                            ? "Franchising"
-                            : currentlyOpen
-                              ? "Aperto ora"
-                              : "Chiuso ora"}
+                          {currentlyOpen ? "Aperto ora" : "Chiuso ora"}
                         </span>
                         <span className="text-[11px] uppercase tracking-[0.2em] text-brand-text-secondary">
                           {store.city}
@@ -928,7 +879,9 @@ export const Locations: React.FC = () => {
                             size={16}
                             className="mt-0.5 shrink-0 text-brand-accent"
                           />
-                          <span className="leading-relaxed">{store.address}</span>
+                          <span className="leading-relaxed">
+                            {store.address}
+                          </span>
                         </div>
 
                         <div className="flex items-start gap-3">
@@ -937,7 +890,7 @@ export const Locations: React.FC = () => {
                             className="mt-0.5 shrink-0 text-brand-accent"
                           />
                           <span className="whitespace-pre-line leading-relaxed">
-                            {store.isFranchise ? "Partner in franchising" : store.hours}
+                            {store.hours}
                           </span>
                         </div>
 
@@ -972,11 +925,7 @@ export const Locations: React.FC = () => {
             <p className="mt-3 text-brand-text-secondary">
               Nessuna sede corrisponde ai filtri selezionati.
             </p>
-            <Button
-              variant="outline"
-              className="mt-6"
-              onClick={resetFilters}
-            >
+            <Button variant="outline" className="mt-6" onClick={resetFilters}>
               Resetta filtri
             </Button>
           </div>

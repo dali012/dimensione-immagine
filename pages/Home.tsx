@@ -199,7 +199,6 @@ export const Home: React.FC = () => {
           <div className="mt-12 grid grid-cols-1 gap-4 lg:grid-cols-12 lg:auto-rows-[minmax(17rem,1fr)]">
             {content.spotlightCards.map((item, index) => {
               const href = item.cta?.href || "/sedi";
-              const label = item.cta?.label || "Scoprila in negozio";
               const layoutClass =
                 spotlightLayouts[index] || "lg:col-span-4 min-h-[18rem]";
 
@@ -233,9 +232,6 @@ export const Home: React.FC = () => {
                     <div className="mt-5 flex flex-wrap items-center gap-3">
                       <span className="rounded-full border border-brand-accent/14 bg-white/82 px-3 py-2 text-[10px] font-medium uppercase tracking-[0.18em] text-brand-text-secondary backdrop-blur-sm">
                         {item.mood}
-                      </span>
-                      <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-accent">
-                        {label}
                       </span>
                     </div>
                   </div>
@@ -273,9 +269,6 @@ export const Home: React.FC = () => {
                       <span className="rounded-full border border-brand-accent/14 bg-white/82 px-3 py-2 text-[10px] font-medium uppercase tracking-[0.18em] text-brand-text-secondary backdrop-blur-sm">
                         {item.mood}
                       </span>
-                      <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-accent">
-                        {label}
-                      </span>
                     </div>
                   </div>
                 </a>
@@ -283,28 +276,6 @@ export const Home: React.FC = () => {
             })}
           </div>
 
-          <div className="mt-8 flex flex-col gap-4 rounded-[26px] border border-brand-accent/12 bg-white/72 px-5 py-5 sm:px-6 sm:py-6 lg:flex-row lg:items-center lg:justify-between shadow-[0_12px_36px_rgba(86,65,24,0.06)] backdrop-blur-sm">
-            <p className="max-w-2xl text-sm sm:text-base leading-relaxed text-brand-text-secondary">
-              {content.bottomBannerDescription}
-            </p>
-            {isInternalLink(content.bottomCta.href) ? (
-              <Link
-                to={content.bottomCta.href}
-                className="inline-flex items-center justify-center rounded-full border border-brand-accent/25 bg-transparent px-5 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-brand-text-primary transition-colors hover:border-brand-accent hover:bg-brand-accent hover:text-white"
-              >
-                {content.bottomCta.label}
-              </Link>
-            ) : (
-              <a
-                href={content.bottomCta.href}
-                target={content.bottomCta.newTab ? "_blank" : undefined}
-                rel={content.bottomCta.newTab ? "noreferrer" : undefined}
-                className="inline-flex items-center justify-center rounded-full border border-brand-accent/25 bg-transparent px-5 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-brand-text-primary transition-colors hover:border-brand-accent hover:bg-brand-accent hover:text-white"
-              >
-                {content.bottomCta.label}
-              </a>
-            )}
-          </div>
         </div>
       </section>
     </div>
