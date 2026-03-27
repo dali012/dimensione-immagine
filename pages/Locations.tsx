@@ -12,6 +12,11 @@ import { SEO } from "../components/SEO/SEO";
 import { Button } from "../components/UI/Button";
 import { Reveal } from "../components/UI/Reveal";
 import { SectionHeader } from "../components/UI/SectionHeader";
+import { useSiteContent } from "../contexts/SiteContentContext";
+import {
+  businessHoursToMultiline,
+  useLocationsPageContent,
+} from "../sanity/publicContent";
 
 interface LocationData {
   id: string;
@@ -140,140 +145,6 @@ const MAP_LANDMASSES: MapCoordinate[][] = [
   ],
 ];
 
-const LOCATIONS: LocationData[] = [
-  {
-    id: "kreazioni-uomo",
-    name: "Kreazioni Uomo",
-    region: "Campania",
-    city: "Area Vesuviana",
-    mapUrl: "https://maps.app.goo.gl/SgrSD6mEyAUuzmhz8",
-    address: "Indirizzo disponibile su Google Maps",
-    isFranchise: true,
-    image: "/images/victor-benjamin.jpeg",
-    hours: "Consulta gli orari direttamente su Google Maps",
-    latitude: 40.949674,
-    longitude: 14.4859061,
-    markerOffsetX: -8,
-    markerOffsetY: -8,
-  },
-  {
-    id: "vittoria-company",
-    name: "Vittoria Company",
-    region: "Puglia",
-    city: "Lecce",
-    mapUrl: "https://maps.app.goo.gl/kpAaPAKXJ3YAGzSU7",
-    address: "De Donno Essence",
-    isFranchise: true,
-    image: "/images/vittoria-company.jpeg",
-    hours: "Consulta gli orari direttamente su Google Maps",
-    latitude: 40.3538269,
-    longitude: 18.1812054,
-    markerOffsetX: 10,
-    markerOffsetY: -10,
-  },
-  {
-    id: "le-porte-del-savuto",
-    name: "Le Porte Del Savuto",
-    region: "Calabria",
-    city: "Vallegianno",
-    mapUrl: "https://maps.app.goo.gl/7vLK9Mf9nwBFTmyL7",
-    address: "Via Antonio Guarasci, 87056 Vallegianno CS",
-    isFranchise: true,
-    image: "/images/calabria.jpeg",
-    hours: "Consulta gli orari direttamente su Google Maps",
-    latitude: 39.1992582,
-    longitude: 16.3065286,
-    markerOffsetX: -16,
-    markerOffsetY: 10,
-  },
-  {
-    id: "montesilvano",
-    name: "Dimensione Immagine Montesilvano",
-    region: "Abruzzo",
-    city: "Montesilvano",
-    mapUrl: "https://maps.app.goo.gl/ok2jt8DpLFYcjMFz5",
-    address: "SS16, 610, Montesilvano, Abruzzo",
-    isFranchise: false,
-    image: "/images/montesilvano.jpeg",
-    phone: "0852034097",
-    hours: "Lun-Sab 9:00-20:00\nDom 9:00-13:00 / 16:00-20:00",
-    latitude: 42.496547,
-    longitude: 14.1739818,
-    markerOffsetX: -6,
-    markerOffsetY: -14,
-  },
-  {
-    id: "donna-messina",
-    name: "Dimensione Immagine Donna",
-    region: "Sicilia",
-    city: "Messina",
-    mapUrl: "https://maps.app.goo.gl/53LA8JTywzaJV5RGA",
-    address: "Via Maddalena, 74, 98123 Messina ME",
-    isFranchise: false,
-    image: "/images/boutique-donna.jpeg",
-    phone: "0902131218",
-    hours: "Lun-Dom 9:00-13:00 / 16:00-20:00",
-    latitude: 38.1848977,
-    longitude: 15.5541789,
-    markerOffsetX: -22,
-    markerOffsetY: 16,
-  },
-  {
-    id: "torre-faro",
-    name: "Dimensione Immagine Torre Faro",
-    region: "Sicilia",
-    city: "Torre Faro",
-    mapUrl: "https://maps.app.goo.gl/R2nNhbPdUjb9dMbQ6",
-    address: "Via Circuito, 177, 98164 Torre Faro ME",
-    isFranchise: false,
-    image: "/images/torre-faro.jpeg",
-    phone: "090326785",
-    hours: "Lun-Sab 9:00-20:00\nDom 9:00-13:00 / 16:00-20:00",
-    latitude: 38.2644723,
-    longitude: 15.6372869,
-    markerOffsetX: 16,
-    markerOffsetY: -18,
-  },
-  {
-    id: "uomo-messina",
-    name: "Dimensione Immagine Uomo",
-    region: "Sicilia",
-    city: "Messina",
-    mapUrl: "https://maps.app.goo.gl/2WrCVJGFWRrpueMf9",
-    address: "Via Maddalena & Via Giordano Bruno, 98123 Messina ME",
-    isFranchise: false,
-    image: "/images/boutique-uomo.jpeg",
-    phone: "0909074525",
-    hours: "Lun-Sab 9:00-20:00\nDom 9:00-13:00 / 16:00-20:00",
-    latitude: 38.1841094,
-    longitude: 15.5553877,
-    markerOffsetX: 20,
-    markerOffsetY: 14,
-  },
-  {
-    id: "tremestieri",
-    name: "Dimensione Immagine Tremestieri",
-    region: "Sicilia",
-    city: "Messina",
-    mapUrl: "https://maps.app.goo.gl/RnTKwHm7rg97mDng8",
-    address: "Centro Commerciale Tremestieri",
-    isFranchise: false,
-    image: "/images/tremestieri.jpeg",
-    phone: "0902406782",
-    hours: "Lun-Sab 9:00-20:30\nDom e festivi 9:30-20:30",
-    latitude: 38.1368911,
-    longitude: 15.5218852,
-    markerOffsetX: -10,
-    markerOffsetY: 28,
-  },
-];
-
-const REGIONS = [
-  "Tutte",
-  ...Array.from(new Set(LOCATIONS.map((location) => location.region))).sort(
-    (a, b) => a.localeCompare(b),
-  ),
-];
 const OWNERSHIP_TYPES = ["Tutti", "Proprietario", "Franchising"];
 
 const isOpenNow = () => {
@@ -344,14 +215,45 @@ const resetMarkerTransform = "translate(-50%, -50%)";
 
 export const Locations: React.FC = () => {
   const location = useLocation();
+  const content = useLocationsPageContent();
+  const { siteSettings, storeLocations } = useSiteContent();
+  const locations = useMemo<LocationData[]>(
+    () =>
+      storeLocations.map((store) => ({
+        id: store.id,
+        name: store.name,
+        region: store.region,
+        city: store.city,
+        mapUrl: store.mapUrl,
+        address: store.address,
+        isFranchise: store.ownershipType === "franchise",
+        image: store.image.src,
+        phone: store.phone || undefined,
+        hours: businessHoursToMultiline(store.hours),
+        latitude: store.latitude,
+        longitude: store.longitude,
+        markerOffsetX: store.markerOffsetX,
+        markerOffsetY: store.markerOffsetY,
+      })),
+    [storeLocations],
+  );
+  const regions = useMemo(
+    () => [
+      "Tutte",
+      ...Array.from(new Set(locations.map((store) => store.region))).sort((a, b) =>
+        a.localeCompare(b),
+      ),
+    ],
+    [locations],
+  );
   const [selectedRegion, setSelectedRegion] = useState("Tutte");
   const [selectedOwnership, setSelectedOwnership] = useState("Tutti");
   const [selectedLocationId, setSelectedLocationId] = useState(
-    LOCATIONS[0]?.id ?? "",
+    locations[0]?.id ?? "",
   );
 
   const filteredLocations = useMemo(() => {
-    return [...LOCATIONS]
+    return [...locations]
       .filter((store) => {
         const regionMatch =
           selectedRegion === "Tutte" || store.region === selectedRegion;
@@ -370,7 +272,7 @@ export const Locations: React.FC = () => {
 
         return a.isFranchise ? 1 : -1;
       });
-  }, [selectedOwnership, selectedRegion]);
+  }, [locations, selectedOwnership, selectedRegion]);
 
   useEffect(() => {
     if (!filteredLocations.length) {
@@ -407,18 +309,21 @@ export const Locations: React.FC = () => {
   return (
     <div className="pt-24 min-h-screen bg-brand-bg text-brand-text-primary">
       <SEO
-        title="Le nostre Sedi | Dimensione Immagine"
-        description="Esplora la rete Dimensione Immagine su una mappa interattiva e apri ogni punto vendita direttamente in Google Maps."
-        url={`https://www.dimensioneimmagineabbigliamento.it${location.pathname}`}
-        image="/og-sedi.jpg"
+        title={content.seo.title}
+        description={content.seo.description}
+        url={`${siteSettings.siteUrl}${location.pathname}`}
+        image={content.seo.image?.src}
+        noIndex={content.seo.noIndex}
+        siteUrl={siteSettings.siteUrl}
+        siteName={siteSettings.siteName}
       />
 
       <section className="container mx-auto px-4 sm:px-6 py-12 md:py-20 text-center">
         <Reveal width="100%">
           <SectionHeader
-            label="Dove trovarci"
-            title="Negozi & Sedi"
-            subtitle="Una mappa interattiva per esplorare tutta la rete Dimensione Immagine e raggiungere ogni negozio in un click."
+            label={content.heroLabel}
+            title={content.heroTitle}
+            subtitle={content.heroSubtitle}
             as="h1"
           />
         </Reveal>
@@ -447,7 +352,7 @@ export const Locations: React.FC = () => {
                     Regione
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {REGIONS.map((region) => {
+                    {regions.map((region) => {
                       const isActive = selectedRegion === region;
                       return (
                         <button
@@ -542,15 +447,13 @@ export const Locations: React.FC = () => {
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                   <div>
                     <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-brand-gold/65">
-                      Mappa Italia
+                      {content.mapEyebrow}
                     </span>
                     <h2 className="mt-3 font-serif text-3xl text-white sm:text-[2.35rem]">
-                      Esplora le sedi sull'Italia
+                      {content.mapTitle}
                     </h2>
                     <p className="mt-3 max-w-2xl text-sm leading-relaxed text-brand-gold/78 sm:text-base">
-                      Passa su un pin o su una card per mettere a fuoco il
-                      negozio. Quando clicchi, si apre direttamente la scheda su
-                      Google Maps.
+                      {content.mapDescription}
                     </p>
                   </div>
 
@@ -931,14 +834,13 @@ export const Locations: React.FC = () => {
           <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-accent">
-                Lista negozi
+                {content.listEyebrow}
               </span>
               <h2 className="mt-3 font-serif text-3xl text-brand-text-primary">
-                Tutte le sedi cliccabili
+                {content.listTitle}
               </h2>
               <p className="mt-3 max-w-2xl text-brand-text-secondary">
-                Ogni card apre la relativa scheda su Google Maps. Passandoci
-                sopra aggiorni anche il focus della mappa.
+                {content.listDescription}
               </p>
             </div>
 

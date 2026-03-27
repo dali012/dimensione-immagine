@@ -1,56 +1,32 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { Heart } from "lucide-react";
 import { SEO } from "../components/SEO/SEO";
 import { Reveal } from "../components/UI/Reveal";
-import { catalogImages } from "../data/catalog";
 import { SectionHeader } from "../components/UI/SectionHeader";
-import { Heart } from "lucide-react";
+import { useSiteContent } from "../contexts/SiteContentContext";
+import {
+  useCatalogItems,
+  useCatalogPageContent,
+} from "../sanity/publicContent";
 
-const FILTERS = ["Tutto", "Accessori", "Donna", "Uomo"];
-
-const FILTER_DESCRIPTIONS: Record<"Donna" | "Uomo" | "Accessori", string[]> = {
-  Donna: [
-    "Mode eleganti",
-    "Casual e cerimonia",
-    "Maglieria",
-    "Denim",
-    "Cappotti",
-    "Linea Donna Calibrata (taglie forti)",
-  ],
-  Uomo: [
-    "Stile casual",
-    "Urban e classico",
-    "Camiceria",
-    "Pantaloni",
-    "Denim",
-    "Linea Uomo Calibrata (taglie forti)",
-    "Capispalla",
-    "Parka",
-    "Piumini",
-  ],
-  Accessori: [
-    "Borse",
-    "Cinture",
-    "Portafogli",
-    "Sciarpe",
-    "Cappelli",
-    "Accessori Moda",
-  ],
-};
+const FILTERS = ["Tutto", "Accessori", "Donna", "Uomo"] as const;
 
 export const Catalog: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const content = useCatalogPageContent();
+  const items = useCatalogItems();
+  const { siteSettings } = useSiteContent();
   const [activeFilter, setActiveFilter] = useState("Tutto");
   const [search, setSearch] = useState("");
-  const [favorites, setFavorites] = useState<number[]>([]);
+  const [favorites, setFavorites] = useState<string[]>([]);
 
-  // Sync state with URL params on mount and update
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const filterParam = params.get("filter");
-    if (filterParam && FILTERS.includes(filterParam)) {
+    if (filterParam && FILTERS.includes(filterParam as (typeof FILTERS)[number])) {
       setActiveFilter(filterParam);
     } else {
       setActiveFilter("Tutto");
@@ -59,19 +35,22 @@ export const Catalog: React.FC = () => {
 
   useEffect(() => {
     const stored = localStorage.getItem("catalog-favorites");
-    if (stored) {
-      try {
-        setFavorites(JSON.parse(stored));
-      } catch {
-        setFavorites([]);
+    if (!stored) return;
+
+    try {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed)) {
+        setFavorites(parsed.filter((value) => typeof value === "string"));
       }
+    } catch {
+      setFavorites([]);
     }
   }, []);
 
-  const toggleFavorite = (id: number) => {
+  const toggleFavorite = (id: string) => {
     setFavorites((prev) => {
       const updated = prev.includes(id)
-        ? prev.filter((fav) => fav !== id)
+        ? prev.filter((favoriteId) => favoriteId !== id)
         : [...prev, id];
       localStorage.setItem("catalog-favorites", JSON.stringify(updated));
       return updated;
@@ -82,41 +61,55 @@ export const Catalog: React.FC = () => {
     setActiveFilter(filter);
     if (filter === "Tutto") {
       navigate("/trovi-da-noi");
-    } else {
-      navigate(`/trovi-da-noi?filter=${filter}`);
+      return;
     }
+    navigate(`/trovi-da-noi?filter=${filter}`);
   };
 
-  const filteredImages = useMemo(() => {
-    const byCategory =
+  const filteredItems = useMemo(() => {
+    const activeItems =
       activeFilter === "Tutto"
-        ? catalogImages
-        : catalogImages.filter((img) => img.category === activeFilter);
+        ? items
+        : items.filter((item) => item.category === activeFilter);
     const query = search.trim().toLowerCase();
-    if (!query) return byCategory;
-    return byCategory.filter((img) => img.alt.toLowerCase().includes(query));
-  }, [activeFilter, search]);
+    if (!query) return activeItems;
+
+    return activeItems.filter((item) => {
+      const haystack = `${item.title} ${item.caption || ""} ${item.image.alt}`.toLowerCase();
+      return haystack.includes(query);
+    });
+  }, [activeFilter, items, search]);
+
+  const activeDescription = useMemo(
+    () =>
+      content.filterDescriptions.find(
+        (item) => item.category === activeFilter,
+      ) || null,
+    [activeFilter, content.filterDescriptions],
+  );
 
   return (
     <div className="pt-24 min-h-screen bg-brand-bg text-brand-text-primary">
       <SEO
-        title="Trovi da Noi | Dimensione Immagine"
-        description="Esplora le nostre collezioni Uomo, Donna e Accessori. Il meglio della moda a Messina."
-        url={`https://www.dimensioneimmagineabbigliamento.it${location.pathname}${location.search}`}
-        image="/og-catalog.jpg"
+        title={content.seo.title}
+        description={content.seo.description}
+        url={`${siteSettings.siteUrl}${location.pathname}${location.search}`}
+        image={content.seo.image?.src}
+        noIndex={content.seo.noIndex}
+        siteUrl={siteSettings.siteUrl}
+        siteName={siteSettings.siteName}
       />
 
       <div className="container mx-auto px-6 py-12">
         <Reveal width="100%">
           <div className="text-center mb-12">
             <SectionHeader
-              label="La Nostra Selezione"
-              title="Trovi da Noi"
-              subtitle="Esplora le collezioni Uomo, Donna e Accessori. Filtra per categoria e salva i preferiti."
+              label={content.headerLabel}
+              title={content.headerTitle}
+              subtitle={content.headerSubtitle}
               as="h1"
             />
 
-            {/* Filter Buttons */}
             <div className="flex flex-wrap justify-center gap-4 mt-8">
               {FILTERS.map((filter) => (
                 <button
@@ -138,53 +131,47 @@ export const Catalog: React.FC = () => {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Cerca nella collezione..."
+                placeholder={content.searchPlaceholder}
                 className="w-full bg-transparent border-b border-brand-border py-3 text-brand-text-primary focus:outline-none focus:border-brand-accent transition-colors placeholder-brand-text-secondary/60"
                 aria-label="Cerca nella collezione"
               />
             </div>
 
-            {activeFilter !== "Tutto" &&
-              FILTER_DESCRIPTIONS[
-                activeFilter as "Donna" | "Uomo" | "Accessori"
-              ] && (
-                <div className="mt-6 text-brand-text-secondary text-sm md:text-base leading-relaxed">
-                  <p className="uppercase tracking-widest text-xs text-brand-accent mb-3">
-                    {activeFilter}
-                  </p>
-                  <ul className="space-y-2">
-                    {FILTER_DESCRIPTIONS[
-                      activeFilter as "Donna" | "Uomo" | "Accessori"
-                    ].map((line) => (
-                      <li key={line}>{line}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+            {activeFilter !== "Tutto" && activeDescription && (
+              <div className="mt-6 text-brand-text-secondary text-sm md:text-base leading-relaxed">
+                <p className="uppercase tracking-widest text-xs text-brand-accent mb-3">
+                  {activeFilter}
+                </p>
+                <ul className="space-y-2">
+                  {activeDescription.items.map((line) => (
+                    <li key={line}>{line}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </Reveal>
 
-        {/* Masonry Grid */}
         <motion.div
           layout
           className="columns-1 md:columns-2 lg:columns-3 gap-8 space-y-8"
         >
           <AnimatePresence>
-            {filteredImages.map((image) => (
+            {filteredItems.map((item) => (
               <motion.div
                 layout
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.4 }}
-                key={image.id}
+                key={item.id}
                 className="break-inside-avoid relative group overflow-hidden bg-white border border-brand-border shadow-sm"
               >
                 <button
-                  onClick={() => toggleFavorite(image.id)}
+                  onClick={() => toggleFavorite(item.id)}
                   className="absolute top-4 right-4 z-10 bg-white/80 backdrop-blur-sm p-2 rounded-full border border-brand-border hover:border-brand-accent transition-colors"
                   aria-label={
-                    favorites.includes(image.id)
+                    favorites.includes(item.id)
                       ? "Rimuovi dai preferiti"
                       : "Aggiungi ai preferiti"
                   }
@@ -192,15 +179,15 @@ export const Catalog: React.FC = () => {
                   <Heart
                     size={16}
                     className={
-                      favorites.includes(image.id)
+                      favorites.includes(item.id)
                         ? "text-brand-accent fill-brand-accent"
                         : "text-brand-text-secondary"
                     }
                   />
                 </button>
                 <img
-                  src={image.src}
-                  alt={image.alt}
+                  src={item.image.src}
+                  alt={item.image.alt}
                   className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0"
                   loading="lazy"
                   decoding="async"
@@ -210,10 +197,10 @@ export const Catalog: React.FC = () => {
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-300" />
                 <div className="absolute bottom-6 left-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <span className="text-white text-xs font-bold uppercase tracking-widest bg-brand-accent px-2 py-1 mb-2 inline-block">
-                    {image.category}
+                    {item.category}
                   </span>
                   <p className="text-white font-serif italic text-lg shadow-black drop-shadow-md">
-                    {image.alt}
+                    {item.title}
                   </p>
                 </div>
               </motion.div>
@@ -221,10 +208,10 @@ export const Catalog: React.FC = () => {
           </AnimatePresence>
         </motion.div>
 
-        {filteredImages.length === 0 && (
+        {filteredItems.length === 0 && (
           <div className="text-center py-20">
             <p className="text-brand-text-secondary italic">
-              Nessun elemento trovato in questa categoria al momento.
+              {content.emptyStateText}
             </p>
           </div>
         )}

@@ -7,6 +7,7 @@ interface SEOProps {
   image?: string;
   type?: string;
   structuredData?: object;
+  noIndex?: boolean;
 
   siteUrl?: string;
   siteName?: string;
@@ -34,7 +35,9 @@ export const SEO: React.FC<SEOProps> = ({
   description: propDescription,
   url: propUrl,
   image: propImage,
+  type = "website",
   structuredData,
+  noIndex = false,
 
   siteUrl = "https://www.dimensioneimmagineabbigliamento.it",
   siteName = "Dimensione Immagine",
@@ -74,7 +77,7 @@ export const SEO: React.FC<SEOProps> = ({
     canon.setAttribute("href", canonical || window.location.href);
 
     // Open Graph
-    upsertMeta("og:type", "property", "website");
+    upsertMeta("og:type", "property", type);
     upsertMeta("og:title", "property", fullTitle);
     upsertMeta("og:description", "property", description || "");
     upsertMeta("og:url", "property", canonical || window.location.href);
@@ -86,6 +89,7 @@ export const SEO: React.FC<SEOProps> = ({
     upsertMeta("twitter:title", "name", fullTitle);
     upsertMeta("twitter:description", "name", description || "");
     upsertMeta("twitter:image", "name", imageUrl || "");
+    upsertMeta("robots", "name", noIndex ? "noindex,nofollow" : "index,follow");
 
     // Structured Data script
     const existing = document.head.querySelector(
@@ -115,8 +119,10 @@ export const SEO: React.FC<SEOProps> = ({
     description,
     canonical,
     imageUrl,
+    type,
     siteName,
     structuredData,
+    noIndex,
   ]);
 
   return null;

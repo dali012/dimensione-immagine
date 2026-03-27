@@ -1,4 +1,4 @@
-# Dimensione Immagine — Website
+# Dimensione Immagine - Website
 
 Sito web per Dimensione Immagine realizzato con React + Vite e un design editoriale basato su Tailwind. Include pagine istituzionali, catalogo, contatti e sedi.
 
@@ -10,6 +10,7 @@ Sito web per Dimensione Immagine realizzato con React + Vite e un design editori
 - Framer Motion
 - React Router
 - react-helmet-async
+- Sanity CMS
 
 ## Avvio locale
 
@@ -22,20 +23,25 @@ Sito web per Dimensione Immagine realizzato con React + Vite e un design editori
 
 ## Script disponibili
 
-- `npm run dev` — Avvio in sviluppo
-- `npm run build` — Build di produzione
-- `npm run preview` — Anteprima build
+- `npm run dev` - Avvio in sviluppo
+- `npm run build` - Build di produzione
+- `npm run preview` - Anteprima build
+- `npm run studio` - Avvio Sanity Studio locale
+- `npm run studio:deploy` - Deploy di Sanity Studio
+- `npm run seed:cms` - Popola Sanity con i contenuti pubblici attuali
 
 ## Struttura progetto
 
-- pages/ — pagine principali
-- components/ — componenti UI e layout
-- data/ — contenuti e dati mock
-- public/ — asset statici
+- `pages/` - pagine principali
+- `components/` - componenti UI e layout
+- `public/` - asset statici
+- `schema/` - schemi Sanity Studio
+- `sanity/` - client, query, fallback e modelli CMS
+- `scripts/` - script di seed/migrazione contenuti
 
 ## Note importanti
 
-- Router: usa BrowserRouter. Se il sito è servito su hosting statico, assicurati di configurare il fallback a `index.html`.
+- Router: usa `BrowserRouter`. Se il sito e servito su hosting statico, assicurati di configurare il fallback a `index.html`.
 - Form contatti: il form invia dati a `/api/contact`. Configura un endpoint serverless o un backend per la gestione delle richieste.
 
 ## Deploy
@@ -44,13 +50,49 @@ Esegui la build e pubblica la cartella `dist/` sul tuo hosting:
 
 `npm run build`
 
+## CMS pubblico con Sanity
+
+Il sito pubblico ora legge i contenuti da Sanity Studio con fallback ai contenuti locali, quindi:
+
+- il boss puo modificare testi, immagini, video hero, sedi, contatti, footer e catalogo da Sanity
+- il sito continua a funzionare anche se i documenti non sono ancora stati pubblicati
+- le pagine legali, auth, B2B e workflow serverless restano gestiti via codice
+
+### Setup editor
+
+1. Avvia lo studio locale:
+   `npm run studio`
+2. Oppure pubblica/aggiorna lo studio ospitato:
+   `npm run studio:deploy`
+
+### Seed iniziale contenuti
+
+Per copiare in Sanity i contenuti pubblici attuali:
+
+1. imposta `SANITY_AUTH_TOKEN`
+2. opzionale: imposta `SANITY_PROJECT_ID` e `SANITY_DATASET` se non usi `zqo9eojr/production`
+3. esegui:
+   `npm run seed:cms`
+
+Lo script carica gli asset locali/remoti e crea o aggiorna:
+
+- `siteSettings`
+- `homePage`
+- `aboutPage`
+- `locationsPage`
+- `contactPage`
+- `catalogPage`
+- documenti `storeLocation`
+- documenti `catalogItem`
+
 ## Licenza
 
-Proprietà privata. Tutti i diritti riservati.
+Proprieta privata. Tutti i diritti riservati.
 
 ## Contact form backend
 
 Il form contatti usa `POST /api/contact` (Vercel serverless), con:
+
 - validazione server-side
 - rate limit per IP + honeypot
 - salvataggio su PostgreSQL (`DATABASE_URL`)
@@ -60,7 +102,7 @@ Imposta anche `CONTACT_IP_SALT` in produzione per hashare gli IP nei log DB.
 
 ## Auth Distribuzione Ingrosso (B2B)
 
-La pagina `/distribuzione-in-grosso` usa ora autenticazione reale lato server (PostgreSQL + cookie `HttpOnly`), separata dal resto del sito.
+La pagina `/distribuzione-in-grosso` usa autenticazione reale lato server (PostgreSQL + cookie `HttpOnly`), separata dal resto del sito.
 
 ### Flusso utente
 
@@ -97,6 +139,7 @@ La pagina `/distribuzione-in-grosso` usa ora autenticazione reale lato server (P
 ### Variabili env aggiuntive
 
 Vedi `.env.example`:
+
 - `WHOLESALE_AUTH_COOKIE_NAME`
 - `WHOLESALE_AUTH_SESSION_DAYS`
 - `WHOLESALE_AUTH_SETUP_TOKEN_MINUTES`

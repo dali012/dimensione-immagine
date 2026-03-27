@@ -1,27 +1,29 @@
 import { ArrowRight, Clock, Mail, MapPin, Phone } from "lucide-react";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { SEO } from "../components/SEO/SEO";
 import { Reveal } from "../components/UI/Reveal";
+import { useSiteContent } from "../contexts/SiteContentContext";
+import { useContactPageContent } from "../sanity/publicContent";
 
 const CONTACT_ENDPOINT = "/api/contact";
 
 export const Contact: React.FC = () => {
   const location = useLocation();
+  const content = useContactPageContent();
+  const { siteSettings } = useSiteContent();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     message: "",
   });
-
   const [errors, setErrors] = useState({
     name: "",
     email: "",
     phone: "",
     message: "",
   });
-
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [marketingConsent, setMarketingConsent] = useState(false);
   const [honey, setHoney] = useState("");
@@ -29,6 +31,21 @@ export const Contact: React.FC = () => {
   const [status, setStatus] = useState<
     "idle" | "submitting" | "success" | "error"
   >("idle");
+
+  const formattedAddress = useMemo(() => {
+    const lineOne = siteSettings.primaryAddressLine1 || "";
+    const cityLine = [
+      siteSettings.primaryPostalCode,
+      siteSettings.primaryCity,
+      siteSettings.primaryRegionCode
+        ? `(${siteSettings.primaryRegionCode})`
+        : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
+
+    return [lineOne, cityLine].filter(Boolean);
+  }, [siteSettings]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -105,9 +122,7 @@ export const Contact: React.FC = () => {
 
       const data = await response.json().catch(() => ({}));
       if (!response.ok || !data.success) {
-        throw new Error(
-          data?.error || "Invio non riuscito. Riprova piu tardi.",
-        );
+        throw new Error(data?.error || "Invio non riuscito. Riprova piu tardi.");
       }
 
       setStatus("success");
@@ -119,14 +134,14 @@ export const Contact: React.FC = () => {
       setMarketingConsent(false);
       setHoney("");
 
-      setTimeout(() => {
+      window.setTimeout(() => {
         setStatus("idle");
         setSubmitMessage("");
       }, 5000);
-    } catch (err: any) {
+    } catch (error: any) {
       setStatus("error");
       setSubmitMessage(
-        err?.message || "Invio non riuscito. Riprova piu tardi.",
+        error?.message || "Invio non riuscito. Riprova piu tardi.",
       );
     }
   };
@@ -140,37 +155,42 @@ export const Contact: React.FC = () => {
   return (
     <div className="min-h-screen bg-white flex flex-col lg:flex-row font-sans">
       <SEO
-        title="Contatti Dimensione Immagine"
-        description="Contattaci per informazioni sulle nostre boutique a Messina."
-        url={`https://www.dimensioneimmagineabbigliamento.it${location.pathname}`}
-        image="/og-contatti.jpg"
+        title={content.seo.title}
+        description={content.seo.description}
+        url={`${siteSettings.siteUrl}${location.pathname}`}
+        image={content.seo.image?.src}
+        noIndex={content.seo.noIndex}
+        siteUrl={siteSettings.siteUrl}
+        siteName={siteSettings.siteName}
       />
 
       <div className="hidden lg:flex lg:w-5/12 xl:w-1/2 relative bg-[#1a1a1a] items-center justify-center h-screen sticky top-0 overflow-hidden">
         <div
           className="absolute inset-0 opacity-70 bg-cover bg-center transition-transform duration-1000 hover:scale-105"
           style={{
-            backgroundImage:
-              "url('https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=1974&auto=format&fit=crop')",
+            backgroundImage: `url('${content.heroImage.src}')`,
           }}
-        ></div>
-        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent"></div>
+        />
+        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent" />
 
         <div className="relative z-10 text-center p-12">
           <Reveal>
             <h2 className="text-5xl xl:text-6xl font-serif text-white mb-6 leading-tight">
-              Vieni a trovarci in <br />
-              <span className="text-brand-gold italic font-light">Negozio</span>
+              {content.heroTitle}
+              <br />
+              <span className="text-brand-gold italic font-light">
+                {content.heroAccent}
+              </span>
             </h2>
           </Reveal>
           <Reveal delay={0.1} className="mx-auto">
             <a
-              href="https://maps.app.goo.gl/cT5afaLH5wWfFhmp9"
+              href={siteSettings.primaryMapUrl}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-3 px-8 py-4 bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs uppercase tracking-[0.2em] hover:bg-white hover:text-black transition-all duration-300 mt-4 group"
             >
-              Ottieni Indicazioni
+              {content.heroCtaLabel}
               <ArrowRight
                 size={16}
                 className="transform group-hover:translate-x-1 transition-transform"
@@ -185,15 +205,17 @@ export const Contact: React.FC = () => {
           <div
             className="absolute inset-0 opacity-60 bg-cover bg-center"
             style={{
-              backgroundImage:
-                "url('https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=1974&auto=format&fit=crop')",
+              backgroundImage: `url('${content.heroImage.src}')`,
             }}
-          ></div>
-          <div className="absolute inset-0 bg-black/40"></div>
+          />
+          <div className="absolute inset-0 bg-black/40" />
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
-            <h1 className="text-3xl font-serif text-white mb-2">Contattaci</h1>
+            <h1 className="text-3xl font-serif text-white mb-2">
+              {content.heroTitle}{" "}
+              <span className="italic">{content.heroAccent}</span>
+            </h1>
             <p className="text-white/80 text-sm max-w-xs">
-              Il nostro team e a tua disposizione per ogni richiesta.
+              {content.heroSubtitle}
             </p>
           </div>
         </div>
@@ -202,11 +224,16 @@ export const Contact: React.FC = () => {
           <Reveal width="100%">
             <div className="mb-10 lg:mb-12">
               <span className="text-brand-gold font-bold tracking-[0.2em] text-[10px] uppercase mb-3 block">
-                Assistenza Clienti
+                {content.formLabel}
               </span>
               <h2 className="text-3xl md:text-4xl font-serif text-gray-900 leading-tight">
-                Come possiamo aiutarti?
+                {content.formTitle}
               </h2>
+              {content.formDescription && (
+                <p className="mt-4 text-sm md:text-base text-gray-500 leading-relaxed">
+                  {content.formDescription}
+                </p>
+              )}
             </div>
           </Reveal>
 
@@ -218,21 +245,26 @@ export const Contact: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="font-bold text-gray-900 text-xs uppercase tracking-wide mb-1">
-                    Sede
+                    {content.locationBlockTitle}
                   </h3>
                   <p className="text-gray-500 text-sm leading-relaxed">
-                    Via Maddalena 38/D,
-                    <br />
-                    98122 Messina (ME)
+                    {formattedAddress.map((line) => (
+                      <React.Fragment key={line}>
+                        {line}
+                        <br />
+                      </React.Fragment>
+                    ))}
                   </p>
-                  <a
-                    href="https://maps.app.goo.gl/rr5evPBvFgyBMhd68"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-[10px] text-brand-gold font-bold uppercase mt-2 inline-block border-b border-brand-gold/30 hover:border-brand-gold"
-                  >
-                    Vedi su mappa
-                  </a>
+                  {siteSettings.primaryMapUrl && (
+                    <a
+                      href={siteSettings.primaryMapUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[10px] text-brand-gold font-bold uppercase mt-2 inline-block border-b border-brand-gold/30 hover:border-brand-gold"
+                    >
+                      {content.locationLinkLabel}
+                    </a>
+                  )}
                 </div>
               </div>
             </Reveal>
@@ -244,20 +276,24 @@ export const Contact: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="font-bold text-gray-900 text-xs uppercase tracking-wide mb-1">
-                    Telefono
+                    {content.phoneBlockTitle}
                   </h3>
-                  <a
-                    href="tel:+390902400474"
-                    className="block text-gray-600 text-sm hover:text-brand-gold transition-colors mb-1"
-                  >
-                    +39 090 240 0474
-                  </a>
-                  <a
-                    href="https://wa.me/390902400474"
-                    className="text-[10px] font-bold text-brand-gold uppercase tracking-wide flex items-center gap-1 hover:underline"
-                  >
-                    Chatta su WhatsApp
-                  </a>
+                  {siteSettings.primaryPhone && (
+                    <a
+                      href={`tel:${siteSettings.primaryPhone.replace(/\s+/g, "")}`}
+                      className="block text-gray-600 text-sm hover:text-brand-gold transition-colors mb-1"
+                    >
+                      {siteSettings.primaryPhone}
+                    </a>
+                  )}
+                  {siteSettings.primaryWhatsapp && (
+                    <a
+                      href={`https://wa.me/${siteSettings.primaryWhatsapp}`}
+                      className="text-[10px] font-bold text-brand-gold uppercase tracking-wide flex items-center gap-1 hover:underline"
+                    >
+                      {content.phoneLinkLabel}
+                    </a>
+                  )}
                 </div>
               </div>
             </Reveal>
@@ -269,14 +305,16 @@ export const Contact: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="font-bold text-gray-900 text-xs uppercase tracking-wide mb-1">
-                    Email
+                    {content.emailBlockTitle}
                   </h3>
-                  <a
-                    href="mailto:contact@dimensione.it"
-                    className="text-gray-600 text-sm hover:text-brand-gold transition-colors break-all"
-                  >
-                    contact@dimensioneimmagineabbigliamento.it
-                  </a>
+                  {siteSettings.primaryEmail && (
+                    <a
+                      href={`mailto:${siteSettings.primaryEmail}`}
+                      className="text-gray-600 text-sm hover:text-brand-gold transition-colors break-all"
+                    >
+                      {siteSettings.primaryEmail}
+                    </a>
+                  )}
                 </div>
               </div>
             </Reveal>
@@ -288,12 +326,15 @@ export const Contact: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="font-bold text-gray-900 text-xs uppercase tracking-wide mb-1">
-                    Orari
+                    {content.hoursBlockTitle}
                   </h3>
                   <p className="text-gray-500 text-sm leading-relaxed">
-                    Lun - Ven: 09:00 - 18:00
-                    <br />
-                    Sab: 09:00 - 12:00
+                    {siteSettings.officeHours.map((item) => (
+                      <React.Fragment key={`${item.label}-${item.value}`}>
+                        {item.label}: {item.value}
+                        <br />
+                      </React.Fragment>
+                    ))}
                   </p>
                 </div>
               </div>
@@ -386,7 +427,7 @@ export const Contact: React.FC = () => {
                   rows={3}
                   className={`${inputClass} resize-none`}
                   placeholder="Scrivi qui la tua richiesta..."
-                ></textarea>
+                />
                 {errors.message && (
                   <p className="text-red-500 text-[10px] mt-1 absolute">
                     {errors.message}

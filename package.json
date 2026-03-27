@@ -7,7 +7,10 @@
     "dev": "vite",
     "dev:full": "bunx vercel dev --listen 3000",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "studio": "sanity dev",
+    "studio:deploy": "sanity deploy",
+    "seed:cms": "node ./scripts/seed-public-content.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.981.0",

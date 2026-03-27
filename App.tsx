@@ -1,10 +1,10 @@
-import React, { useEffect, Suspense } from "react";
+import React, { Suspense, useEffect } from "react";
 import {
   BrowserRouter as Router,
-  Routes,
-  Route,
-  useLocation,
   Navigate,
+  Route,
+  Routes,
+  useLocation,
 } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { Toaster } from "sonner";
@@ -12,9 +12,12 @@ import { Navbar } from "./components/Layout/Navbar";
 import { PageTransition } from "./components/Layout/PageTransition";
 import { SEO } from "./components/SEO/SEO";
 import { RequireAuth } from "./contexts/AuthContext";
+import {
+  SiteContentProvider,
+  useSiteContent,
+} from "./contexts/SiteContentContext";
 import { NewsletterPopup } from "./components/UI/NewsletterPopup";
 
-// Lazy load pages
 const Home = React.lazy(() =>
   import("./pages/Home").then((module) => ({ default: module.Home })),
 );
@@ -109,7 +112,6 @@ const LoadingFallback = () => (
   </div>
 );
 
-// ScrollToTop component to reset scroll on route change
 const ScrollToTop = () => {
   const { pathname } = useLocation();
 
@@ -127,241 +129,182 @@ const AnimatedRoutes = () => {
     <div key={location.pathname} className="w-full h-full">
       <Suspense fallback={<LoadingFallback />}>
         <Routes location={location}>
-            <Route
-              path="/"
-              element={
+          <Route
+            path="/"
+            element={
+              <PageTransition>
+                <Home />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/chi-siamo"
+            element={
+              <PageTransition>
+                <About />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/sedi"
+            element={
+              <PageTransition>
+                <Locations />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/trovi-da-noi"
+            element={
+              <PageTransition>
+                <Catalog />
+              </PageTransition>
+            }
+          />
+          <Route path="/blog" element={<Navigate to="/" replace />} />
+          <Route path="/blog/:slug" element={<Navigate to="/" replace />} />
+          <Route
+            path="/contatti"
+            element={
+              <PageTransition>
+                <Contact />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/promozioni-offerte"
+            element={<Navigate to="/" replace />}
+          />
+          <Route
+            path="/privacy-policy"
+            element={
+              <PageTransition>
+                <PrivacyPolicy />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/cookie-policy"
+            element={
+              <PageTransition>
+                <CookiePolicy />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/termini-condizioni"
+            element={
+              <PageTransition>
+                <TermsAndConditions />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/lavora-con-noi"
+            element={
+              <PageTransition>
+                <LavoraConNoi />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/hr-cv-link"
+            element={
+              <PageTransition>
+                <HrCvLink />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/distribuzione-in-grosso"
+            element={
+              <RequireAuth>
                 <PageTransition>
-                  <Home />
+                  <PurchaseRequest />
                 </PageTransition>
-              }
-            />
-            <Route
-              path="/chi-siamo"
-              element={
-                <PageTransition>
-                  <About />
-                </PageTransition>
-              }
-            />
-            <Route
-              path="/sedi"
-              element={
-                <PageTransition>
-                  <Locations />
-                </PageTransition>
-              }
-            />
-            <Route
-              path="/trovi-da-noi"
-              element={
-                <PageTransition>
-                  <Catalog />
-                </PageTransition>
-              }
-            />
-            <Route
-              path="/blog"
-              element={<Navigate to="/" replace />}
-            />
-            <Route
-              path="/blog/:slug"
-              element={<Navigate to="/" replace />}
-            />
-            <Route
-              path="/contatti"
-              element={
-                <PageTransition>
-                  <Contact />
-                </PageTransition>
-              }
-            />
-            <Route
-              path="/promozioni-offerte"
-              element={<Navigate to="/" replace />}
-            />
-            <Route
-              path="/privacy-policy"
-              element={
-                <PageTransition>
-                  <PrivacyPolicy />
-                </PageTransition>
-              }
-            />
-            <Route
-              path="/cookie-policy"
-              element={
-                <PageTransition>
-                  <CookiePolicy />
-                </PageTransition>
-              }
-            />
-            <Route
-              path="/termini-condizioni"
-              element={
-                <PageTransition>
-                  <TermsAndConditions />
-                </PageTransition>
-              }
-            />
-            <Route
-              path="/lavora-con-noi"
-              element={
-                <PageTransition>
-                  <LavoraConNoi />
-                </PageTransition>
-              }
-            />
-            <Route
-              path="/hr-cv-link"
-              element={
-                <PageTransition>
-                  <HrCvLink />
-                </PageTransition>
-              }
-            />
-            <Route
-              path="/distribuzione-in-grosso"
-              element={
-                <RequireAuth>
-                  <PageTransition>
-                    <PurchaseRequest />
-                  </PageTransition>
-                </RequireAuth>
-              }
-            />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route
-              path="/admin-wholesale"
-              element={
-                <PageTransition>
-                  <WholesaleAdmin />
-                </PageTransition>
-              }
-            />
-            <Route
-              path="/admin-promozioni"
-              element={<Navigate to="/admin-wholesale" replace />}
-            />
-            <Route
-              path="*"
-              element={
-                <PageTransition>
-                  <NotFound />
-                </PageTransition>
-              }
-            />
-            <Route
-              path="/thank-you"
-              element={
-                <PageTransition>
-                  <ThankYou />
-                </PageTransition>
-              }
-            />
+              </RequireAuth>
+            }
+          />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route
+            path="/admin-wholesale"
+            element={
+              <PageTransition>
+                <WholesaleAdmin />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/admin-promozioni"
+            element={<Navigate to="/admin-wholesale" replace />}
+          />
+          <Route
+            path="*"
+            element={
+              <PageTransition>
+                <NotFound />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/thank-you"
+            element={
+              <PageTransition>
+                <ThankYou />
+              </PageTransition>
+            }
+          />
         </Routes>
       </Suspense>
     </div>
   );
 };
 
-// Render Navbar only on non-auth pages
 const ConditionalNavbar: React.FC = () => {
   const location = useLocation();
-  const hiddenPaths = [
-    "/login",
-    "/register",
-    "/admin-wholesale",
-  ];
+  const hiddenPaths = ["/login", "/register", "/admin-wholesale"];
   if (hiddenPaths.includes(location.pathname)) return null;
   return <Navbar />;
 };
 
-const App: React.FC = () => {
-  // Use the exported `RequireAuth` from `AuthContext` (no local override)
-  const localBusinessSchema = {
-    "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    "@id": "https://www.dimensioneimmagineabbigliamento.it/#localbusiness",
-    name: "Dimensione Immagine",
-    url: "https://www.dimensioneimmagineabbigliamento.it",
-    telephone: "+39 090 240 0474",
-    priceRange: "€€",
-    image: "https://www.dimensioneimmagineabbigliamento.it/og-image.jpg",
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: "Via Maddalena 38/D",
-      addressLocality: "Messina",
-      addressRegion: "ME",
-      postalCode: "98122",
-      addressCountry: "IT",
-    },
-    areaServed: "Messina e provincia",
-    sameAs: [
-      "https://www.facebook.com/dimensioneimmaginepubblicita/",
-      "https://www.instagram.com/dimensioneimmaginemessina/",
-    ],
-    department: [
-      {
-        "@type": "Store",
-        name: "Kruder by Dimensione Immagine",
-        address: {
-          "@type": "PostalAddress",
-          streetAddress: "Via Maddalena 38/D",
-          addressLocality: "Messina",
-          addressRegion: "ME",
-          addressCountry: "IT",
-        },
-      },
-      {
-        "@type": "Store",
-        name: "Dimensione Immagine – Torre Faro",
-        address: {
-          "@type": "PostalAddress",
-          streetAddress: "Via Circuito, 177",
-          addressLocality: "Messina",
-          addressRegion: "ME",
-          addressCountry: "IT",
-        },
-      },
-      {
-        "@type": "Store",
-        name: "Dimensione Immagine – Tremestieri",
-        address: {
-          "@type": "PostalAddress",
-          streetAddress: "SS 114 Km 6",
-          addressLocality: "Messina",
-          addressRegion: "ME",
-          addressCountry: "IT",
-        },
-      },
-    ],
-  };
+const AppShell: React.FC = () => {
+  const { siteSettings, structuredData } = useSiteContent();
 
   return (
+    <Router>
+      <SEO
+        title={siteSettings.defaultSeo.title || siteSettings.siteName}
+        description={siteSettings.defaultSeo.description}
+        type="business.business"
+        image={siteSettings.defaultSeo.image?.src || siteSettings.logo?.src}
+        structuredData={structuredData}
+        siteUrl={siteSettings.siteUrl}
+        siteName={siteSettings.siteName}
+      />
+      <ScrollToTop />
+      <Toaster closeButton position="bottom-left" />
+      <div className="flex flex-col min-h-screen bg-brand-bg text-brand-text-primary selection:bg-brand-accent selection:text-white">
+        <ConditionalNavbar />
+        <NewsletterPopup />
+        <main className="grow">
+          <AnimatedRoutes />
+        </main>
+        <Suspense fallback={null}>
+          <Footer />
+          <BackToTop />
+        </Suspense>
+      </div>
+    </Router>
+  );
+};
+
+const App: React.FC = () => {
+  return (
     <HelmetProvider>
-      <Router>
-        <SEO
-          title="Dimensione Immagine | Stampa e Grafica a Messina"
-          description="Agenzia di stampa e grafica a Messina specializzata in stampa digitale, grande formato e allestimenti professionali."
-          type="business.business"
-          image="/og-image.jpg"
-          structuredData={localBusinessSchema}
-        />
-        <ScrollToTop />
-        <Toaster closeButton position="bottom-left" />
-        <div className="flex flex-col min-h-screen bg-brand-bg text-brand-text-primary selection:bg-brand-accent selection:text-white">
-          <ConditionalNavbar />
-          <NewsletterPopup />
-          <main className="grow">
-            <AnimatedRoutes />
-          </main>
-          <Suspense fallback={null}>
-            <Footer />
-            <BackToTop />
-          </Suspense>
-        </div>
-      </Router>
+      <SiteContentProvider>
+        <AppShell />
+      </SiteContentProvider>
     </HelmetProvider>
   );
 };
