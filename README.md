@@ -101,6 +101,15 @@ Il form contatti usa `POST /api/contact` (Vercel serverless), con:
 
 Imposta anche `CONTACT_IP_SALT` in produzione per hashare gli IP nei log DB. Se vuoi controllare il destinatario delle risposte, usa `CONTACT_REPLY_TO_EMAIL` per il team e `RESEND_CONTACT_CONFIRMATION_REPLY_TO_EMAIL` per la conferma cliente.
 
+## Newsletter popup backend
+
+Il popup newsletter usa `POST /api/newsletter-subscribe` (Vercel serverless), con:
+
+- inoltro al servizio newsletter esistente (`NEWSLETTER_SUBSCRIBE_ENDPOINT`, fallback al dominio newsletter attuale)
+- email di conferma opzionale al cliente via Resend (`RESEND_NEWSLETTER_CONFIRMATION_FROM_EMAIL`, con fallback a `RESEND_APPLICANT_FROM_EMAIL` o `RESEND_FROM_EMAIL`)
+
+Se vuoi controllare il reply-to della conferma newsletter, usa `RESEND_NEWSLETTER_CONFIRMATION_REPLY_TO_EMAIL`.
+
 ## Auth Distribuzione Ingrosso (B2B)
 
 La pagina `/distribuzione-in-grosso` usa autenticazione reale lato server (PostgreSQL + cookie `HttpOnly`), separata dal resto del sito.
