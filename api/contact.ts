@@ -18,6 +18,14 @@ type RateLimitState = {
   resetAt: number;
 };
 
+type ResendEmailPayload = {
+  from: string;
+  to: string | string[];
+  subject: string;
+  html: string;
+  reply_to?: string;
+};
+
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
 const RATE_LIMIT_MAX = 5;
 const rateLimitStore = new Map<string, RateLimitState>();
@@ -81,6 +89,24 @@ function checkRateLimit(ip: string) {
   existing.count += 1;
   rateLimitStore.set(ip, existing);
   return { allowed: true, remaining: RATE_LIMIT_MAX - existing.count };
+}
+
+async function sendResendEmail(apiKey: string, payload: ResendEmailPayload) {
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const details = await response.text().catch(() => "");
+    throw new Error(
+      `Resend request failed with ${response.status}${details ? `: ${details}` : ""}`,
+    );
+  }
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -194,38 +220,61 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     "contact@dimensioneimmagineabbigliamento.it";
   const resendFrom = getEnv("RESEND_FROM_EMAIL");
   const resendReplyTo = getEnv("CONTACT_REPLY_TO_EMAIL") || email;
+  const confirmationFrom =
+    getEnv("RESEND_CONTACT_CONFIRMATION_FROM_EMAIL") ||
+    getEnv("RESEND_APPLICANT_FROM_EMAIL") ||
+    resendFrom;
+  const confirmationReplyTo =
+    getEnv("RESEND_CONTACT_CONFIRMATION_REPLY_TO_EMAIL") || resendTo;
+  const escapedMessageHtml = escapeHtml(message).replace(/\n/g, "<br/>");
+  let confirmationEmailSent = false;
 
   if (resendKey && resendTo && resendFrom) {
     try {
-      await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${resendKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: resendFrom,
-          to: resendTo,
-          reply_to: resendReplyTo,
-          subject: `Nuovo contatto dal sito - ${name}`,
-          html: `
-            <h2>Nuova richiesta contatti</h2>
-            <p><strong>Nome:</strong> ${escapeHtml(name)}</p>
-            <p><strong>Email:</strong> ${escapeHtml(email)}</p>
-            <p><strong>Telefono:</strong> ${escapeHtml(phone || "-")}</p>
-            <p><strong>Privacy:</strong> ${privacyAccepted ? "SI" : "NO"}</p>
-            <p><strong>Marketing:</strong> ${marketingConsent ? "SI" : "NO"}</p>
-            <p><strong>Pagina:</strong> ${escapeHtml(sourcePage)}</p>
-            <hr />
-            <p>${escapeHtml(message).replace(/\n/g, "<br/>")}</p>
-          `,
-        }),
+      await sendResendEmail(resendKey, {
+        from: resendFrom,
+        to: resendTo,
+        reply_to: resendReplyTo,
+        subject: `Nuovo contatto dal sito - ${name}`,
+        html: `
+          <h2>Nuova richiesta contatti</h2>
+          <p><strong>Nome:</strong> ${escapeHtml(name)}</p>
+          <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+          <p><strong>Telefono:</strong> ${escapeHtml(phone || "-")}</p>
+          <p><strong>Privacy:</strong> ${privacyAccepted ? "SI" : "NO"}</p>
+          <p><strong>Marketing:</strong> ${marketingConsent ? "SI" : "NO"}</p>
+          <p><strong>Pagina:</strong> ${escapeHtml(sourcePage)}</p>
+          <hr />
+          <p>${escapedMessageHtml}</p>
+        `,
       });
     } catch (error) {
-      console.error("Contact API email error:", error);
-      // Do not fail the request if email delivery fails.
+      console.error("Contact API team email error:", error);
+    }
+
+    try {
+      await sendResendEmail(resendKey, {
+        from: confirmationFrom,
+        to: email,
+        reply_to: confirmationReplyTo,
+        subject: "Abbiamo ricevuto il tuo messaggio - Dimensione Immagine",
+        html: `
+          <p>Ciao ${escapeHtml(name)},</p>
+          <p>abbiamo ricevuto la tua richiesta e il nostro team ti rispondera il prima possibile.</p>
+          <p><strong>Riepilogo inviato</strong></p>
+          <p><strong>Nome:</strong> ${escapeHtml(name)}</p>
+          <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+          ${phone ? `<p><strong>Telefono:</strong> ${escapeHtml(phone)}</p>` : ""}
+          <p><strong>Messaggio:</strong><br/>${escapedMessageHtml}</p>
+          <p>Se desideri aggiungere dettagli, puoi rispondere direttamente a questa email.</p>
+          <p>A presto,<br/>Dimensione Immagine</p>
+        `,
+      });
+      confirmationEmailSent = true;
+    } catch (error) {
+      console.error("Contact API confirmation email error:", error);
     }
   }
 
-  return res.status(200).json({ success: true });
+  return res.status(200).json({ success: true, confirmationEmailSent });
 }
