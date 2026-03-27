@@ -1,40 +1,29 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
-import { NavItem } from "../../types";
-
-const NAV_ITEMS: NavItem[] = [
-  { label: "Home", path: "/" },
-  { label: "Chi Siamo", path: "/chi-siamo" },
-  { label: "Cosa Trovi da Noi", path: "/trovi-da-noi" },
-  { label: "Negozi & Sedi", path: "/sedi" },
-  { label: "Lavora con Noi", path: "/lavora-con-noi" },
-  { label: "Distribuzione Ingrosso", path: "/distribuzione-in-grosso" },
-  { label: "Contatti", path: "/contatti" },
-];
+import { useSiteContent } from "../../contexts/SiteContentContext";
 
 export const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { siteSettings } = useSiteContent();
 
-  // Close mobile menu when route changes
+  const navigationItems = useMemo(
+    () => siteSettings.navigationItems.filter((item) => item.visible),
+    [siteSettings.navigationItems],
+  );
+
   useEffect(() => {
     setIsOpen(false);
   }, [location]);
 
-  // Prevent scrolling when mobile menu is open
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
+    document.body.style.overflow = isOpen ? "hidden" : "unset";
     return () => {
       document.body.style.overflow = "unset";
     };
   }, [isOpen]);
 
-  // iPad rotation can cross the desktop breakpoint while the drawer is open.
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -58,22 +47,22 @@ export const Navbar: React.FC = () => {
 
   return (
     <>
-      <nav
-        className="fixed top-0 w-full z-50 bg-brand-text-primary border-b border-brand-accent/40 h-16 flex items-center transition-all duration-300"
-      >
+      <nav className="fixed top-0 w-full z-50 bg-brand-text-primary border-b border-brand-accent/40 h-16 flex items-center transition-all duration-300">
         <div className="container mx-auto flex justify-between items-center gap-4 px-4 sm:px-6 lg:px-8 h-full">
-          {/* Logo */}
           <Link
             to="/"
             className="z-50 group relative flex min-w-0 items-center"
             onClick={() => setIsOpen(false)}
-            aria-label="Torna alla home di Dimensione Immagine"
+            aria-label={`Torna alla home di ${siteSettings.siteName}`}
           >
             <span className="flex items-center gap-2 sm:gap-3">
               <span className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-visible sm:h-12 sm:w-12">
                 <span className="pointer-events-none absolute inset-0 blur-[14px] opacity-35 bg-[radial-gradient(circle,rgba(184,155,94,0.26),transparent_70%)]" />
                 <img
-                  src="/images/logo-elephant-golden-2025.png"
+                  src={
+                    siteSettings.logo?.src ||
+                    "/images/logo-elephant-golden-2025.png"
+                  }
                   alt=""
                   aria-hidden="true"
                   className="relative h-full w-full object-cover opacity-95"
@@ -91,20 +80,19 @@ export const Navbar: React.FC = () => {
                   DIMMI
                 </span>
                 <span className="mt-1 whitespace-nowrap font-serif text-[10px] tracking-[0.015em] text-brand-gold/88 max-[340px]:hidden sm:text-[13px]">
-                  Dimensione Immagine
+                  {siteSettings.siteName}
                 </span>
               </span>
             </span>
           </Link>
 
-          {/* Desktop Menu - Hidden on tablets/mobile (< 1280px) */}
           <div className="hidden xl:flex xl:items-center xl:justify-end xl:flex-1 xl:gap-4 2xl:gap-6">
-            {NAV_ITEMS.map((item) => {
-              const isActive = location.pathname === item.path;
+            {navigationItems.map((item) => {
+              const isActive = location.pathname === item.route;
               return (
                 <Link
-                  key={item.path}
-                  to={item.path}
+                  key={item.route}
+                  to={item.route}
                   className={`relative whitespace-nowrap text-[11px] 2xl:text-sm font-medium tracking-wide transition-colors duration-300 ${
                     isActive
                       ? "text-brand-gold"
@@ -120,7 +108,6 @@ export const Navbar: React.FC = () => {
             })}
           </div>
 
-          {/* Mobile/Tablet Toggle - Visible until desktop (> 1280px) */}
           <button
             type="button"
             onClick={() => setIsOpen(!isOpen)}
@@ -138,7 +125,6 @@ export const Navbar: React.FC = () => {
         </div>
       </nav>
 
-      {/* Mobile/Tablet Menu */}
       <div
         id="site-navigation-drawer"
         className={`fixed inset-x-0 top-16 bottom-0 z-40 overflow-y-auto border-t border-brand-accent/30 bg-brand-text-primary/96 backdrop-blur-sm transition-all duration-300 xl:hidden ${
@@ -152,13 +138,13 @@ export const Navbar: React.FC = () => {
             Navigazione
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {NAV_ITEMS.map((item) => (
+            {navigationItems.map((item) => (
               <Link
-                key={item.path}
-                to={item.path}
+                key={item.route}
+                to={item.route}
                 onClick={() => setIsOpen(false)}
                 className={`rounded-2xl border px-4 py-4 sm:px-5 sm:py-5 text-left transition-colors duration-300 ${
-                  location.pathname === item.path
+                  location.pathname === item.route
                     ? "border-brand-gold bg-brand-gold/10 text-brand-gold"
                     : "border-brand-gold/20 bg-white/3 text-brand-gold/82 hover:border-brand-gold hover:text-brand-gold"
                 }`}
