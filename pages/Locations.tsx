@@ -316,7 +316,7 @@ const buildNetworkPath = (locations: LocationData[]) => {
 
 const resetMarkerTransform = "translate(-50%, -50%)";
 const sharedLocationImage = {
-  src: "/images/sedi.jpeg",
+  src: "/images/sedi-transparent.png",
   alt: "Dimensione Immagine sedi",
 };
 
@@ -441,15 +441,19 @@ export const Locations: React.FC = () => {
   const goToNextGalleryImage = () => {
     if (selectedGalleryImages.length <= 1) return;
 
-    setSelectedGalleryIndex((current) => (current + 1) % selectedGalleryImages.length);
+    setSelectedGalleryIndex(
+      (current) => (current + 1) % selectedGalleryImages.length,
+    );
   };
 
   const getCardGalleryIndex = (store: LocationData) => {
     if (store.galleryImages.length <= 1) return 0;
 
     const rawIndex = cardGalleryIndices[store.id] ?? 0;
-    return ((rawIndex % store.galleryImages.length) + store.galleryImages.length) %
-      store.galleryImages.length;
+    return (
+      ((rawIndex % store.galleryImages.length) + store.galleryImages.length) %
+      store.galleryImages.length
+    );
   };
 
   const getCardGalleryImage = (store: LocationData) =>
@@ -787,7 +791,10 @@ export const Locations: React.FC = () => {
                   {selectedGalleryImage && (
                     <img
                       src={selectedGalleryImage.src}
-                      alt={selectedGalleryImage.alt || `Sede ${selectedLocation.name}`}
+                      alt={
+                        selectedGalleryImage.alt ||
+                        `Sede ${selectedLocation.name}`
+                      }
                       className="h-full w-full object-contain object-center p-6 sm:p-7"
                       loading="lazy"
                       decoding="async"
@@ -819,7 +826,8 @@ export const Locations: React.FC = () => {
                         <ChevronRight size={18} />
                       </button>
                       <div className="absolute bottom-4 right-4 rounded-full bg-black/58 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white backdrop-blur-sm">
-                        {selectedGalleryIndex + 1} / {selectedGalleryImages.length}
+                        {selectedGalleryIndex + 1} /{" "}
+                        {selectedGalleryImages.length}
                       </div>
                     </>
                   )}
@@ -1027,7 +1035,8 @@ export const Locations: React.FC = () => {
                             <ChevronRight size={16} />
                           </button>
                           <div className="absolute bottom-4 right-4 rounded-full bg-black/58 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white backdrop-blur-sm">
-                            {currentCardGalleryIndex + 1} / {store.galleryImages.length}
+                            {currentCardGalleryIndex + 1} /{" "}
+                            {store.galleryImages.length}
                           </div>
                         </>
                       )}
@@ -1073,7 +1082,6 @@ export const Locations: React.FC = () => {
                             {store.hours}
                           </span>
                         </div>
-
                       </div>
 
                       <div className="mt-auto pt-6">
