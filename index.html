@@ -58,10 +58,10 @@
         document.head.appendChild(script);
       };
 
-      // Keep legal scripts off the initial critical path.
+      // Keep legal scripts off the initial critical path without hijacking
+      // the first tap on touch devices before React click handlers run.
       const kickoff = () => {
         window.removeEventListener("scroll", kickoff, { passive: true });
-        window.removeEventListener("pointerdown", kickoff);
         window.removeEventListener("keydown", kickoff);
         if ("requestIdleCallback" in window) {
           window.requestIdleCallback(loadIubenda, { timeout: 3000 });
@@ -71,7 +71,6 @@
       };
 
       window.addEventListener("scroll", kickoff, { passive: true, once: true });
-      window.addEventListener("pointerdown", kickoff, { once: true });
       window.addEventListener("keydown", kickoff, { once: true });
       setTimeout(kickoff, 8000);
     })();

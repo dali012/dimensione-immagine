@@ -187,6 +187,40 @@ const polygonToPoints = (coordinates: MapCoordinate[]) =>
     )
     .join(" ");
 
+const buildGoogleMapsHref = ({
+  mapUrl,
+  name,
+  address,
+  city,
+  region,
+  latitude,
+  longitude,
+}: {
+  mapUrl: string;
+  name: string;
+  address: string;
+  city: string;
+  region: string;
+  latitude: number;
+  longitude: number;
+}) => {
+  const hasValidCoordinates =
+    Number.isFinite(latitude) &&
+    Number.isFinite(longitude) &&
+    !(latitude === 0 && longitude === 0);
+
+  if (hasValidCoordinates) {
+    return `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+  }
+
+  const query = [name, address, city, region].filter(Boolean).join(", ");
+  if (query) {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+  }
+
+  return mapUrl;
+};
+
 const getMarkerPosition = (location: LocationData) => {
   const leftPercent =
     ((location.longitude - MAP_VIEWPORT.minLongitude) /
@@ -281,6 +315,10 @@ const buildNetworkPath = (locations: LocationData[]) => {
 };
 
 const resetMarkerTransform = "translate(-50%, -50%)";
+const sharedLocationImage = {
+  src: "/images/sedi.jpeg",
+  alt: "Dimensione Immagine sedi",
+};
 
 export const Locations: React.FC = () => {
   const location = useLocation();
@@ -293,11 +331,23 @@ export const Locations: React.FC = () => {
         name: store.name,
         region: store.region,
         city: store.city,
-        mapUrl: store.mapUrl,
+        mapUrl: buildGoogleMapsHref({
+          mapUrl: store.mapUrl,
+          name: store.name,
+          address: store.address,
+          city: store.city,
+          region: store.region,
+          latitude: store.latitude,
+          longitude: store.longitude,
+        }),
         address: store.address,
-        image: store.image.src,
-        galleryImages:
-          store.galleryImages.length > 0 ? store.galleryImages : [store.image],
+        image: sharedLocationImage.src,
+        galleryImages: [
+          {
+            src: sharedLocationImage.src,
+            alt: `${store.name} - ${sharedLocationImage.alt}`,
+          },
+        ],
         phone: store.phone || undefined,
         hours: businessHoursToMultiline(store.hours),
         latitude: store.latitude,
@@ -515,8 +565,8 @@ export const Locations: React.FC = () => {
         </Reveal>
       </section>
 
-      <section className="container mx-auto px-4 sm:px-6 mb-16">
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.95fr)] xl:items-stretch">
+      <section className="container mx-auto mb-16 px-4 sm:px-6">
+        <div className="mx-auto grid max-w-[92rem] gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(360px,0.92fr)] xl:items-center 2xl:gap-8">
           <Reveal width="100%" className="h-full">
             <div className="relative h-full overflow-hidden rounded-[32px] border border-brand-gold/20 bg-[#060606] p-5 shadow-[0_28px_80px_rgba(17,17,17,0.24)] sm:p-7">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(184,155,94,0.18),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(184,155,94,0.12),transparent_28%)]" />
@@ -544,7 +594,7 @@ export const Locations: React.FC = () => {
                 <div className="relative overflow-hidden rounded-[26px] border border-brand-gold/12 bg-[#080808] p-3 sm:p-4">
                   <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.02),transparent_55%)]" />
 
-                  <div className="relative mx-auto aspect-[7/8] max-w-[44rem] overflow-hidden rounded-[22px] border border-brand-gold/10 bg-[#090909]">
+                  <div className="relative mx-auto aspect-[7/8] w-full max-w-[43rem] overflow-hidden rounded-[22px] border border-brand-gold/10 bg-[#090909] md:aspect-[7/7.75] xl:aspect-[7/7.2]">
                     <svg
                       viewBox={`0 0 ${MAP_VIEWPORT.width} ${MAP_VIEWPORT.height}`}
                       className="absolute inset-0 h-full w-full"
@@ -726,15 +776,19 @@ export const Locations: React.FC = () => {
             </div>
           </Reveal>
 
-          <Reveal width="100%" className="h-full" delay={0.08}>
+          <Reveal
+            width="100%"
+            className="h-full xl:flex xl:items-center xl:justify-center"
+            delay={0.08}
+          >
             {selectedLocation ? (
-              <div className="flex h-full flex-col overflow-hidden rounded-[32px] border border-brand-border bg-white shadow-[0_28px_80px_rgba(17,17,17,0.1)]">
-                <div className="relative aspect-[4/3] overflow-hidden">
+              <div className="flex h-full w-full max-w-[32rem] flex-col overflow-hidden rounded-[32px] border border-brand-border bg-white shadow-[0_28px_80px_rgba(17,17,17,0.1)] xl:min-h-[42rem]">
+                <div className="relative aspect-[4/3] overflow-hidden bg-[#0a0a0a]">
                   {selectedGalleryImage && (
                     <img
                       src={selectedGalleryImage.src}
                       alt={selectedGalleryImage.alt || `Sede ${selectedLocation.name}`}
-                      className="h-full w-full object-cover"
+                      className="h-full w-full object-contain object-center p-6 sm:p-7"
                       loading="lazy"
                       decoding="async"
                       sizes="(min-width: 1280px) 32vw, 100vw"
@@ -862,7 +916,7 @@ export const Locations: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <div className="flex h-full min-h-[24rem] flex-col items-center justify-center rounded-[32px] border border-dashed border-brand-border bg-white px-6 py-10 text-center">
+              <div className="flex h-full min-h-[24rem] w-full max-w-[32rem] flex-col items-center justify-center rounded-[32px] border border-dashed border-brand-border bg-white px-6 py-10 text-center xl:min-h-[42rem]">
                 <p className="font-serif text-2xl text-brand-text-primary">
                   Nessun punto vendita trovato
                 </p>
@@ -930,11 +984,11 @@ export const Locations: React.FC = () => {
                         : "border-brand-border hover:-translate-y-1 hover:border-brand-gold/45 hover:shadow-[0_20px_60px_rgba(17,17,17,0.08)]"
                     }`}
                   >
-                    <div className="relative aspect-[16/10] overflow-hidden">
+                    <div className="relative aspect-[16/10] overflow-hidden bg-[#0a0a0a]">
                       <img
                         src={currentCardImage.src}
                         alt={currentCardImage.alt || `Sede ${store.name}`}
-                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        className="h-full w-full object-contain object-center p-5 transition-transform duration-700 group-hover:scale-[1.02]"
                         loading="lazy"
                         decoding="async"
                         sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
@@ -1020,15 +1074,6 @@ export const Locations: React.FC = () => {
                           </span>
                         </div>
 
-                        {store.phone && (
-                          <div className="flex items-center gap-3">
-                            <Phone
-                              size={16}
-                              className="shrink-0 text-brand-accent"
-                            />
-                            <span>{store.phone}</span>
-                          </div>
-                        )}
                       </div>
 
                       <div className="mt-auto pt-6">

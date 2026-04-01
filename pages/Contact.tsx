@@ -1,4 +1,4 @@
-import { ArrowRight, Clock, Mail, MapPin, Phone } from "lucide-react";
+import { ArrowRight, Clock, MapPin } from "lucide-react";
 import React, { useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { SEO } from "../components/SEO/SEO";
@@ -272,56 +272,6 @@ export const Contact: React.FC = () => {
             </Reveal>
 
             <Reveal delay={0.15}>
-              <div className="flex items-start gap-4">
-                <div className="mt-1 p-2 bg-brand-gold/10 rounded-full text-brand-gold shrink-0">
-                  <Phone size={18} />
-                </div>
-                <div>
-                  <h3 className="font-bold text-gray-900 text-xs uppercase tracking-wide mb-1">
-                    {content.phoneBlockTitle}
-                  </h3>
-                  {siteSettings.primaryPhone && (
-                    <a
-                      href={`tel:${siteSettings.primaryPhone.replace(/\s+/g, "")}`}
-                      className="block text-gray-600 text-sm hover:text-brand-gold transition-colors mb-1"
-                    >
-                      {siteSettings.primaryPhone}
-                    </a>
-                  )}
-                  {siteSettings.primaryWhatsapp && (
-                    <a
-                      href={`https://wa.me/${siteSettings.primaryWhatsapp}`}
-                      className="text-[10px] font-bold text-brand-gold uppercase tracking-wide flex items-center gap-1 hover:underline"
-                    >
-                      {content.phoneLinkLabel}
-                    </a>
-                  )}
-                </div>
-              </div>
-            </Reveal>
-
-            <Reveal delay={0.2}>
-              <div className="flex items-start gap-4">
-                <div className="mt-1 p-2 bg-brand-gold/10 rounded-full text-brand-gold shrink-0">
-                  <Mail size={18} />
-                </div>
-                <div>
-                  <h3 className="font-bold text-gray-900 text-xs uppercase tracking-wide mb-1">
-                    {content.emailBlockTitle}
-                  </h3>
-                  {siteSettings.primaryEmail && (
-                    <a
-                      href={`mailto:${siteSettings.primaryEmail}`}
-                      className="text-gray-600 text-sm hover:text-brand-gold transition-colors break-all"
-                    >
-                      {siteSettings.primaryEmail}
-                    </a>
-                  )}
-                </div>
-              </div>
-            </Reveal>
-
-            <Reveal delay={0.25}>
               <div className="flex items-start gap-4">
                 <div className="mt-1 p-2 bg-brand-gold/10 rounded-full text-brand-gold shrink-0">
                   <Clock size={18} />

@@ -4,12 +4,6 @@ import { SEO } from "../components/SEO/SEO";
 import { useSiteContent } from "../contexts/SiteContentContext";
 import { useHomePageContent } from "../sanity/publicContent";
 
-const spotlightLayouts = [
-  "lg:col-span-7 lg:row-span-2 min-h-[32rem]",
-  "lg:col-span-5 min-h-[18rem]",
-  "lg:col-span-5 min-h-[18rem]",
-];
-
 const isInternalLink = (href: string) => href.startsWith("/");
 
 export const Home: React.FC = () => {
@@ -20,10 +14,42 @@ export const Home: React.FC = () => {
   const [videoFailed, setVideoFailed] = useState(false);
 
   const heroSlides = useMemo(
-    () => content.heroSlides.filter((item) => item.mediaType === "image" || item.mediaType === "video"),
+    () =>
+      content.heroSlides.filter(
+        (item) => item.mediaType === "image" || item.mediaType === "video",
+      ),
     [content.heroSlides],
   );
   const activeSlide = heroSlides[currentIndex] || heroSlides[0];
+  const featuredStyleCards = useMemo(() => {
+    const preferredCards = [
+      { title: "Donna", eyebrow: "Linea 01" },
+      { title: "Uomo", eyebrow: "Linea 02" },
+    ];
+
+    return preferredCards
+      .map(({ title, eyebrow }) => {
+        const match = content.spotlightCards.find(
+          (item) => item.title.trim().toLowerCase() === title.toLowerCase(),
+        );
+
+        return match ? { ...match, eyebrow } : null;
+      })
+      .filter(
+        (item): item is (typeof content.spotlightCards)[number] => item !== null,
+      );
+  }, [content.spotlightCards]);
+
+  const hasCuratedStyleCards = featuredStyleCards.length === 2;
+  const styleSectionTitle = hasCuratedStyleCards
+    ? "Due linee, una visione piu editoriale dello stile."
+    : content.styleSectionTitle;
+  const styleSectionDescription = hasCuratedStyleCards
+    ? "Donna e Uomo definiscono una proposta piu raffinata, pensata per chi cerca un'immagine curata, attuale e mai forzata: femminile o sartoriale, sempre distintiva."
+    : content.styleSectionDescription;
+  const cardsToRender = hasCuratedStyleCards
+    ? featuredStyleCards
+    : content.spotlightCards.slice(0, 2);
 
   useEffect(() => {
     if (!activeSlide || heroSlides.length <= 1) return;
@@ -52,7 +78,7 @@ export const Home: React.FC = () => {
         siteName={siteSettings.siteName}
       />
 
-      <section className="relative min-h-[75svh] md:min-h-screen flex items-center overflow-hidden pt-20 md:pt-0">
+      <section className="relative flex min-h-[max(75svh,32rem)] items-center overflow-hidden pt-24 pb-12 sm:pt-28 sm:pb-14 md:min-h-[max(100svh,36rem)] md:pt-24 md:pb-10 lg:pt-28 lg:pb-0">
         <div className="absolute inset-0 w-full h-full">
           <div className="absolute inset-0 w-full h-full">
             {activeSlide?.mediaType === "video" && activeSlide.video ? (
@@ -110,8 +136,8 @@ export const Home: React.FC = () => {
         <div className="absolute inset-0 bg-linear-to-t from-brand-bg via-transparent to-transparent z-10 md:hidden h-1/2 mt-auto" />
 
         <div className="container mx-auto px-4 sm:px-6 relative z-20 h-full flex items-center">
-          <div className="max-w-2xl pt-20 md:pt-0">
-            <h1 className="font-serif text-4xl sm:text-5xl md:text-7xl text-brand-text-primary mb-6 leading-[1.1]">
+          <div className="max-w-2xl">
+            <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-brand-text-primary mb-6 leading-[1.1]">
               {content.heroTitle}
               <span className="block italic text-brand-accent">
                 {content.heroAccent}
@@ -175,13 +201,13 @@ export const Home: React.FC = () => {
                 {content.styleSectionLabel}
               </span>
               <h2 className="mt-4 font-serif text-4xl text-brand-text-primary sm:text-5xl leading-[1.02]">
-                {content.styleSectionTitle}
+                {styleSectionTitle}
               </h2>
             </div>
 
             <div className="lg:justify-self-end lg:max-w-xl">
               <p className="text-base sm:text-lg leading-relaxed text-brand-text-secondary font-light">
-                {content.styleSectionDescription}
+                {styleSectionDescription}
               </p>
               <div className="mt-6 flex flex-wrap gap-3 text-[11px] font-medium uppercase tracking-[0.2em] text-brand-accent/80">
                 {content.styleTags.map((tag) => (
@@ -196,17 +222,17 @@ export const Home: React.FC = () => {
             </div>
           </div>
 
-          <div className="mt-12 grid grid-cols-1 gap-4 lg:grid-cols-12 lg:auto-rows-[minmax(17rem,1fr)]">
-            {content.spotlightCards.map((item, index) => {
+          <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-2 md:auto-rows-fr md:items-stretch">
+            {cardsToRender.map((item) => {
               const href = item.cta?.href || "/sedi";
-              const layoutClass =
-                spotlightLayouts[index] || "lg:col-span-4 min-h-[18rem]";
+              const cardClass =
+                "min-h-[24rem] sm:min-h-[28rem] lg:min-h-[34rem]";
 
               return isInternalLink(href) ? (
                 <Link
-                  key={`${item.title}-${index}`}
+                  key={item.title}
                   to={href}
-                  className={`group relative overflow-hidden rounded-[30px] border border-[#d9c7a5] bg-[#f8f3ea] shadow-[0_18px_50px_rgba(86,65,24,0.08)] ${layoutClass}`}
+                  className={`group relative overflow-hidden rounded-[30px] border border-[#d9c7a5] bg-[#f8f3ea] shadow-[0_18px_50px_rgba(86,65,24,0.08)] ${cardClass}`}
                 >
                   <img
                     src={item.image.src}
@@ -214,16 +240,13 @@ export const Home: React.FC = () => {
                     className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                     loading="lazy"
                     decoding="async"
-                    sizes="(min-width: 1024px) 50vw, 100vw"
+                    sizes="(min-width: 768px) 50vw, 100vw"
                   />
                   <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(248,243,234,0.06)_0%,rgba(248,243,234,0.16)_34%,rgba(248,243,234,0.96)_100%)]" />
                   <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(184,155,94,0.18),transparent_42%)] opacity-90" />
 
                   <div className="relative flex h-full flex-col justify-end p-6 sm:p-8">
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-brand-accent/80">
-                      {item.eyebrow}
-                    </span>
-                    <h3 className="mt-3 font-serif text-3xl text-brand-text-primary sm:text-4xl">
+                    <h3 className="font-serif text-3xl text-brand-text-primary sm:text-4xl">
                       {item.title}
                     </h3>
                     <p className="mt-4 max-w-md text-sm sm:text-base leading-relaxed text-brand-text-secondary font-light">
@@ -238,11 +261,11 @@ export const Home: React.FC = () => {
                 </Link>
               ) : (
                 <a
-                  key={`${item.title}-${index}`}
+                  key={item.title}
                   href={href}
                   target={item.cta?.newTab ? "_blank" : undefined}
                   rel={item.cta?.newTab ? "noreferrer" : undefined}
-                  className={`group relative overflow-hidden rounded-[30px] border border-[#d9c7a5] bg-[#f8f3ea] shadow-[0_18px_50px_rgba(86,65,24,0.08)] ${layoutClass}`}
+                  className={`group relative overflow-hidden rounded-[30px] border border-[#d9c7a5] bg-[#f8f3ea] shadow-[0_18px_50px_rgba(86,65,24,0.08)] ${cardClass}`}
                 >
                   <img
                     src={item.image.src}
@@ -250,16 +273,13 @@ export const Home: React.FC = () => {
                     className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                     loading="lazy"
                     decoding="async"
-                    sizes="(min-width: 1024px) 50vw, 100vw"
+                    sizes="(min-width: 768px) 50vw, 100vw"
                   />
                   <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(248,243,234,0.06)_0%,rgba(248,243,234,0.16)_34%,rgba(248,243,234,0.96)_100%)]" />
                   <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(184,155,94,0.18),transparent_42%)] opacity-90" />
 
                   <div className="relative flex h-full flex-col justify-end p-6 sm:p-8">
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-brand-accent/80">
-                      {item.eyebrow}
-                    </span>
-                    <h3 className="mt-3 font-serif text-3xl text-brand-text-primary sm:text-4xl">
+                    <h3 className="font-serif text-3xl text-brand-text-primary sm:text-4xl">
                       {item.title}
                     </h3>
                     <p className="mt-4 max-w-md text-sm sm:text-base leading-relaxed text-brand-text-secondary font-light">

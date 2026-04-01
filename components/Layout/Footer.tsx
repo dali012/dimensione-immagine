@@ -124,24 +124,6 @@ export const Footer: React.FC = () => {
                 </a>
               ))}
             </div>
-            <div className="flex flex-col space-y-2 text-sm text-brand-text-secondary font-light">
-              {siteSettings.primaryEmail && (
-                <a
-                  href={`mailto:${siteSettings.primaryEmail}`}
-                  className="hover:text-brand-accent transition-colors break-all"
-                >
-                  {siteSettings.primaryEmail}
-                </a>
-              )}
-              {siteSettings.primaryPhone && (
-                <a
-                  href={`tel:${siteSettings.primaryPhone.replace(/\s+/g, "")}`}
-                  className="hover:text-brand-accent transition-colors"
-                >
-                  {siteSettings.primaryPhone}
-                </a>
-              )}
-            </div>
           </div>
         </div>
 
