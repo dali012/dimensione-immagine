@@ -46,6 +46,13 @@ type MarkerSpreadOffset = {
   y: number;
 };
 
+type MarkerSpreadLayout = {
+  clusterThresholdPx: number;
+  baseRadius: number;
+  radiusStep: number;
+  maxRadius: number;
+};
+
 const MAP_VIEWPORT = {
   width: 860,
   height: 980,
@@ -57,7 +64,20 @@ const MAP_VIEWPORT = {
 
 const MAP_LATITUDE_LINES = [37, 39, 41, 43, 45, 47];
 const MAP_LONGITUDE_LINES = [7, 9, 11, 13, 15, 17, 19];
-const MARKER_CLUSTER_THRESHOLD_PX = 34;
+
+const DESKTOP_MARKER_SPREAD_LAYOUT: MarkerSpreadLayout = {
+  clusterThresholdPx: 34,
+  baseRadius: 10,
+  radiusStep: 4,
+  maxRadius: 28,
+};
+
+const MOBILE_MARKER_SPREAD_LAYOUT: MarkerSpreadLayout = {
+  clusterThresholdPx: 62,
+  baseRadius: 24,
+  radiusStep: 9,
+  maxRadius: 72,
+};
 
 const MAP_LANDMASSES: MapCoordinate[][] = [
   [
@@ -239,7 +259,10 @@ const getMarkerPosition = (location: LocationData) => {
   };
 };
 
-const buildMarkerSpreadOffsets = (locations: LocationData[]) => {
+const buildMarkerSpreadOffsets = (
+  locations: LocationData[],
+  layout: MarkerSpreadLayout = DESKTOP_MARKER_SPREAD_LAYOUT,
+) => {
   const renderedMarkers = locations.map((location) => {
     const markerPosition = getMarkerPosition(location);
     return {
@@ -272,7 +295,7 @@ const buildMarkerSpreadOffsets = (locations: LocationData[]) => {
           candidate.renderedY - current.renderedY,
         );
 
-        if (distance <= MARKER_CLUSTER_THRESHOLD_PX) {
+        if (distance <= layout.clusterThresholdPx) {
           visited.add(candidate.location.id);
           stack.push(candidate);
         }
@@ -284,7 +307,10 @@ const buildMarkerSpreadOffsets = (locations: LocationData[]) => {
     const sortedCluster = [...cluster].sort((a, b) =>
       a.location.name.localeCompare(b.location.name),
     );
-    const radius = Math.min(28, 10 + sortedCluster.length * 4);
+    const radius = Math.min(
+      layout.maxRadius,
+      layout.baseRadius + sortedCluster.length * layout.radiusStep,
+    );
 
     sortedCluster.forEach((entry, index) => {
       const angle =
@@ -371,6 +397,7 @@ export const Locations: React.FC = () => {
     locations[0]?.id ?? "",
   );
   const [selectedGalleryIndex, setSelectedGalleryIndex] = useState(0);
+  const [isCompactMap, setIsCompactMap] = useState(false);
   const [cardGalleryIndices, setCardGalleryIndices] = useState<
     Record<string, number>
   >({});
@@ -398,6 +425,25 @@ export const Locations: React.FC = () => {
     setSelectedGalleryIndex(0);
   }, [selectedLocationId]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const mediaQuery = window.matchMedia("(max-width: 639px)");
+    const syncCompactMap = (event?: MediaQueryListEvent) => {
+      setIsCompactMap(event ? event.matches : mediaQuery.matches);
+    };
+
+    syncCompactMap();
+
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", syncCompactMap);
+      return () => mediaQuery.removeEventListener("change", syncCompactMap);
+    }
+
+    mediaQuery.addListener(syncCompactMap);
+    return () => mediaQuery.removeListener(syncCompactMap);
+  }, []);
+
   const selectedLocation =
     filteredLocations.find((store) => store.id === selectedLocationId) ??
     filteredLocations[0] ??
@@ -421,8 +467,14 @@ export const Locations: React.FC = () => {
     [filteredLocations],
   );
   const markerSpreadOffsets = useMemo(
-    () => buildMarkerSpreadOffsets(filteredLocations),
-    [filteredLocations],
+    () =>
+      buildMarkerSpreadOffsets(
+        filteredLocations,
+        isCompactMap
+          ? MOBILE_MARKER_SPREAD_LAYOUT
+          : DESKTOP_MARKER_SPREAD_LAYOUT,
+      ),
+    [filteredLocations, isCompactMap],
   );
   const currentlyOpen = isOpenNow();
 
@@ -572,33 +624,33 @@ export const Locations: React.FC = () => {
       <section className="container mx-auto mb-16 px-4 sm:px-6">
         <div className="mx-auto grid max-w-[92rem] gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(360px,0.92fr)] xl:items-center 2xl:gap-8">
           <Reveal width="100%" className="h-full">
-            <div className="relative h-full overflow-hidden rounded-[32px] border border-brand-gold/20 bg-[#060606] p-5 shadow-[0_28px_80px_rgba(17,17,17,0.24)] sm:p-7">
+            <div className="relative h-full overflow-hidden rounded-[28px] border border-brand-gold/20 bg-[#060606] p-4 shadow-[0_28px_80px_rgba(17,17,17,0.24)] sm:rounded-[32px] sm:p-7">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(184,155,94,0.18),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(184,155,94,0.12),transparent_28%)]" />
 
-              <div className="relative z-10 flex h-full flex-col gap-5">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div className="relative z-10 flex h-full flex-col gap-4 sm:gap-5">
+                <div className="flex flex-col gap-2.5 sm:gap-3 sm:flex-row sm:items-end sm:justify-between">
                   <div>
                     <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-brand-gold/65">
                       {content.mapEyebrow}
                     </span>
-                    <h2 className="mt-3 font-serif text-3xl text-white sm:text-[2.35rem]">
+                    <h2 className="mt-2.5 font-serif text-[1.9rem] leading-tight text-white sm:mt-3 sm:text-[2.35rem]">
                       {content.mapTitle}
                     </h2>
-                    <p className="mt-3 max-w-2xl text-sm leading-relaxed text-brand-gold/78 sm:text-base">
+                    <p className="mt-2.5 max-w-2xl text-[13px] leading-relaxed text-brand-gold/78 sm:mt-3 sm:text-base">
                       {content.mapDescription}
                     </p>
                   </div>
 
-                  <div className="inline-flex items-center gap-2 rounded-full border border-brand-gold/15 bg-white/5 px-4 py-2 text-[11px] font-medium uppercase tracking-[0.18em] text-brand-gold/75">
+                  <div className="inline-flex items-center gap-2 self-start rounded-full border border-brand-gold/15 bg-white/5 px-3.5 py-1.5 text-[10px] font-medium uppercase tracking-[0.18em] text-brand-gold/75 sm:px-4 sm:py-2 sm:text-[11px]">
                     <Globe2 size={14} />
                     Italia
                   </div>
                 </div>
 
-                <div className="relative overflow-hidden rounded-[26px] border border-brand-gold/12 bg-[#080808] p-3 sm:p-4">
+                <div className="relative overflow-hidden rounded-[22px] border border-brand-gold/12 bg-[#080808] p-2.5 sm:rounded-[26px] sm:p-4">
                   <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.02),transparent_55%)]" />
 
-                  <div className="relative mx-auto aspect-[7/8] w-full max-w-[43rem] overflow-hidden rounded-[22px] border border-brand-gold/10 bg-[#090909] md:aspect-[7/7.75] xl:aspect-[7/7.2]">
+                  <div className="relative mx-auto aspect-[7/7.7] w-full max-w-[43rem] overflow-hidden rounded-[18px] border border-brand-gold/10 bg-[#090909] sm:aspect-[7/8] sm:rounded-[22px] md:aspect-[7/7.75] xl:aspect-[7/7.2]">
                     <svg
                       viewBox={`0 0 ${MAP_VIEWPORT.width} ${MAP_VIEWPORT.height}`}
                       className="absolute inset-0 h-full w-full"
@@ -756,12 +808,12 @@ export const Locations: React.FC = () => {
                               zIndex: isSelected ? 30 : 20 + index,
                             }}
                           >
-                            <span className="relative flex h-12 w-12 items-center justify-center">
+                            <span className="relative flex h-10 w-10 touch-manipulation items-center justify-center sm:h-12 sm:w-12">
                               {isSelected && (
-                                <span className="absolute h-12 w-12 rounded-full bg-brand-gold/25 animate-ping" />
+                                <span className="absolute h-10 w-10 rounded-full bg-brand-gold/25 animate-ping sm:h-12 sm:w-12" />
                               )}
                               <span
-                                className={`relative flex h-9 w-9 items-center justify-center rounded-full border text-[11px] font-semibold shadow-lg transition-all duration-300 ${
+                                className={`relative flex h-7.5 w-7.5 items-center justify-center rounded-full border text-[10px] font-semibold shadow-lg transition-all duration-300 sm:h-9 sm:w-9 sm:text-[11px] ${
                                   isSelected
                                     ? "border-brand-gold bg-brand-gold text-brand-text-primary"
                                     : "border-white/35 bg-[#111111]/92 text-brand-gold hover:border-brand-gold hover:bg-brand-gold/12"
