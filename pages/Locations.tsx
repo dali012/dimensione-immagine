@@ -969,7 +969,7 @@ export const Locations: React.FC = () => {
         </Reveal>
 
         {filteredLocations.length > 0 ? (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredLocations.map((store, index) => {
               const isSelected = selectedLocation?.id === store.id;
               const currentCardImage = getCardGalleryImage(store);
@@ -979,34 +979,34 @@ export const Locations: React.FC = () => {
                 <Reveal
                   key={store.id}
                   width="100%"
-                  delay={(index % 3) * 0.08}
+                  delay={(index % 4) * 0.08}
                   fullHeight
                 >
                   <article
                     onMouseEnter={() => setSelectedLocationId(store.id)}
                     onFocusCapture={() => setSelectedLocationId(store.id)}
                     onClick={() => setSelectedLocationId(store.id)}
-                    className={`group flex h-full flex-col overflow-hidden rounded-[28px] border bg-white transition-all duration-300 ${
+                    className={`group flex h-full flex-col rounded-[26px] border bg-white p-3 transition-all duration-300 sm:p-4 ${
                       isSelected
-                        ? "border-brand-gold shadow-[0_20px_60px_rgba(17,17,17,0.12)]"
-                        : "border-brand-border hover:-translate-y-1 hover:border-brand-gold/45 hover:shadow-[0_20px_60px_rgba(17,17,17,0.08)]"
+                        ? "border-brand-gold shadow-[0_18px_48px_rgba(17,17,17,0.12)]"
+                        : "border-brand-border hover:-translate-y-1 hover:border-brand-gold/45 hover:shadow-[0_18px_44px_rgba(17,17,17,0.08)]"
                     }`}
                   >
-                    <div className="relative aspect-[16/10] overflow-hidden bg-[#0a0a0a]">
+                    <div className="relative aspect-[16/9] overflow-hidden rounded-[22px] bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.18),_transparent_55%),linear-gradient(160deg,_#171717_0%,_#050505_100%)]">
                       <img
                         src={currentCardImage.src}
                         alt={currentCardImage.alt || `Sede ${store.name}`}
-                        className="h-full w-full object-contain object-center p-5 transition-transform duration-700 group-hover:scale-[1.02]"
+                        className="h-full w-full object-contain object-center p-8 transition-transform duration-700 group-hover:scale-[1.01] sm:p-10"
                         loading="lazy"
                         decoding="async"
-                        sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
+                        sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-                      <div className="absolute left-4 top-4 flex items-center gap-2">
-                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/92 text-xs font-semibold text-brand-text-primary">
+                      <div className="absolute left-3 top-3 flex items-center gap-2 sm:left-4 sm:top-4">
+                        <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/92 text-[11px] font-semibold text-brand-text-primary sm:h-8 sm:w-8 sm:text-xs">
                           {index + 1}
                         </span>
-                        <span className="rounded-full bg-black/45 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white backdrop-blur-sm">
+                        <span className="rounded-full bg-black/45 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-white backdrop-blur-sm sm:px-3 sm:text-[10px]">
                           {store.region}
                         </span>
                       </div>
@@ -1018,7 +1018,7 @@ export const Locations: React.FC = () => {
                               event.stopPropagation();
                               changeCardGalleryImage(store, -1);
                             }}
-                            className="absolute left-4 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/88 text-brand-text-primary shadow-lg backdrop-blur-sm transition-colors hover:bg-white"
+                            className="absolute left-3 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/88 text-brand-text-primary shadow-lg backdrop-blur-sm transition-colors hover:bg-white sm:left-4 sm:h-9 sm:w-9"
                             aria-label={`Immagine precedente per ${store.name}`}
                           >
                             <ChevronLeft size={16} />
@@ -1029,12 +1029,12 @@ export const Locations: React.FC = () => {
                               event.stopPropagation();
                               changeCardGalleryImage(store, 1);
                             }}
-                            className="absolute right-4 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/88 text-brand-text-primary shadow-lg backdrop-blur-sm transition-colors hover:bg-white"
+                            className="absolute right-3 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/88 text-brand-text-primary shadow-lg backdrop-blur-sm transition-colors hover:bg-white sm:right-4 sm:h-9 sm:w-9"
                             aria-label={`Immagine successiva per ${store.name}`}
                           >
                             <ChevronRight size={16} />
                           </button>
-                          <div className="absolute bottom-4 right-4 rounded-full bg-black/58 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white backdrop-blur-sm">
+                          <div className="absolute bottom-3 right-3 rounded-full bg-black/58 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white backdrop-blur-sm sm:bottom-4 sm:right-4">
                             {currentCardGalleryIndex + 1} /{" "}
                             {store.galleryImages.length}
                           </div>
@@ -1042,7 +1042,7 @@ export const Locations: React.FC = () => {
                       )}
                     </div>
 
-                    <div className="flex grow flex-col px-5 py-5 sm:px-6">
+                    <div className="flex grow flex-col px-1 pb-1 pt-4 sm:pt-5">
                       <div className="flex flex-wrap items-center gap-2">
                         <span
                           className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] ${
@@ -1058,11 +1058,11 @@ export const Locations: React.FC = () => {
                         </span>
                       </div>
 
-                      <h3 className="mt-4 font-serif text-2xl leading-tight text-brand-text-primary">
+                      <h3 className="mt-3 font-serif text-[1.35rem] leading-tight text-brand-text-primary sm:text-[1.5rem]">
                         {store.name}
                       </h3>
 
-                      <div className="mt-5 space-y-4 text-sm text-brand-text-secondary">
+                      <div className="mt-4 space-y-3.5 text-sm text-brand-text-secondary">
                         <div className="flex items-start gap-3">
                           <MapPin
                             size={16}
@@ -1084,7 +1084,7 @@ export const Locations: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="mt-auto pt-6">
+                      <div className="mt-auto pt-5">
                         <a
                           href={store.mapUrl}
                           target="_blank"
