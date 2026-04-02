@@ -38,3 +38,26 @@
   }
 }
 
+@layer utilities {
+  /* Keep the consent banner interactive without letting its full-screen overlay
+     swallow taps meant for the mobile navbar or other fixed UI. */
+  #iubenda-cs-banner.iubenda-cs-overlay {
+    inset: auto 0 0 0 !important;
+    height: auto !important;
+    pointer-events: none !important;
+  }
+
+  #iubenda-cs-banner.iubenda-cs-overlay .iubenda-cs-container {
+    pointer-events: none !important;
+  }
+
+  #iubenda-cs-banner.iubenda-cs-overlay .iubenda-cs-content,
+  #iubenda-cs-banner.iubenda-cs-overlay .iubenda-cs-rationale,
+  #iubenda-cs-banner.iubenda-cs-overlay .iubenda-cs-close-btn,
+  #iubenda-cs-banner.iubenda-cs-overlay .iubenda-cs-brand-badge,
+  #iubenda-cs-banner.iubenda-cs-overlay button,
+  #iubenda-cs-banner.iubenda-cs-overlay a {
+    pointer-events: auto !important;
+  }
+}
+

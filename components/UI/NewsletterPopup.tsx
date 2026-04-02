@@ -77,7 +77,7 @@ export const NewsletterPopup: React.FC = () => {
 
   return (
     <div
-      className="fixed inset-0 z-60 flex items-end sm:items-center justify-center bg-black/40 px-4 py-6 sm:p-6"
+      className="fixed inset-0 z-[100000010] flex items-end sm:items-center justify-center bg-black/40 px-4 py-6 sm:p-6"
       role="dialog"
       aria-modal="true"
       aria-label="Iscrizione newsletter"

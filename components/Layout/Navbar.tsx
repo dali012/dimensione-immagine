@@ -45,13 +45,17 @@ export const Navbar: React.FC = () => {
     return () => mediaQuery.removeListener(closeMenuOnDesktop);
   }, [isOpen]);
 
+  const toggleMenu = () => {
+    setIsOpen((current) => !current);
+  };
+
   return (
     <>
-      <nav className="fixed top-0 w-full z-50 bg-brand-text-primary border-b border-brand-accent/40 h-16 flex items-center transition-all duration-300">
+      <nav className="fixed top-0 w-full z-[100000000] bg-brand-text-primary border-b border-brand-accent/40 h-16 flex items-center transition-all duration-300">
         <div className="container mx-auto flex justify-between items-center gap-4 px-4 sm:px-6 lg:px-8 h-full">
           <Link
             to="/"
-            className="z-50 group relative flex min-w-0 items-center"
+            className="z-[100000000] group relative flex min-w-0 items-center"
             onClick={() => setIsOpen(false)}
             aria-label={`Torna alla home di ${siteSettings.siteName}`}
           >
@@ -110,11 +114,12 @@ export const Navbar: React.FC = () => {
 
           <button
             type="button"
-            onClick={() => setIsOpen(!isOpen)}
-            className="xl:hidden inline-flex h-11 w-11 items-center justify-center rounded-full border border-brand-gold/45 text-brand-gold hover:text-brand-gold hover:border-brand-gold transition-colors z-50 focus:outline-none"
+            onClick={toggleMenu}
+            className="xl:hidden inline-flex h-11 w-11 shrink-0 touch-manipulation items-center justify-center rounded-full border border-brand-gold/45 text-brand-gold hover:text-brand-gold hover:border-brand-gold transition-colors z-[100000000] focus:outline-none"
             aria-label={isOpen ? "Chiudi menu" : "Apri menu"}
             aria-expanded={isOpen}
             aria-controls="site-navigation-drawer"
+            aria-haspopup="menu"
           >
             {isOpen ? (
               <X size={24} className="cursor-pointer" />
@@ -127,7 +132,7 @@ export const Navbar: React.FC = () => {
 
       <div
         id="site-navigation-drawer"
-        className={`fixed inset-x-0 top-16 bottom-0 z-40 overflow-y-auto border-t border-brand-accent/30 bg-brand-text-primary/96 backdrop-blur-sm transition-all duration-300 xl:hidden ${
+        className={`fixed inset-x-0 top-16 bottom-0 z-[99999999] overflow-y-auto border-t border-brand-accent/30 bg-brand-text-primary/96 backdrop-blur-sm transition-all duration-300 xl:hidden ${
           isOpen
             ? "translate-y-0 opacity-100 pointer-events-auto"
             : "-translate-y-2 opacity-0 pointer-events-none"
